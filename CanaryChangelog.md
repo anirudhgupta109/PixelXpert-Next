@@ -1,3 +1,7 @@
+**canary-507**  
+- PixelXpert-Next: Update app icon SVG and vector drawables + refine install steps  
+- issue_template: Mandate android build number for bug reports  
+  
 **canary-506**  
 - pin wireless ADB to a static port via internal TCP forwarder  
 - physically move ComposeView on Android 17 so clock repositioning works  
