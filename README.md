@@ -15,13 +15,15 @@ Refer to [The original project](https://github.com/siavash79/PixelXpert#for-pixe
 
 [![Telegram URL](https://img.shields.io/badge/Telegram-Join-2CA5E?style=social&logo=telegram)](https://t.me/PixelXpert_Github)
 
-![Header Image](https://github.com/anirudhgupta109/PixelXpert-Next/blob/main/.github/PixelXpert_Banner_1280.jpg?raw=true)
+<p align="center">
+  <img src="PixelXpert.svg" alt="PixelXpert Logo" width="200" height="200" />
+</p>
 
-This is a mixed Xposed+Magisk module, which is made to allow customizations that are not originally designed in AOSP (Android Open Source Project). Please read thorough below before reaching to download links
+This is a mixed Xposed+Magisk/KSU module, which is made to allow customizations that are not originally designed in AOSP (Android Open Source Project). Please read thorough below before reaching to download links
 <hr>
 
 ### **Features:**
-Currently, PixelXpert offers customizations on different aspects of system framework and SystemUI, including:
+Currently, PixelXpert-Next offers customizations on different aspects of system framework and SystemUI, including:
 - Status bar
 - Quick Settings panel
 - Lock screen
@@ -34,7 +36,7 @@ Currently, PixelXpert offers customizations on different aspects of system frame
 <hr>
 
 ### **Compatibility:**
-PixelXpert is ONLY compatible with pixel stock firmware on Google Pixel devices. Any custom ROM (including PE, PE plus, pixel plus ui and etc) or stock ROM outside stock pixel firmware on Google pixel devices (e.g. OneUI on Samsung, MIUI on Xiaomi and etc) is not supported and may not be fully (or even at all) compatible.
+PixelXpert-Next is ONLY compatible with pixel stock firmware on Google Pixel devices. Any custom ROM (including PE, PE plus, pixel plus ui and etc) or stock ROM outside stock pixel firmware on Google pixel devices (e.g. OneUI on Samsung, MIUI on Xiaomi and etc) is not supported and may not be fully (or even at all) compatible.
 
 Here is the compatibility chart according to different android versions and QPRs:
 
@@ -44,20 +46,22 @@ Here is the compatibility chart according to different android versions and QPRs
 
 ### **Prerequisites:**
 - Compatible ROM (see Compatibility text above)
-- Device Rooted with KSU
-- A metamodule in KSU like [Mountify](https://github.com/backslashxx/mountify/releases/latest) or [NoMount](https://github.com/maxsteeel/nomount/releases/latest)
+- Device Rooted with Magisk/KSU
+- If you're using KSU, you need to flash a metamodule like [Mountify](https://github.com/backslashxx/mountify/releases/latest) or [NoMount](https://github.com/maxsteeel/nomount/releases/latest)
 - LSPosed (Zygisk Version preferred) (For Android 14+ use [LSPosed fork (Vector) by JingMatrix](https://github.com/JingMatrix/Vector/releases)) or the [closed source LSPosed by the original team](https://lsposed.zip)
 <hr>
 
 ### **How to install:**
-- Download the stable magisk module according to your firmware as mentioned above
-- Flash a metamodule in KSU that has overlay support like [Mountify](https://github.com/backslashxx/mountify/releases/latest) or [NoMount](https://github.com/maxsteeel/nomount/releases/latest)
+- Download the module according to your firmware as mentioned above
+- If you're using KSU, Flash a metamodule in KSU that has overlay support like [Mountify](https://github.com/backslashxx/mountify/releases/latest) or [NoMount](https://github.com/maxsteeel/nomount/releases/latest) [SKIP IF MAGISK!!!!]
 PS. You might need to configure your metamodule (in the case of Mountify, set `MOUNT_DEVICE_NAME` to `KSU` and ensure `mountify_mounts` is `2` and `mountify_custom_umount` is `0`)
 - Reboot
-- Install PixelXpert in KSU
-- Reboot (no bootloops are expected)
-- Grant root for PixelXpert in KSU (since it doesn't automatically request)
-- Open PixelXpert app and apply changes
+- Flash PixelXpert-Next in Magisk/KSU
+- Reboot
+- Grant root for PixelXpert-Next in KSU (doesn’t automatically request) or Magisk (if it’s not already)
+- Enable PixelXpert-Next in LSPosed if it isn’t already (ensure all the scopes are checked)
+- Preferably reboot
+- Open PixelXpert-Next app and apply changes
 
 <hr>
 
