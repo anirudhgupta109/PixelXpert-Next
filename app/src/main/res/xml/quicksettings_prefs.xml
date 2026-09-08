@@ -36,6 +36,13 @@
 			android:title="@string/qs_flashlight_level_global_title"
 			app:iconSpaceReserved="false" />
 
+		<sh.siava.pixelxpert.ui.preferences.MaterialSwitchPreference
+			android:defaultValue="false"
+			android:key="HighBrightnessFlashlightEnabled"
+			android:summary="Enable experimental high brightness flashlight (also used for gestures when enabled)"
+			android:title="High Brightness Flashlight"
+			app:iconSpaceReserved="false" />
+
 		<sh.siava.pixelxpert.ui.preferences.MaterialPreference
 			android:key="qs_tile_qty"
 			android:title="@string/qs_tile_qty_title"
