@@ -381,6 +381,7 @@ public class SystemUtils {
 		try {
 			if (Xprefs.getBoolean("HighBrightnessFlashlightEnabled", false) && HighBrightnessTorch.getInstance() != null && HighBrightnessTorch.getInstance().isSupported()) {
 				int customLevel = Math.max(1, Math.round(Xprefs.getInt("flashPCT", 50) / 100f * HighBrightnessTorch.getInstance().getMaxBrightness()));
+				android.util.Log.d("PixelXpert-HBTorch", "SystemUtils.setFlashInternalNoLevel: using HBTorch. enabled=" + enabled + " customLevel=" + customLevel);
 				HighBrightnessTorch.getInstance().setTorch(enabled, customLevel);
 				return;
 			}
@@ -512,6 +513,7 @@ public class SystemUtils {
 		try {
 			if (Xprefs.getBoolean("HighBrightnessFlashlightEnabled", false) && HighBrightnessTorch.getInstance() != null && HighBrightnessTorch.getInstance().isSupported()) {
 				int customLevel = Math.max(1, Math.round(Xprefs.getInt("flashPCT", 50) / 100f * HighBrightnessTorch.getInstance().getMaxBrightness()));
+				android.util.Log.d("PixelXpert-HBTorch", "SystemUtils.setFlashLevel: using HBTorch. enabled=" + enabled + " customLevel=" + customLevel);
 				HighBrightnessTorch.getInstance().setTorch(enabled, customLevel);
 				return;
 			}
