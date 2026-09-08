@@ -40,13 +40,11 @@ public class ReflectedClass
 	}
 
 	public static ReflectedClass of(String name, ClassLoader loader) {
-		try {
-			return new ReflectedClass(findClass(name, loader));
+		Class<?> c = findClassIfExists(name, loader);
+		if (c == null) {
+			c = findClassIfExists(name, frameworkClassloader);
 		}
-		catch (Throwable ignored)
-		{
-			return new ReflectedClass(findClass(name, frameworkClassloader));
-		}
+		return new ReflectedClass(c);
 	}
 
 	public static ReflectedClass of(String name) {
