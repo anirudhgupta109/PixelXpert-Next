@@ -79,10 +79,12 @@ jobs:
         cat .github/workflowFiles/FutureChanageLog.md >> releaseNotes.md
         cat .github/workflowFiles/ReleaseNotesTemplate.md >> releaseNotes.md
         
-        echo "$NEWVERNAME released in stable channel  " > telegram.msg
-        echo "  " >> telegram.msg
-        echo "Changelog:  " >> telegram.msg
+        echo "$NEWVERNAME released in stable channel" > telegram.msg
+        echo "" >> telegram.msg
+        echo "Changelog:" >> telegram.msg
         cat .github/workflowFiles/FutureChanageLog.md >> telegram.msg
+        echo "" >> telegram.msg
+        echo "URL: https://github.com/anirudhgupta109/PixelXpert-Next/releases/tag/$GITHUB_REF_NAME" >> telegram.msg
         
         echo 'TMessage<<EOF' >> $GITHUB_ENV
         cat telegram.msg >> $GITHUB_ENV
@@ -129,7 +131,3 @@ jobs:
         token: ${{ secrets.TELEGRAM_TOKEN }}
         message: ${{ env.TMessage }}
 
-    - name: Telegram File Attachment
-      if: env.TMessage != ''
-      run: |
-        curl -v "https://api.telegram.org/bot${{ secrets.TELEGRAM_TOKEN }}/sendMediaGroup?chat_id=${{ secrets.AOSPMODS_CHANNEL_ID }}&media=%5B%7B%22type%22%3A%22document%22%2C%20%22media%22%3A%22attach%3A%2F%2FXposed%22%7D%5D" -F Xposed="@output/PixelXpert-Next.zip"
