@@ -101,6 +101,20 @@
 		</service>
 
 		<service
+			android:name=".service.tileServices.HighBrightnessFlashlightTileService"
+			android:exported="true"
+			android:icon="@drawable/qs_flashlight_on"
+			android:label="High Brightness Flashlight"
+			android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+			<meta-data android:name="android.service.quicksettings.TOGGLEABLE_TILE"
+				android:value="true" />
+
+			<intent-filter>
+				<action android:name="android.service.quicksettings.action.QS_TILE" />
+			</intent-filter>
+		</service>
+
+		<service
 			android:name=".service.PixelXpertProxy"
 			android:exported="true"
 			tools:ignore="ExportedService" />

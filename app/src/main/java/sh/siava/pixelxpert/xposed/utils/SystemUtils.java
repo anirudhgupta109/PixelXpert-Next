@@ -131,6 +131,9 @@ public class SystemUtils {
 		if (getCameraManager() == null) {
 			return false;
 		}
+		if (HighBrightnessTorch.getInstance() != null && HighBrightnessTorch.getInstance().isOn()) {
+			return true;
+		}
 		return isTorchOn;
 	}
 
@@ -376,6 +379,11 @@ public class SystemUtils {
 
 	private void setFlashInternalNoLevel(boolean enabled, boolean animate) {
 		try {
+			if (Xprefs.getBoolean("HighBrightnessFlashlightEnabled", false) && HighBrightnessTorch.getInstance() != null && HighBrightnessTorch.getInstance().isSupported()) {
+				int customLevel = Math.max(1, Math.round(Xprefs.getInt("flashPCT", 50) / 100f * HighBrightnessTorch.getInstance().getMaxBrightness()));
+				HighBrightnessTorch.getInstance().setTorch(enabled, customLevel);
+				return;
+			}
 			if(animate && supportsFlashLevels())
 			{
 				if(enabled) {
@@ -502,6 +510,11 @@ public class SystemUtils {
 
 		private void setFlashLevel(boolean enabled, int level) {
 		try {
+			if (Xprefs.getBoolean("HighBrightnessFlashlightEnabled", false) && HighBrightnessTorch.getInstance() != null && HighBrightnessTorch.getInstance().isSupported()) {
+				int customLevel = Math.max(1, Math.round(Xprefs.getInt("flashPCT", 50) / 100f * HighBrightnessTorch.getInstance().getMaxBrightness()));
+				HighBrightnessTorch.getInstance().setTorch(enabled, customLevel);
+				return;
+			}
 			String flashID = getFlashID(getCameraManager());
 			if (enabled) {
 				if (supportsFlashLevels()) //good news. we can set levels
@@ -780,6 +793,7 @@ public class SystemUtils {
 				thread.start();
 				mHandler = new Handler(thread.getLooper());
 				mCameraManager = (CameraManager) mContext.getSystemService(Context.CAMERA_SERVICE);
+				HighBrightnessTorch.init(mCameraManager);
 
 				mSetTorchModeMethod = CameraManager.class.getMethod("setTorchMode", String.class, boolean.class);
 
