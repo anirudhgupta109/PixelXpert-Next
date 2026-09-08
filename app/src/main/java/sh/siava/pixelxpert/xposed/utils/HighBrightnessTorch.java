@@ -13,7 +13,6 @@ import android.hardware.camera2.params.SessionConfiguration;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
-import android.util.Log;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
@@ -21,8 +20,9 @@ import androidx.annotation.NonNull;
 import java.util.Collections;
 import java.util.concurrent.Executor;
 
+import sh.siava.pixelxpert.xposed.utils.toolkit.Logger;
+
 public class HighBrightnessTorch {
-    private static final String TAG = "PixelXpert-HBTorch";
     private static HighBrightnessTorch instance;
     private final CameraManager cameraManager;
     private final HandlerThread cameraThread = new HandlerThread("HighBrightnessTorchThread");
@@ -50,7 +50,7 @@ public class HighBrightnessTorch {
 
     public static void init(CameraManager manager) {
         if (instance == null) {
-            Log.d(TAG, "Initializing HighBrightnessTorch");
+            Logger.log("Initializing HighBrightnessTorch");
             instance = new HighBrightnessTorch(manager);
         }
     }
@@ -72,12 +72,12 @@ public class HighBrightnessTorch {
                 if (maxB != null && maxB > 0) {
                     cameraId = id;
                     maxBrightness = maxB;
-                    Log.d(TAG, "Found supported camera ID: " + cameraId + " with max brightness: " + maxBrightness);
+                    Logger.log("Found supported camera ID: " + cameraId + " with max brightness: " + maxBrightness);
                     break;
                 }
             }
         } catch (Exception e) {
-            Log.e(TAG, "Error initializing HighBrightnessTorch", e);
+            Logger.log("Error initializing HighBrightnessTorch", e);
         }
     }
 
@@ -94,7 +94,7 @@ public class HighBrightnessTorch {
     }
 
     public void setTorch(boolean enabled, int brightness) {
-        Log.d(TAG, "setTorch called: enabled=" + enabled + ", brightness=" + brightness + " (isSupported=" + isSupported() + ")");
+        Logger.log("setTorch called: enabled=" + enabled + ", brightness=" + brightness + " (isSupported=" + isSupported() + ")");
         if (!isSupported()) return;
         
         if (!enabled || brightness == 0) {
@@ -106,13 +106,13 @@ public class HighBrightnessTorch {
         desiredBrightness = Math.min(brightness, maxBrightness);
 
         if (!isOn && !isActivating) {
-            Log.d(TAG, "Opening camera...");
+            Logger.log("Opening camera...");
             openCamera();
         } else if (isOn) {
-            Log.d(TAG, "Camera already on, updating brightness to " + desiredBrightness);
+            Logger.log("Camera already on, updating brightness to " + desiredBrightness);
             performCapture();
         } else {
-            Log.d(TAG, "Camera is currently activating, waiting for it to open...");
+            Logger.log("Camera is currently activating, waiting for it to open...");
         }
     }
 
@@ -122,9 +122,9 @@ public class HighBrightnessTorch {
             cameraManager.openCamera(cameraId, new CameraDevice.StateCallback() {
                 @Override
                 public void onOpened(@NonNull CameraDevice cameraDevice) {
-                    Log.d(TAG, "Camera opened successfully");
+                    Logger.log("Camera opened successfully");
                     if (desiredBrightness == 0) {
-                        Log.d(TAG, "Desired brightness is 0 by the time camera opened. Closing.");
+                        Logger.log("Desired brightness is 0 by the time camera opened. Closing.");
                         cameraDevice.close();
                         isActivating = false;
                         return;
@@ -135,25 +135,25 @@ public class HighBrightnessTorch {
 
                 @Override
                 public void onDisconnected(@NonNull CameraDevice cameraDevice) {
-                    Log.d(TAG, "Camera disconnected");
+                    Logger.log("Camera disconnected");
                     closeCamera();
                 }
 
                 @Override
                 public void onError(@NonNull CameraDevice cameraDevice, int error) {
-                    Log.e(TAG, "Camera error: " + error);
+                    Logger.log("Camera error: " + error);
                     closeCamera();
                 }
             }, cameraHandler);
         } catch (SecurityException | CameraAccessException e) {
-            Log.e(TAG, "Failed to open camera", e);
+            Logger.log("Failed to open camera", e);
             closeCamera();
         }
     }
 
     private void createSession() {
         try {
-            Log.d(TAG, "Creating capture session");
+            Logger.log("Creating capture session");
             SessionConfiguration sessionConfiguration = new SessionConfiguration(
                     SessionConfiguration.SESSION_REGULAR,
                     Collections.singletonList(new OutputConfiguration(surface)),
@@ -161,9 +161,9 @@ public class HighBrightnessTorch {
                     new CameraCaptureSession.StateCallback() {
                         @Override
                         public void onConfigured(@NonNull CameraCaptureSession captureSession) {
-                            Log.d(TAG, "Capture session configured");
+                            Logger.log("Capture session configured");
                             if (desiredBrightness == 0) {
-                                Log.d(TAG, "Desired brightness is 0 by the time session configured. Closing.");
+                                Logger.log("Desired brightness is 0 by the time session configured. Closing.");
                                 captureSession.close();
                                 closeCamera();
                                 return;
@@ -176,13 +176,13 @@ public class HighBrightnessTorch {
 
                         @Override
                         public void onConfigureFailed(@NonNull CameraCaptureSession captureSession) {
-                            Log.e(TAG, "Capture session configure failed");
+                            Logger.log("Capture session configure failed");
                             closeCamera();
                         }
                     });
             camera.createCaptureSession(sessionConfiguration);
         } catch (Exception e) {
-            Log.e(TAG, "Failed to create session", e);
+            Logger.log("Failed to create session", e);
             closeCamera();
         }
     }
@@ -192,7 +192,7 @@ public class HighBrightnessTorch {
         
         try {
             if (curBrightness != desiredBrightness) {
-                Log.d(TAG, "Performing capture with brightness: " + desiredBrightness);
+                Logger.log("Performing capture with brightness: " + desiredBrightness);
                 curBrightness = desiredBrightness;
                 CaptureRequest.Builder builder = camera.createCaptureRequest(CameraDevice.TEMPLATE_MANUAL);
                 builder.addTarget(surface);
@@ -203,13 +203,13 @@ public class HighBrightnessTorch {
                 session.capture(builder.build(), null, cameraHandler);
             }
         } catch (Exception e) {
-            Log.e(TAG, "Failed to perform capture", e);
+            Logger.log("Failed to perform capture", e);
             closeCamera();
         }
     }
 
     public void closeCamera() {
-        Log.d(TAG, "closeCamera called");
+        Logger.log("closeCamera called");
         session = null;
         if (camera != null) {
             camera.close();
