@@ -93,6 +93,7 @@ public class StatusbarMods extends XposedModPack {
 	private final int leftClockPadding, rightClockPadding;
 	private static boolean isJetpackClock = false;
 	public static boolean isMovingClock = false;
+	private View mJetpackClockView = null;
 	private static int clockPosition = POSITION_LEFT;
 	private static int mAmPmStyle = AM_PM_STYLE_GONE;
 	private static boolean mShowSeconds = false;
@@ -1196,11 +1197,18 @@ public class StatusbarMods extends XposedModPack {
 	private void placeClock() {
 		View viewToMove = mClockView;
 		if (isJetpackClock) {
-			View composeView = findComposeView(mStatusbarStartSide);
-			if (composeView == null) composeView = findComposeView(mLeftExtraRowContainer);
-			if (composeView == null && mCenteredIconArea != null) composeView = findComposeView((ViewGroup) mCenteredIconArea);
-			if (composeView == null && mSystemIconArea != null) composeView = findComposeView((ViewGroup) mSystemIconArea.getParent());
-			if (composeView != null) viewToMove = composeView;
+			if (mJetpackClockView != null && mJetpackClockView.getParent() == null) {
+				mJetpackClockView = null; // View is detached or destroyed, find it again
+			}
+			if (mJetpackClockView == null) {
+				// The clock is natively created in mStatusbarStartSide, search there.
+				// If it's already moved, mJetpackClockView would not be null.
+				// We don't search the right side to avoid accidentally matching the battery ComposeView.
+				mJetpackClockView = findComposeView(mStatusbarStartSide);
+			}
+			if (mJetpackClockView != null) {
+				viewToMove = mJetpackClockView;
+			}
 		}
 
 		ViewGroup parent = (ViewGroup) viewToMove.getParent();
