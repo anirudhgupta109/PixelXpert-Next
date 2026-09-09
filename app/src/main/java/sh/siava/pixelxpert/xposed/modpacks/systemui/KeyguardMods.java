@@ -218,7 +218,11 @@ public class KeyguardMods extends XposedModPack {
 		ReflectedClass.of(CameraManager.class)
 				.before("setTorchMode")
 				.run(param -> {
-					SystemUtils.setFlash((Boolean) param.args[1], AnimateFlashlight);
+					boolean requestedState = (Boolean) param.args[1];
+					if (requestedState && SystemUtils.isFlashOn()) {
+						requestedState = false;
+					}
+					SystemUtils.setFlash(requestedState, AnimateFlashlight);
 					param.setResult(null);
 				});
 
