@@ -1,3 +1,10 @@
+**canary-508**  
+ONLY USE WITH ANDROID BETA BUILDS, DO NOT USE WITH ANDROID STABLE!!!!!!!!!!!!!!!!!!!!!
+- restrict ComposeView LayoutParams modifications and disposal hook to Jetpack clock only  
+- prevent ComposeView disposal when moving clock to the right side on Android 17  
+- github: Don't send zip on TG, keep on GH releases  
+- resolve ConcurrentModificationException and ClassNotFoundException in xposed hooks  
+  
 **canary-507**  
 - PixelXpert-Next: Update app icon SVG and vector drawables + refine install steps  
 - issue_template: Mandate android build number for bug reports  
