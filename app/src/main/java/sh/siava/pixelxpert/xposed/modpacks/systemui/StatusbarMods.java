@@ -92,6 +92,7 @@ public class StatusbarMods extends XposedModPack {
 	private static final int AM_PM_STYLE_GONE = 2;
 	private final int leftClockPadding, rightClockPadding;
 	private static boolean isJetpackClock = false;
+	public static boolean isMovingClock = false;
 	private static int clockPosition = POSITION_LEFT;
 	private static int mAmPmStyle = AM_PM_STYLE_GONE;
 	private static boolean mShowSeconds = false;
@@ -487,6 +488,16 @@ public class StatusbarMods extends XposedModPack {
 		ReflectedClass PhoneStatusBarViewClass = ReflectedClass.of("com.android.systemui.statusbar.phone.PhoneStatusBarView");
 		ReflectedClass NotificationIconContainerClass = ReflectedClass.of("com.android.systemui.statusbar.phone.NotificationIconContainer");
 		ReflectedClass TunerServiceImplClass = ReflectedClass.of("com.android.systemui.tuner.TunerServiceImpl");
+
+		try {
+			ReflectedClass AbstractComposeViewClass = ReflectedClass.of("androidx.compose.ui.platform.AbstractComposeView");
+			AbstractComposeViewClass.before("disposeComposition").run(param -> {
+				if (isMovingClock) {
+					param.setResult(null);
+				}
+			});
+		} catch (Throwable ignored) {}
+
 		ReflectedClass ConnectivityCallbackHandlerClass = ReflectedClass.of("com.android.systemui.statusbar.connectivity.CallbackHandler");
 		ReflectedClass NotificationIconContainerAlwaysOnDisplayViewModelClass = ReflectedClass.ofIfPossible("com.android.systemui.statusbar.notification.icon.ui.viewmodel.NotificationIconContainerAlwaysOnDisplayViewModel");
 		ReflectedClass NotificationIconContainerStatusBarViewModelClass = ReflectedClass.ofIfPossible("com.android.systemui.statusbar.notification.icon.ui.viewmodel.NotificationIconContainerStatusBarViewModel");
@@ -1214,14 +1225,33 @@ public class StatusbarMods extends XposedModPack {
 			case POSITION_RIGHT:
 				viewToMove.setPadding(rightClockPadding, 0, 0, 0);
 				targetArea = ((ViewGroup) mSystemIconArea.getParent());
+				// Leaving index as null appends it to the very end (right-most element)
 				break;
 		}
-		if (parent != null) parent.removeView(viewToMove);
-		if (index != null) {
-			targetArea.addView(viewToMove, index);
-		} else {
-			//noinspection DataFlowIssue
-			targetArea.addView(viewToMove);
+		
+		if (targetArea == null || targetArea == parent) return;
+
+		isMovingClock = true;
+		try {
+			if (parent != null) parent.removeView(viewToMove);
+			
+			ViewGroup.LayoutParams lp = viewToMove.getLayoutParams();
+			if (lp != null) {
+				if (clockPosition == POSITION_RIGHT) {
+					lp.width = ViewGroup.LayoutParams.WRAP_CONTENT;
+				} else {
+					lp.width = ViewGroup.LayoutParams.MATCH_PARENT;
+				}
+				viewToMove.setLayoutParams(lp);
+			}
+
+			if (index != null) {
+				targetArea.addView(viewToMove, index);
+			} else {
+				targetArea.addView(viewToMove);
+			}
+		} finally {
+			isMovingClock = false;
 		}
 	}
 
