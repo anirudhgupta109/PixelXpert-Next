@@ -1231,18 +1231,22 @@ public class StatusbarMods extends XposedModPack {
 		
 		if (targetArea == null || targetArea == parent) return;
 
-		isMovingClock = true;
+		if (isJetpackClock) {
+			isMovingClock = true;
+		}
 		try {
 			if (parent != null) parent.removeView(viewToMove);
 			
-			ViewGroup.LayoutParams lp = viewToMove.getLayoutParams();
-			if (lp != null) {
-				if (clockPosition == POSITION_RIGHT) {
-					lp.width = ViewGroup.LayoutParams.WRAP_CONTENT;
-				} else {
-					lp.width = ViewGroup.LayoutParams.MATCH_PARENT;
+			if (isJetpackClock) {
+				ViewGroup.LayoutParams lp = viewToMove.getLayoutParams();
+				if (lp != null) {
+					if (clockPosition == POSITION_RIGHT) {
+						lp.width = ViewGroup.LayoutParams.WRAP_CONTENT;
+					} else {
+						lp.width = ViewGroup.LayoutParams.MATCH_PARENT;
+					}
+					viewToMove.setLayoutParams(lp);
 				}
-				viewToMove.setLayoutParams(lp);
 			}
 
 			if (index != null) {
