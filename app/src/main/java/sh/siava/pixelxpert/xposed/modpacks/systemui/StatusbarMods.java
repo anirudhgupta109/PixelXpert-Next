@@ -717,8 +717,7 @@ public class StatusbarMods extends XposedModPack {
 		//clock mods
 		try {
 			ReflectedClass clockInteractorClass = ReflectedClass.of("com.android.systemui.clock.domain.interactor.ClockInteractor");
-			isJetpackClock = true;
-			clockInteractorClass.after("getClockTextFormatString").run(param -> {
+			java.util.Set<?> hooks = clockInteractorClass.after("getClockTextFormatString").run(param -> {
 				String orig = (String) param.getResult();
 				String customFormat = orig;
 
@@ -762,6 +761,7 @@ public class StatusbarMods extends XposedModPack {
 				}
 				param.setResult(customFormat);
 			});
+			isJetpackClock = (hooks != null && !hooks.isEmpty());
 		} catch (Throwable t) {
 			log("ClockInteractor not found, skipping Android 17 Compose hook.");
 		}
@@ -1245,7 +1245,7 @@ public class StatusbarMods extends XposedModPack {
 		try {
 			if (parent != null) parent.removeView(viewToMove);
 			
-			if (isJetpackClock) {
+			if (isJetpackClock && viewToMove == mJetpackClockView) {
 				ViewGroup.LayoutParams lp = viewToMove.getLayoutParams();
 				if (lp != null) {
 					if (clockPosition == POSITION_RIGHT) {
