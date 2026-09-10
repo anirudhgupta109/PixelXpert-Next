@@ -1,3 +1,7 @@
+**canary-510**  
+- force leading zero on 24-hour clock for Android 17 QPR2 (0:xx -> 00:xx)  
+- Stable release  
+  
 **canary-509**  
 ONLY USE WITH ANDROID BETA BUILDS, DO NOT USE WITH ANDROID STABLE!!!!!!!!!!!!!!!!!!!!!
 - OwnPrefs: Fix GitHub URL to point to fork  

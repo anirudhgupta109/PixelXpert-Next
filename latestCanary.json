@@ -1,6 +1,6 @@
 {
-    "version": "canary-509",
-    "versionCode": 509,
+    "version": "canary-510",
+    "versionCode": 510,
     "zipUrl_Xposed": "https://github.com/anirudhgupta109/PixelXpert-Next/releases/download/canary_builds/PixelXpert-Next.zip",
     "zipUrl": "https://github.com/anirudhgupta109/PixelXpert-Next/releases/download/canary_builds/PixelXpert-Next.zip",
     "changelog": "https://raw.githubusercontent.com/anirudhgupta109/PixelXpert-Next/px_files/CanaryChangelog.md"
