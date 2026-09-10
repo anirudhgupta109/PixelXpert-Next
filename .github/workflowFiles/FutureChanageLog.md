@@ -1,2 +1,5 @@
-- Fix Pixel Build Number compatibility filter
-- Fix immediate lock on double tap to sleep anywhere
+- Allow to pin a port for wireless debugging (adb) - still adheres to the secure latest TLS standard
+- Fix clock repositioning on Android 17 (center clock works too!)
+- Add option to move clock to second row when multi row notifications are enabled
+- New icon! (inspired by KSU-Next for obvious reasons)
+- Fix some log spam
