@@ -1,3 +1,8 @@
+**canary-509**  
+- OwnPrefs: Fix GitHub URL to point to fork  
+- strictly gate Jetpack clock detection to prevent false positives on non-Jetpack clock  
+- cache clock ComposeView to prevent accidentally moving the battery ComposeView on Android 17  
+  
 **canary-508**  
 ONLY USE WITH ANDROID BETA BUILDS, DO NOT USE WITH ANDROID STABLE!!!!!!!!!!!!!!!!!!!!!
 - restrict ComposeView LayoutParams modifications and disposal hook to Jetpack clock only  
