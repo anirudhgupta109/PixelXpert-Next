@@ -1,7 +1,7 @@
 {
-    "version": "v6.0.2",
-    "versionCode": 504,
+    "version": "v6.0.3",
+    "versionCode": 509,
     "changelog": "https://raw.githubusercontent.com/anirudhgupta109/PixelXpert-Next/px_files/StableChangelog.md",
-    "zipUrl": "https://github.com/anirudhgupta109/PixelXpert-Next/releases/download/v6.0.2/PixelXpert-Next.zip",
-    "zipUrl_Xposed": "https://github.com/anirudhgupta109/PixelXpert-Next/releases/download/v6.0.2/PixelXpert-Next.zip"
+    "zipUrl": "https://github.com/anirudhgupta109/PixelXpert-Next/releases/download/v6.0.3/PixelXpert-Next.zip",
+    "zipUrl_Xposed": "https://github.com/anirudhgupta109/PixelXpert-Next/releases/download/v6.0.3/PixelXpert-Next.zip"
 }
