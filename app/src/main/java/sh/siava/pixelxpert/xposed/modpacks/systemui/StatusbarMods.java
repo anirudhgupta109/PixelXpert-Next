@@ -721,6 +721,9 @@ public class StatusbarMods extends XposedModPack {
 				String orig = (String) param.getResult();
 				String customFormat = orig;
 
+				// Force leading zero for 24-hour format (e.g. 00:23 instead of 0:23)
+				customFormat = customFormat.replaceAll("(?<!H)H(?!H)", "HH");
+
 				// 1. apply am/pm (Since Compose renders as String, this will be 100% size)
 				if (mAmPmStyle != AM_PM_STYLE_GONE && !customFormat.contains("a")) {
 					customFormat = customFormat + "\u202fa";
