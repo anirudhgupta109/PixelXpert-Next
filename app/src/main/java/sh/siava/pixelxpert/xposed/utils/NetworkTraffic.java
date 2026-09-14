@@ -109,15 +109,9 @@ public class NetworkTraffic extends FrameLayout {
 		public void handleMessage(@NonNull Message msg) {
 			long timeDelta = SystemClock.elapsedRealtime() - lastUpdateTime;
 
-			if (timeDelta < refreshInterval * 1000L) {
-				if (msg.what != 1) {
-					// we just updated the view, nothing further to do
-					return;
-				}
-				if (timeDelta < 1) {
-					// Can't div by 0 so make sure the value displayed is minimal
-					timeDelta = Long.MAX_VALUE;
-				}
+			if (timeDelta < 1) {
+				// Can't div by 0 so make sure the value displayed is minimal
+				timeDelta = Long.MAX_VALUE;
 			}
 			lastUpdateTime = SystemClock.elapsedRealtime();
 
@@ -345,6 +339,7 @@ public class NetworkTraffic extends FrameLayout {
 		if (mAttached) {
 			totalRxBytes = TrafficStats.getTotalRxBytes();
 			lastUpdateTime = SystemClock.elapsedRealtime();
+			clearHandlerCallbacks();
 			mTrafficHandler.sendEmptyMessage(1);
 		}
 	}
