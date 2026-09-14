@@ -1,3 +1,6 @@
+**canary-512**  
+- prevent handler freeze and massive speed spikes  
+  
 **canary-511**  
 - enable custom text variables (temperature, persian date, network stats) for Android 17 Compose clock via SimpleDateFormat override  
   
