@@ -1,3 +1,6 @@
+**canary-511**  
+- enable custom text variables (temperature, persian date, network stats) for Android 17 Compose clock via SimpleDateFormat override  
+  
 **canary-510**  
 - force leading zero on 24-hour clock for Android 17 QPR2 (0:xx -> 00:xx)  
 - Stable release  
