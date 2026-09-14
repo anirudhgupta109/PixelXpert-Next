@@ -735,34 +735,42 @@ public class StatusbarMods extends XposedModPack {
 				customFormat = customFormat.trim();
 
 				// 3. custom text before / after
-				java.util.function.Function<String, String> convertToPattern = (input) -> {
+				java.util.function.Function<String, String> escapeAll = (input) -> {
 					if (input == null || input.isEmpty()) return "";
-					StringBuilder pat = new StringBuilder();
-					java.util.regex.Pattern p = java.util.regex.Pattern.compile("\\$G([A-Za-z]+)");
-					java.util.regex.Matcher m = p.matcher(input);
-					int lastEnd = 0;
-					while (m.find()) {
-						String literal = input.substring(lastEnd, m.start());
-						if (!literal.isEmpty()) {
-							pat.append("'").append(literal.replace("'", "''")).append("'");
-						}
-						pat.append(m.group(1));
-						lastEnd = m.end();
-					}
-					String literal = input.substring(lastEnd);
-					if (!literal.isEmpty()) {
-						pat.append("'").append(literal.replace("'", "''")).append("'");
-					}
-					return pat.toString();
+					return "'" + input.replace("'", "''") + "'";
 				};
 				
 				if (!mStringFormatBefore.isEmpty()) {
-					customFormat = convertToPattern.apply(mStringFormatBefore.trim()) + "\u202f" + customFormat;
+					customFormat = escapeAll.apply(mStringFormatBefore.trim()) + "\u202f" + customFormat;
 				}
 				if (!mStringFormatAfter.isEmpty()) {
-					customFormat = customFormat + "\u202f" + convertToPattern.apply(mStringFormatAfter.trim());
+					customFormat = customFormat + "\u202f" + escapeAll.apply(mStringFormatAfter.trim());
 				}
 				param.setResult(customFormat);
+			});
+			
+			clockInteractorClass.after("createFormatters").run(param -> {
+				Object formatters = param.getResult();
+				if (formatters == null) return;
+
+				java.text.SimpleDateFormat amPmShown = (java.text.SimpleDateFormat) getObjectField(formatters, "clockTextAmPmShown");
+				java.text.SimpleDateFormat amPmGone = (java.text.SimpleDateFormat) getObjectField(formatters, "clockTextAmPmGone");
+
+				class PXNClockFormatter extends java.text.SimpleDateFormat {
+					public PXNClockFormatter(String pattern) {
+						super(pattern);
+					}
+					@Override
+					public StringBuffer format(java.util.Date date, StringBuffer toAppendTo, java.text.FieldPosition pos) {
+						StringBuffer original = super.format(date, new StringBuffer(), pos);
+						CharSequence formatted = stringFormatter.formatString(original.toString());
+						toAppendTo.append(formatted);
+						return toAppendTo;
+					}
+				}
+
+				setObjectField(formatters, "clockTextAmPmShown", new PXNClockFormatter(amPmShown.toPattern()));
+				setObjectField(formatters, "clockTextAmPmGone", new PXNClockFormatter(amPmGone.toPattern()));
 			});
 			isJetpackClock = (hooks != null && !hooks.isEmpty());
 		} catch (Throwable t) {
