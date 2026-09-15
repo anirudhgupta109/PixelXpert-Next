@@ -41,6 +41,7 @@ import java.lang.ref.WeakReference;
 import sh.siava.pixelxpert.R;
 import sh.siava.pixelxpert.xposed.XPLauncher;
 import sh.siava.pixelxpert.xposed.modpacks.systemui.StatusbarMods;
+import de.robv.android.xposed.XposedBridge;
 import sh.siava.pixelxpert.xposed.utils.toolkit.ObjectTools;
 
 @SuppressLint("ViewConstructor")
@@ -120,6 +121,8 @@ public class NetworkTraffic extends FrameLayout {
 			long newTotalTxBytes = TrafficStats.getTotalTxBytes();
 			long rxData = newTotalRxBytes - totalRxBytes;
 			long txData = newTotalTxBytes - totalTxBytes;
+			
+			XposedBridge.log("[PixelXpert NTSB] handleMessage: rxData=" + rxData + ", txData=" + txData + ", timeDelta=" + timeDelta + ", hide=" + shouldHide(rxData, txData, timeDelta));
 
 
 			if (shouldHide(rxData, txData, timeDelta)) {
@@ -188,6 +191,7 @@ public class NetworkTraffic extends FrameLayout {
 	}
 
 	private void hide(boolean trafficRelated) {
+		XposedBridge.log("[PixelXpert NTSB] hide() trafficRelated=" + trafficRelated);
 		if (!trafficRelated) {
 			mViewVisible = false;
 		} else {
@@ -199,6 +203,7 @@ public class NetworkTraffic extends FrameLayout {
 
 	protected void makeVisible(boolean trafficRelated) {
 		try {
+			XposedBridge.log("[PixelXpert NTSB] makeVisible() trafficRelated=" + trafficRelated + ", mViewVisible=" + mViewVisible + ", mTrafficVisible=" + mTrafficVisible);
 			if (trafficRelated) mTrafficVisible = true;
 			else mViewVisible = true;
 
@@ -214,8 +219,11 @@ public class NetworkTraffic extends FrameLayout {
 				lastInstanceParamUpdate = lastParamUpdate;
 			}
 			setVisibility(View.VISIBLE);
+			XposedBridge.log("[PixelXpert NTSB] makeVisible() success, view is VISIBLE");
 		}
-		catch (Throwable ignored){}
+		catch (Throwable t){
+			XposedBridge.log("[PixelXpert NTSB] makeVisible() exception: "); XposedBridge.log(t);
+		}
 	}
 
 	private NetworkTraffic(Context context, boolean onStatusbar) {
@@ -228,6 +236,7 @@ public class NetworkTraffic extends FrameLayout {
 
 	private NetworkTraffic(Context context, AttributeSet attrs, int defStyle, boolean onStatusbar) {
 		super(context, attrs, defStyle);
+		XposedBridge.log("[PixelXpert NTSB] NetworkTraffic instantiated, onStatusbar=" + onStatusbar);
 		mContext = context;
 		mTextView = new TextView(mContext);
 		iconLayout = new LinearLayout(mContext);
@@ -296,6 +305,7 @@ public class NetworkTraffic extends FrameLayout {
 	@Override
 	protected void onAttachedToWindow() {
 		super.onAttachedToWindow();
+		XposedBridge.log("[PixelXpert NTSB] onAttachedToWindow() mAttached=" + mAttached);
 		if (!mAttached) {
 			mAttached = true;
 			IntentFilter filter = new IntentFilter();
@@ -308,6 +318,7 @@ public class NetworkTraffic extends FrameLayout {
 	@Override
 	protected void onDetachedFromWindow() {
 		super.onDetachedFromWindow();
+		XposedBridge.log("[PixelXpert NTSB] onDetachedFromWindow() mAttached=" + mAttached);
 		clearHandlerCallbacks();
 		if (mAttached) {
 			mContext.unregisterReceiver(mIntentReceiver);
@@ -338,6 +349,7 @@ public class NetworkTraffic extends FrameLayout {
 	public void update() {
 		if (mAttached) {
 			totalRxBytes = TrafficStats.getTotalRxBytes();
+			XposedBridge.log("[PixelXpert NTSB] update() totalRxBytes=" + totalRxBytes);
 			lastUpdateTime = SystemClock.elapsedRealtime();
 			clearHandlerCallbacks();
 			mTrafficHandler.sendEmptyMessage(1);
@@ -400,3 +412,4 @@ public class NetworkTraffic extends FrameLayout {
 		}
 	}
 }
+

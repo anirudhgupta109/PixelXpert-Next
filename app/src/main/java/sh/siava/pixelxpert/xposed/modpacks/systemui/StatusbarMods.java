@@ -75,6 +75,7 @@ import sh.siava.pixelxpert.xposed.utils.StringFormatter.FormattedStringCallback;
 import sh.siava.pixelxpert.xposed.utils.SystemUtils;
 import sh.siava.pixelxpert.xposed.utils.batteryStyles.BatteryBarView;
 import sh.siava.pixelxpert.xposed.utils.reflection.ReflectedClass;
+import de.robv.android.xposed.XposedBridge;
 import sh.siava.pixelxpert.xposed.utils.toolkit.ResourceTools;
 
 /**
@@ -700,8 +701,10 @@ public class StatusbarMods extends XposedModPack {
 						initVoData();
 					}
 
+					XposedBridge.log("[PixelXpert NTSB] onViewAttached: networkOnSBEnabled=" + networkOnSBEnabled);
 					if (networkOnSBEnabled) {
 						networkTrafficSB = NetworkTraffic.getInstance(mContext, true);
+						XposedBridge.log("[PixelXpert NTSB] onViewAttached: networkTrafficSB=" + networkTrafficSB);
 						placeNTSB();
 					}
 
@@ -885,6 +888,7 @@ public class StatusbarMods extends XposedModPack {
 	@SuppressLint("DiscouragedApi")
 	private void makeLeftSplitArea() {
 		mNotificationIconContainer = mPhoneStatusbarView.findViewById(idOf("notificationIcons"));
+		XposedBridge.log("[PixelXpert NTSB] makeLeftSplitArea: mNotificationIconContainer=" + mNotificationIconContainer);
 		if (mNotificationIconContainer == null) return;
 
 		mNotificationContainerContainer = new LinearLayout(mContext);
@@ -984,7 +988,9 @@ public class StatusbarMods extends XposedModPack {
 			mLeftExtraRowContainer.getLayoutParams().height = ((mNotificationContainerContainer != null && mNotificationContainerContainer.getVisibility() == VISIBLE) ? statusbarHeight / 2 : MATCH_PARENT);
 		}
 		if (networkOnSBEnabled && networkTrafficSB != null && networkTrafficSB.getLayoutParams() != null) {
-			networkTrafficSB.getLayoutParams().height = statusbarHeight / ((networkTrafficPosition == POSITION_LEFT && notificationAreaMultiRow) ? 2 : 1);
+			int targetHeight = statusbarHeight / ((networkTrafficPosition == POSITION_LEFT && notificationAreaMultiRow) ? 2 : 1);
+			networkTrafficSB.getLayoutParams().height = targetHeight;
+			XposedBridge.log("[PixelXpert NTSB] setHeights(): height=" + targetHeight + ", originalStatusbarHeight=" + statusbarHeight);
 		}
 	}
 	//endregion
@@ -1143,6 +1149,7 @@ public class StatusbarMods extends XposedModPack {
 
 	//region network traffic related
 	private void placeNTSB() {
+		XposedBridge.log("[PixelXpert NTSB] placeNTSB() called, networkTrafficSB=" + networkTrafficSB);
 		if (networkTrafficSB == null) {
 			return;
 		}
@@ -1154,6 +1161,7 @@ public class StatusbarMods extends XposedModPack {
 
 		try {
 			LinearLayout.LayoutParams ntsbLayoutP;
+			XposedBridge.log("[PixelXpert NTSB] networkTrafficPosition=" + networkTrafficPosition + ", mSystemIconArea=" + mSystemIconArea + ", mStatusbarStartSide=" + mStatusbarStartSide);
 			switch (networkTrafficPosition) {
 				case POSITION_RIGHT:
 					((ViewGroup) mSystemIconArea.getParent()).addView(networkTrafficSB, 0);
@@ -1175,7 +1183,10 @@ public class StatusbarMods extends XposedModPack {
 			ntsbLayoutP = (LinearLayout.LayoutParams) networkTrafficSB.getLayoutParams();
 			ntsbLayoutP.gravity = Gravity.CENTER_VERTICAL;
 			networkTrafficSB.setLayoutParams(ntsbLayoutP);
-		} catch (Throwable ignored) {}
+			XposedBridge.log("[PixelXpert NTSB] placeNTSB() finished successfully. parent=" + networkTrafficSB.getParent());
+		} catch (Throwable t) {
+			XposedBridge.log("[PixelXpert NTSB] placeNTSB() exception: "); XposedBridge.log(t);
+		}
 	}
 	//endregion
 
@@ -1355,3 +1366,4 @@ public class StatusbarMods extends XposedModPack {
 		void onTextColorChanged(int textColor);
 	}
 }
+
