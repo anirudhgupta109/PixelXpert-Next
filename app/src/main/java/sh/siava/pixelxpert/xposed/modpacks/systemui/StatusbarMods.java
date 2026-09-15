@@ -706,8 +706,10 @@ public class StatusbarMods extends XposedModPack {
 					}
 
 
-					if (mNotificationIconContainer.getChildCount() == 0) {
-						mNotificationContainerContainer.setVisibility(GONE);
+					if (mNotificationIconContainer != null && mNotificationIconContainer.getChildCount() == 0) {
+						if (mNotificationContainerContainer != null) {
+							mNotificationContainerContainer.setVisibility(GONE);
+						}
 					}
 					setHeights();
 
@@ -883,6 +885,7 @@ public class StatusbarMods extends XposedModPack {
 	@SuppressLint("DiscouragedApi")
 	private void makeLeftSplitArea() {
 		mNotificationIconContainer = mPhoneStatusbarView.findViewById(idOf("notificationIcons"));
+		if (mNotificationIconContainer == null) return;
 
 		mNotificationContainerContainer = new LinearLayout(mContext);
 		mNotificationContainerContainer.setClipChildren(false); //allowing headsup icon to go beyond
@@ -970,12 +973,17 @@ public class StatusbarMods extends XposedModPack {
 
 
 	private void setHeights() {
+		if (mPhoneStatusbarView == null || mPhoneStatusbarView.getLayoutParams() == null) return;
 		@SuppressLint("DiscouragedApi") int statusbarHeight = mPhoneStatusbarView.getLayoutParams().height
 				- mContext.getResources().getDimensionPixelSize(dimenIdOf("status_bar_padding_top"));
 
-		mNotificationContainerContainer.getLayoutParams().height = (mLeftExtraRowContainer.getVisibility() == VISIBLE) ? statusbarHeight / 2 : MATCH_PARENT;
-		mLeftExtraRowContainer.getLayoutParams().height = ((mNotificationContainerContainer.getVisibility() == VISIBLE) ? statusbarHeight / 2 : MATCH_PARENT);
-		if (networkOnSBEnabled) {
+		if (mNotificationContainerContainer != null && mNotificationContainerContainer.getLayoutParams() != null) {
+			mNotificationContainerContainer.getLayoutParams().height = (mLeftExtraRowContainer != null && mLeftExtraRowContainer.getVisibility() == VISIBLE) ? statusbarHeight / 2 : MATCH_PARENT;
+		}
+		if (mLeftExtraRowContainer != null && mLeftExtraRowContainer.getLayoutParams() != null) {
+			mLeftExtraRowContainer.getLayoutParams().height = ((mNotificationContainerContainer != null && mNotificationContainerContainer.getVisibility() == VISIBLE) ? statusbarHeight / 2 : MATCH_PARENT);
+		}
+		if (networkOnSBEnabled && networkTrafficSB != null && networkTrafficSB.getLayoutParams() != null) {
 			networkTrafficSB.getLayoutParams().height = statusbarHeight / ((networkTrafficPosition == POSITION_LEFT && notificationAreaMultiRow) ? 2 : 1);
 		}
 	}
@@ -1152,7 +1160,7 @@ public class StatusbarMods extends XposedModPack {
 					networkTrafficSB.setPadding(rightClockPadding, 0, leftClockPadding, 0);
 					break;
 				case POSITION_LEFT:
-					if (notificationAreaMultiRow) {
+					if (notificationAreaMultiRow && mLeftExtraRowContainer != null) {
 						mLeftExtraRowContainer.addView(networkTrafficSB, mLeftExtraRowContainer.getChildCount());
 					} else {
 						mStatusbarStartSide.addView(networkTrafficSB, 1);
