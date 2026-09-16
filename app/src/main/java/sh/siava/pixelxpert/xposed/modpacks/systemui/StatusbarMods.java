@@ -1425,7 +1425,7 @@ public class StatusbarMods extends XposedModPack {
 			// Append a zero-width space that is not covered by the RelativeSizeSpan.
 			// This forces the TextView's measured height to remain at 100%, 
 			// ensuring perfect baseline alignment when using Gravity.CENTER_VERTICAL.
-			formatted.append("​");
+			formatted.append("\u200B");
 		}
 		if (textColor != null) {
 			formatted.setSpan(new NetworkTraffic.TrafficStyle(textColor), 0, (formatted).length(),
