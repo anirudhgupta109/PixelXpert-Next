@@ -1211,15 +1211,17 @@ public class StatusbarMods extends XposedModPack {
 			de.robv.android.xposed.XposedBridge.log("[PixelXpert-Clock] Creating mClockContainer and companion views.");
 			mClockContainer = new LinearLayout(mContext);
 			mClockContainer.setOrientation(LinearLayout.HORIZONTAL);
-			mClockContainer.setGravity(Gravity.CENTER_VERTICAL);
+			// Align children to the bottom so 70% text aligns with the bottom of 100% text
+			mClockContainer.setGravity(Gravity.BOTTOM);
+			mClockContainer.setBaselineAligned(false);
 			
 			mBeforeClockView = new TextView(mContext);
 			mBeforeClockView.setSingleLine(true);
-			mBeforeClockView.setGravity(Gravity.CENTER_VERTICAL);
+			mBeforeClockView.setGravity(Gravity.BOTTOM);
 			
 			mAfterClockView = new TextView(mContext);
 			mAfterClockView.setSingleLine(true);
-			mAfterClockView.setGravity(Gravity.CENTER_VERTICAL);
+			mAfterClockView.setGravity(Gravity.BOTTOM);
 			
 			if (mClockView instanceof TextView) {
 			    mBeforeClockView.setTextColor(((TextView) mClockView).getTextColors());
@@ -1260,6 +1262,28 @@ public class StatusbarMods extends XposedModPack {
 			if (mJetpackClockView != null) {
 				de.robv.android.xposed.XposedBridge.log("[PixelXpert-Clock] Wrapping mJetpackClockView into mClockContainer.");
 				ViewGroup composeParent = (ViewGroup) mJetpackClockView.getParent();
+				
+				// Force layout params for the container
+				if (mClockContainer.getLayoutParams() == null) {
+					ViewGroup.LayoutParams origLp = mJetpackClockView.getLayoutParams();
+					// We force WRAP_CONTENT height so the container tightly wraps the clock.
+					// Then we use layout_gravity = CENTER_VERTICAL to center it in the status bar!
+					if (origLp instanceof LinearLayout.LayoutParams) {
+						LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+						lp.gravity = Gravity.CENTER_VERTICAL;
+						if (((LinearLayout.LayoutParams) origLp).weight > 0) {
+						    lp.weight = ((LinearLayout.LayoutParams) origLp).weight;
+						}
+						mClockContainer.setLayoutParams(lp);
+					} else {
+						mClockContainer.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+					}
+				}
+				
+				// Copy padding to respect corner radius!
+				mClockContainer.setPaddingRelative(mJetpackClockView.getPaddingStart(), mJetpackClockView.getPaddingTop(), mJetpackClockView.getPaddingEnd(), mJetpackClockView.getPaddingBottom());
+				mJetpackClockView.setPaddingRelative(0, 0, 0, 0);
+
 				if (composeParent != null && composeParent != mClockContainer) {
 					composeParent.removeView(mJetpackClockView);
 				}
@@ -1267,9 +1291,16 @@ public class StatusbarMods extends XposedModPack {
 					((ViewGroup) mClockContainer.getParent()).removeView(mClockContainer);
 				}
 				mClockContainer.removeAllViews();
-				mClockContainer.addView(mBeforeClockView);
-				mClockContainer.addView(mJetpackClockView);
-				mClockContainer.addView(mAfterClockView);
+				
+				// Setup gravity for views
+				LinearLayout.LayoutParams beforeLp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+				mClockContainer.addView(mBeforeClockView, beforeLp);
+				
+				LinearLayout.LayoutParams jpLp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+				mClockContainer.addView(mJetpackClockView, jpLp);
+				
+				LinearLayout.LayoutParams afterLp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+				mClockContainer.addView(mAfterClockView, afterLp);
 				
 				viewToMove = mClockContainer;
 			}
