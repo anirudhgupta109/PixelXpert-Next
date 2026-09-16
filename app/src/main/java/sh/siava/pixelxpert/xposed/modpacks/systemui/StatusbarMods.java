@@ -141,6 +141,7 @@ public class StatusbarMods extends XposedModPack {
 	private static final ArrayList<ClockVisibilityCallback> clockVisibilityCallbacks = new ArrayList<>();
 	private Object mActivityStarter;
 	private static boolean notificationAreaMultiRow = false;
+	private static boolean mIsClockVisible = true;
 	private static boolean multiRowClockBottom = false;
 	private static int NotificationAODIconLimit = 3;
 	private static int NotificationIconLimit = 4;
@@ -747,11 +748,12 @@ public class StatusbarMods extends XposedModPack {
 
 					if (isJetpackClock) {
 						de.robv.android.xposed.XposedBridge.log("[PixelXpert-Clock] Ticking Jetpack Clock Custom Labels! mAmPmStyle=" + mAmPmStyle + ", before=" + mStringFormatBefore + ", after=" + mStringFormatAfter);
+
 						if (mBeforeClockView != null) {
 							mBeforeClockView.post(() -> {
 								CharSequence text = getFormattedString(mStringFormatBefore, mBeforeSmall, mBeforeClockColor);
 								mBeforeClockView.setText(text);
-								mBeforeClockView.setVisibility(text.length() > 0 ? View.VISIBLE : View.GONE);
+								mBeforeClockView.setVisibility(mIsClockVisible && text.length() > 0 ? View.VISIBLE : View.GONE);
 							});
 						}
 						if (mAfterClockView != null) {
@@ -1242,12 +1244,30 @@ public class StatusbarMods extends XposedModPack {
 			        mBeforeClockView.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX, ((TextView) mClockView).getTextSize());
 			        mAfterClockView.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX, ((TextView) mClockView).getTextSize());
 			    }
-			    // Typeface is dynamically synced in the getSmallTime hook on every tick.
+			    
+			    // The legacy mClockView uses a regular weight, but the Compose clock uses medium.
+			    // Do not sync from legacy clock, enforce medium weight directly to match Compose!
+			    android.graphics.Typeface clockTypeface = android.graphics.Typeface.create("google-sans-text-medium", android.graphics.Typeface.NORMAL);
+			    if (clockTypeface == android.graphics.Typeface.DEFAULT) {
+			        clockTypeface = android.graphics.Typeface.create("sans-serif-medium", android.graphics.Typeface.NORMAL);
+			    }
+			    mBeforeClockView.setTypeface(clockTypeface);
+			    mAfterClockView.setTypeface(clockTypeface);
 			}
 			
 			registerTextColorCallback(color -> {
 				if (mBeforeClockView != null) mBeforeClockView.setTextColor(color);
 				if (mAfterClockView != null) mAfterClockView.setTextColor(color);
+			});
+			
+			registerClockVisibilityCallback(visible -> {
+			    mIsClockVisible = visible;
+			    if (mBeforeClockView != null) {
+			        mBeforeClockView.setVisibility(visible && mBeforeClockView.getText().length() > 0 ? View.VISIBLE : View.GONE);
+			    }
+			    if (mAfterClockView != null) {
+			        mAfterClockView.setVisibility(visible && mAfterClockView.getText().length() > 0 ? View.VISIBLE : View.GONE);
+			    }
 			});
 		}
 	}
