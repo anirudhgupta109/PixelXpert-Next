@@ -1211,26 +1211,43 @@ public class StatusbarMods extends XposedModPack {
 			de.robv.android.xposed.XposedBridge.log("[PixelXpert-Clock] Creating mClockContainer and companion views.");
 			mClockContainer = new LinearLayout(mContext);
 			mClockContainer.setOrientation(LinearLayout.HORIZONTAL);
-			// Align children to the bottom so 70% text aligns with the bottom of 100% text
-			mClockContainer.setGravity(Gravity.BOTTOM);
-			mClockContainer.setBaselineAligned(false);
+			mClockContainer.setGravity(Gravity.CENTER_VERTICAL);
+			mClockContainer.setBaselineAligned(true);
 			
 			mBeforeClockView = new TextView(mContext);
 			mBeforeClockView.setSingleLine(true);
-			mBeforeClockView.setGravity(Gravity.BOTTOM);
+			mBeforeClockView.setGravity(Gravity.NO_GRAVITY);
 			
 			mAfterClockView = new TextView(mContext);
 			mAfterClockView.setSingleLine(true);
-			mAfterClockView.setGravity(Gravity.BOTTOM);
+			mAfterClockView.setGravity(Gravity.NO_GRAVITY);
 			
+			// Try to explicitly match the SystemUI clock text appearance
+			try {
+			    int resId = mContext.getResources().getIdentifier("TextAppearance.StatusBar.Clock", "style", "com.android.systemui");
+			    if (resId != 0) {
+			        mBeforeClockView.setTextAppearance(resId);
+			        mAfterClockView.setTextAppearance(resId);
+			    }
+			} catch (Exception ignored) {}
+
 			if (mClockView instanceof TextView) {
 			    mBeforeClockView.setTextColor(((TextView) mClockView).getTextColors());
-			    mBeforeClockView.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX, ((TextView) mClockView).getTextSize());
-			    mBeforeClockView.setTypeface(((TextView) mClockView).getTypeface());
-			    
 			    mAfterClockView.setTextColor(((TextView) mClockView).getTextColors());
-			    mAfterClockView.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX, ((TextView) mClockView).getTextSize());
-			    mAfterClockView.setTypeface(((TextView) mClockView).getTypeface());
+			    
+			    // Only fallback text size if it's not set properly by appearance
+			    if (mBeforeClockView.getTextSize() == 0 || mBeforeClockView.getTextSize() == mBeforeClockView.getPaint().getTextSize()) {
+			        mBeforeClockView.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX, ((TextView) mClockView).getTextSize());
+			        mAfterClockView.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX, ((TextView) mClockView).getTextSize());
+			    }
+			    
+			    // Force a bold or medium font if the appearance didn't give it one, matching Jetpack Clock
+			    android.graphics.Typeface clockTypeface = android.graphics.Typeface.create("google-sans-text-medium", android.graphics.Typeface.NORMAL);
+			    if (clockTypeface == android.graphics.Typeface.DEFAULT) {
+			        clockTypeface = android.graphics.Typeface.create("sans-serif-medium", android.graphics.Typeface.NORMAL);
+			    }
+			    mBeforeClockView.setTypeface(clockTypeface);
+			    mAfterClockView.setTypeface(clockTypeface);
 			}
 			
 			registerTextColorCallback(color -> {
