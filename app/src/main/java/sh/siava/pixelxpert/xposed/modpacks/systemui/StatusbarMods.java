@@ -1237,19 +1237,12 @@ public class StatusbarMods extends XposedModPack {
 			    mBeforeClockView.setTextColor(((TextView) mClockView).getTextColors());
 			    mAfterClockView.setTextColor(((TextView) mClockView).getTextColors());
 			    
-			    // Only fallback text size if it's not set properly by appearance
+			    // Initial fallback text size
 			    if (mBeforeClockView.getTextSize() == 0 || mBeforeClockView.getTextSize() == mBeforeClockView.getPaint().getTextSize()) {
 			        mBeforeClockView.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX, ((TextView) mClockView).getTextSize());
 			        mAfterClockView.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX, ((TextView) mClockView).getTextSize());
 			    }
-			    
-			    // Force a bold or medium font if the appearance didn't give it one, matching Jetpack Clock
-			    android.graphics.Typeface clockTypeface = android.graphics.Typeface.create("google-sans-text-medium", android.graphics.Typeface.NORMAL);
-			    if (clockTypeface == android.graphics.Typeface.DEFAULT) {
-			        clockTypeface = android.graphics.Typeface.create("sans-serif-medium", android.graphics.Typeface.NORMAL);
-			    }
-			    mBeforeClockView.setTypeface(clockTypeface);
-			    mAfterClockView.setTypeface(clockTypeface);
+			    // Typeface is dynamically synced in the getSmallTime hook on every tick.
 			}
 			
 			registerTextColorCallback(color -> {
@@ -1320,35 +1313,35 @@ public class StatusbarMods extends XposedModPack {
 					mClockContainer.addView(mBeforeClockView, beforeLp);
 					mClockContainer.addView(mJetpackClockView, jpLp);
 					mClockContainer.addView(mAfterClockView, afterLp);
+
+					// Dynamically move padding from the clock to the container so that it doesn't get stuck
+					// Placed INSIDE the wrap-once block to avoid leaking duplicate listeners.
+					mJetpackClockView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+					    @Override
+					    public void onLayoutChange(View v, int left, int top, int right, int bottom,
+					            int oldLeft, int oldTop, int oldRight, int oldBottom) {
+					        int pStart = mJetpackClockView.getPaddingStart();
+					        int pTop = mJetpackClockView.getPaddingTop();
+					        int pEnd = mJetpackClockView.getPaddingEnd();
+					        int pBottom = mJetpackClockView.getPaddingBottom();
+					        if (pStart > 0 || pTop > 0 || pEnd > 0 || pBottom > 0) {
+					            // Combine SystemUI's dynamic padding with our hardcoded padding
+					            int finalStart = pStart;
+					            int finalEnd = pEnd;
+					            if (clockPosition == POSITION_CENTER) {
+					                finalStart += rightClockPadding;
+					                finalEnd += rightClockPadding;
+					            } else if (clockPosition == POSITION_RIGHT) {
+					                finalStart += rightClockPadding;
+					            } else {
+					                finalEnd += leftClockPadding;
+					            }
+					            mClockContainer.setPaddingRelative(finalStart, pTop, finalEnd, pBottom);
+					            mJetpackClockView.setPaddingRelative(0, 0, 0, 0);
+					        }
+					    }
+					});
 				}
-				
-				// Dynamically move padding from the clock to the container so that it doesn't get stuck
-				// But we MUST also preserve the left/right clock padding!
-				mJetpackClockView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
-				    @Override
-				    public void onLayoutChange(View v, int left, int top, int right, int bottom,
-				            int oldLeft, int oldTop, int oldRight, int oldBottom) {
-				        int pStart = mJetpackClockView.getPaddingStart();
-				        int pTop = mJetpackClockView.getPaddingTop();
-				        int pEnd = mJetpackClockView.getPaddingEnd();
-				        int pBottom = mJetpackClockView.getPaddingBottom();
-				        if (pStart > 0 || pTop > 0 || pEnd > 0 || pBottom > 0) {
-				            // Combine SystemUI's dynamic padding with our hardcoded padding
-				            int finalStart = pStart;
-				            int finalEnd = pEnd;
-				            if (clockPosition == POSITION_CENTER) {
-				                finalStart += rightClockPadding;
-				                finalEnd += rightClockPadding;
-				            } else if (clockPosition == POSITION_RIGHT) {
-				                finalStart += rightClockPadding;
-				            } else {
-				                finalEnd += leftClockPadding;
-				            }
-				            mClockContainer.setPaddingRelative(finalStart, pTop, finalEnd, pBottom);
-				            mJetpackClockView.setPaddingRelative(0, 0, 0, 0);
-				        }
-				    }
-				});
 
 				viewToMove = mClockContainer;
 			}
