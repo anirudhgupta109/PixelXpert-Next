@@ -1279,51 +1279,77 @@ public class StatusbarMods extends XposedModPack {
 				}
 			}
 			if (mJetpackClockView != null) {
-				de.robv.android.xposed.XposedBridge.log("[PixelXpert-Clock] Wrapping mJetpackClockView into mClockContainer.");
-				ViewGroup composeParent = (ViewGroup) mJetpackClockView.getParent();
-				
-				// Force layout params for the container
-				if (mClockContainer.getLayoutParams() == null) {
-					ViewGroup.LayoutParams origLp = mJetpackClockView.getLayoutParams();
-					// We force WRAP_CONTENT height so the container tightly wraps the clock.
-					// Then we use layout_gravity = CENTER_VERTICAL to center it in the status bar!
-					if (origLp instanceof LinearLayout.LayoutParams) {
-						LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-						lp.gravity = Gravity.CENTER_VERTICAL;
-						if (((LinearLayout.LayoutParams) origLp).weight > 0) {
-						    lp.weight = ((LinearLayout.LayoutParams) origLp).weight;
+				if (mJetpackClockView.getParent() != mClockContainer) {
+					de.robv.android.xposed.XposedBridge.log("[PixelXpert-Clock] Wrapping mJetpackClockView into mClockContainer.");
+					ViewGroup composeParent = (ViewGroup) mJetpackClockView.getParent();
+					
+					// Force layout params for the container
+					if (mClockContainer.getLayoutParams() == null) {
+						ViewGroup.LayoutParams origLp = mJetpackClockView.getLayoutParams();
+						// We force WRAP_CONTENT height so the container tightly wraps the clock.
+						// Then we use layout_gravity = CENTER_VERTICAL to center it in the status bar!
+						if (origLp instanceof LinearLayout.LayoutParams) {
+							LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+							lp.gravity = Gravity.CENTER_VERTICAL;
+							if (((LinearLayout.LayoutParams) origLp).weight > 0) {
+							    lp.weight = ((LinearLayout.LayoutParams) origLp).weight;
+							}
+							mClockContainer.setLayoutParams(lp);
+						} else {
+							mClockContainer.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 						}
-						mClockContainer.setLayoutParams(lp);
-					} else {
-						mClockContainer.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 					}
-				}
-				
-				// Copy padding to respect corner radius!
-				mClockContainer.setPaddingRelative(mJetpackClockView.getPaddingStart(), mJetpackClockView.getPaddingTop(), mJetpackClockView.getPaddingEnd(), mJetpackClockView.getPaddingBottom());
-				mJetpackClockView.setPaddingRelative(0, 0, 0, 0);
+					
+					// Setup gravity for views
+					LinearLayout.LayoutParams beforeLp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+					beforeLp.gravity = Gravity.CENTER_VERTICAL;
+					
+					LinearLayout.LayoutParams jpLp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+					jpLp.gravity = Gravity.CENTER_VERTICAL;
+					
+					LinearLayout.LayoutParams afterLp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+					afterLp.gravity = Gravity.CENTER_VERTICAL;
 
-				if (composeParent != null && composeParent != mClockContainer) {
-					composeParent.removeView(mJetpackClockView);
+					if (composeParent != null) {
+						composeParent.removeView(mJetpackClockView);
+					}
+					if (mClockContainer.getParent() != null) {
+						((ViewGroup) mClockContainer.getParent()).removeView(mClockContainer);
+					}
+					mClockContainer.removeAllViews();
+					mClockContainer.addView(mBeforeClockView, beforeLp);
+					mClockContainer.addView(mJetpackClockView, jpLp);
+					mClockContainer.addView(mAfterClockView, afterLp);
 				}
-				if (mClockContainer.getParent() != null) {
-					((ViewGroup) mClockContainer.getParent()).removeView(mClockContainer);
-				}
-				mClockContainer.removeAllViews();
 				
-				// Setup gravity for views
-				LinearLayout.LayoutParams beforeLp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-				beforeLp.gravity = Gravity.CENTER_VERTICAL;
-				mClockContainer.addView(mBeforeClockView, beforeLp);
-				
-				LinearLayout.LayoutParams jpLp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-				jpLp.gravity = Gravity.CENTER_VERTICAL;
-				mClockContainer.addView(mJetpackClockView, jpLp);
-				
-				LinearLayout.LayoutParams afterLp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-				afterLp.gravity = Gravity.CENTER_VERTICAL;
-				mClockContainer.addView(mAfterClockView, afterLp);
-				
+				// Dynamically move padding from the clock to the container so that it doesn't get stuck
+				// But we MUST also preserve the left/right clock padding!
+				mJetpackClockView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+				    @Override
+				    public void onLayoutChange(View v, int left, int top, int right, int bottom,
+				            int oldLeft, int oldTop, int oldRight, int oldBottom) {
+				        int pStart = mJetpackClockView.getPaddingStart();
+				        int pTop = mJetpackClockView.getPaddingTop();
+				        int pEnd = mJetpackClockView.getPaddingEnd();
+				        int pBottom = mJetpackClockView.getPaddingBottom();
+				        if (pStart > 0 || pTop > 0 || pEnd > 0 || pBottom > 0) {
+				            // Combine SystemUI's dynamic padding with our hardcoded padding
+				            int finalStart = pStart;
+				            int finalEnd = pEnd;
+				            if (clockPosition == POSITION_CENTER) {
+				                finalStart += rightClockPadding;
+				                finalEnd += rightClockPadding;
+				            } else if (clockPosition == POSITION_RIGHT) {
+				                finalStart += rightClockPadding;
+				            } else {
+				                finalEnd += leftClockPadding;
+				            }
+				            mClockContainer.setPaddingRelative(finalStart, pTop, finalEnd, pBottom);
+				            mJetpackClockView.setPaddingRelative(0, 0, 0, 0);
+				        }
+				    }
+				});
+
 				viewToMove = mClockContainer;
 			}
 		}
