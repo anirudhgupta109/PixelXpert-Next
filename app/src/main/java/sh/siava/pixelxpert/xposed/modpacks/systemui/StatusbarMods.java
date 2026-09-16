@@ -1220,6 +1220,21 @@ public class StatusbarMods extends XposedModPack {
 			mAfterClockView = new TextView(mContext);
 			mAfterClockView.setSingleLine(true);
 			mAfterClockView.setGravity(Gravity.CENTER_VERTICAL);
+			
+			if (mClockView instanceof TextView) {
+			    mBeforeClockView.setTextColor(((TextView) mClockView).getTextColors());
+			    mBeforeClockView.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX, ((TextView) mClockView).getTextSize());
+			    mBeforeClockView.setTypeface(((TextView) mClockView).getTypeface());
+			    
+			    mAfterClockView.setTextColor(((TextView) mClockView).getTextColors());
+			    mAfterClockView.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX, ((TextView) mClockView).getTextSize());
+			    mAfterClockView.setTypeface(((TextView) mClockView).getTypeface());
+			}
+			
+			registerTextColorCallback(color -> {
+				if (mBeforeClockView != null) mBeforeClockView.setTextColor(color);
+				if (mAfterClockView != null) mAfterClockView.setTextColor(color);
+			});
 		}
 	}
 
