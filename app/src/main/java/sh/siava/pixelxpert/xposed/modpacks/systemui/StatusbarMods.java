@@ -94,6 +94,9 @@ public class StatusbarMods extends XposedModPack {
 	private final int leftClockPadding, rightClockPadding;
 	private static boolean isJetpackClock = false;
 	public static boolean isMovingClock = false;
+	private LinearLayout mClockContainer = null;
+	private TextView mBeforeClockView = null;
+	private TextView mAfterClockView = null;
 	private View mJetpackClockView = null;
 	private static int clockPosition = POSITION_LEFT;
 	private static int mAmPmStyle = AM_PM_STYLE_GONE;
@@ -722,62 +725,10 @@ public class StatusbarMods extends XposedModPack {
 		//clock mods
 		try {
 			ReflectedClass clockInteractorClass = ReflectedClass.of("com.android.systemui.clock.domain.interactor.ClockInteractor");
-			java.util.Set<?> hooks = clockInteractorClass.after("getClockTextFormatString").run(param -> {
-				String orig = (String) param.getResult();
-				String customFormat = orig;
-
-				// Force leading zero for 24-hour format (e.g. 00:23 instead of 0:23)
-				customFormat = customFormat.replaceAll("(?<!H)H(?!H)", "HH");
-
-				// 1. apply am/pm (Since Compose renders as String, this will be 100% size)
-				if (mAmPmStyle != AM_PM_STYLE_GONE && !customFormat.contains("a")) {
-					customFormat = customFormat + "\u202fa";
-				} else if (mAmPmStyle == AM_PM_STYLE_GONE && customFormat.contains("a")) {
-					customFormat = customFormat.replace("\u202fa", "").replace(" a", "").replace("a", "");
-				}
-
-				// Fix native SystemUI bug: remove trailing spaces left over from removing seconds or AM/PM
-				customFormat = customFormat.trim();
-
-				// 3. custom text before / after
-				java.util.function.Function<String, String> escapeAll = (input) -> {
-					if (input == null || input.isEmpty()) return "";
-					return "'" + input.replace("'", "''") + "'";
-				};
-				
-				if (!mStringFormatBefore.isEmpty()) {
-					customFormat = escapeAll.apply(mStringFormatBefore.trim()) + "\u202f" + customFormat;
-				}
-				if (!mStringFormatAfter.isEmpty()) {
-					customFormat = customFormat + "\u202f" + escapeAll.apply(mStringFormatAfter.trim());
-				}
-				param.setResult(customFormat);
-			});
+			java.util.Set<?> hooks = new java.util.HashSet<>();
 			
-			clockInteractorClass.after("createFormatters").run(param -> {
-				Object formatters = param.getResult();
-				if (formatters == null) return;
-
-				java.text.SimpleDateFormat amPmShown = (java.text.SimpleDateFormat) getObjectField(formatters, "clockTextAmPmShown");
-				java.text.SimpleDateFormat amPmGone = (java.text.SimpleDateFormat) getObjectField(formatters, "clockTextAmPmGone");
-
-				class PXNClockFormatter extends java.text.SimpleDateFormat {
-					public PXNClockFormatter(String pattern) {
-						super(pattern);
-					}
-					@Override
-					public StringBuffer format(java.util.Date date, StringBuffer toAppendTo, java.text.FieldPosition pos) {
-						StringBuffer original = super.format(date, new StringBuffer(), pos);
-						CharSequence formatted = stringFormatter.formatString(original.toString());
-						toAppendTo.append(formatted);
-						return toAppendTo;
-					}
-				}
-
-				setObjectField(formatters, "clockTextAmPmShown", new PXNClockFormatter(amPmShown.toPattern()));
-				setObjectField(formatters, "clockTextAmPmGone", new PXNClockFormatter(amPmGone.toPattern()));
-			});
-			isJetpackClock = (hooks != null && !hooks.isEmpty());
+			
+			isJetpackClock = true;
 		} catch (Throwable t) {
 			log("ClockInteractor not found, skipping Android 17 Compose hook.");
 		}
@@ -793,6 +744,37 @@ public class StatusbarMods extends XposedModPack {
 				.run(param -> {
 					if (param.thisObject != mClockView)
 						return; //We don't want custom format in QS header. do we?
+
+					if (isJetpackClock) {
+						de.robv.android.xposed.XposedBridge.log("[PixelXpert-Clock] Ticking Jetpack Clock Custom Labels! mAmPmStyle=" + mAmPmStyle + ", before=" + mStringFormatBefore + ", after=" + mStringFormatAfter);
+						if (mBeforeClockView != null) {
+							mBeforeClockView.post(() -> {
+								CharSequence text = getFormattedString(mStringFormatBefore, mBeforeSmall, mBeforeClockColor);
+								mBeforeClockView.setText(text);
+								mBeforeClockView.setVisibility(text.length() > 0 ? View.VISIBLE : View.GONE);
+							});
+						}
+						if (mAfterClockView != null) {
+							mAfterClockView.post(() -> {
+								SpannableStringBuilder afterResult = new SpannableStringBuilder();
+								if (mAmPmStyle != AM_PM_STYLE_GONE) {
+									afterResult.append(getFormattedString("$Ga", mAmPmStyle == AM_PM_STYLE_SMALL, clockColor));
+								}
+								afterResult.append(getFormattedString(mStringFormatAfter, mAfterSmall, mAfterClockColor));
+								mAfterClockView.setText(afterResult);
+								mAfterClockView.setVisibility(afterResult.length() > 0 ? View.VISIBLE : View.GONE);
+							});
+						}
+						if (getAdditionalInstanceField(param.thisObject, "stringFormatCallBack") == null) {
+							FormattedStringCallback callback = () -> {
+								if (!mShowSeconds)
+									updateClock();
+							};
+							stringFormatter.registerCallback(callback);
+							setAdditionalInstanceField(param.thisObject, "stringFormatCallBack", callback);
+						}
+						return; // Don't modify param.getResult() because mClockView is GONE
+					}
 
 					SpannableStringBuilder result = new SpannableStringBuilder();
 					result.append(getFormattedString(mStringFormatBefore, mBeforeSmall, mBeforeClockColor)); //before clock
@@ -1224,20 +1206,57 @@ public class StatusbarMods extends XposedModPack {
 	//endregion
 
 	//region clock and date related
+	private void setupJetpackClockContainer() {
+		if (mClockContainer == null && mContext != null) {
+			de.robv.android.xposed.XposedBridge.log("[PixelXpert-Clock] Creating mClockContainer and companion views.");
+			mClockContainer = new LinearLayout(mContext);
+			mClockContainer.setOrientation(LinearLayout.HORIZONTAL);
+			mClockContainer.setGravity(Gravity.CENTER_VERTICAL);
+			
+			mBeforeClockView = new TextView(mContext);
+			mBeforeClockView.setSingleLine(true);
+			mBeforeClockView.setGravity(Gravity.CENTER_VERTICAL);
+			
+			mAfterClockView = new TextView(mContext);
+			mAfterClockView.setSingleLine(true);
+			mAfterClockView.setGravity(Gravity.CENTER_VERTICAL);
+		}
+	}
+
 	private void placeClock() {
 		View viewToMove = mClockView;
 		if (isJetpackClock) {
-			if (mJetpackClockView != null && mJetpackClockView.getParent() == null) {
-				mJetpackClockView = null; // View is detached or destroyed, find it again
+			setupJetpackClockContainer();
+			if (mJetpackClockView != null && mJetpackClockView.getParent() != mClockContainer) {
+				mJetpackClockView = null;
 			}
 			if (mJetpackClockView == null) {
-				// The clock is natively created in mStatusbarStartSide, search there.
-				// If it's already moved, mJetpackClockView would not be null.
-				// We don't search the right side to avoid accidentally matching the battery ComposeView.
 				mJetpackClockView = findComposeView(mStatusbarStartSide);
+				if (mJetpackClockView == null && mLeftExtraRowContainer != null) {
+					mJetpackClockView = findComposeView(mLeftExtraRowContainer);
+				}
+				if (mJetpackClockView == null && mCenteredIconArea != null) {
+					mJetpackClockView = findComposeView((ViewGroup) mCenteredIconArea);
+				}
+				if (mJetpackClockView == null && mSystemIconArea != null && mSystemIconArea.getParent() != null) {
+					mJetpackClockView = findComposeView((ViewGroup) mSystemIconArea.getParent());
+				}
 			}
 			if (mJetpackClockView != null) {
-				viewToMove = mJetpackClockView;
+				de.robv.android.xposed.XposedBridge.log("[PixelXpert-Clock] Wrapping mJetpackClockView into mClockContainer.");
+				ViewGroup composeParent = (ViewGroup) mJetpackClockView.getParent();
+				if (composeParent != null && composeParent != mClockContainer) {
+					composeParent.removeView(mJetpackClockView);
+				}
+				if (mClockContainer.getParent() != null) {
+					((ViewGroup) mClockContainer.getParent()).removeView(mClockContainer);
+				}
+				mClockContainer.removeAllViews();
+				mClockContainer.addView(mBeforeClockView);
+				mClockContainer.addView(mJetpackClockView);
+				mClockContainer.addView(mAfterClockView);
+				
+				viewToMove = mClockContainer;
 			}
 		}
 
@@ -1275,7 +1294,7 @@ public class StatusbarMods extends XposedModPack {
 		try {
 			if (parent != null) parent.removeView(viewToMove);
 			
-			if (isJetpackClock && viewToMove == mJetpackClockView) {
+			if (isJetpackClock && viewToMove == mClockContainer) {
 				ViewGroup.LayoutParams lp = viewToMove.getLayoutParams();
 				if (lp != null) {
 					if (clockPosition == POSITION_RIGHT) {
