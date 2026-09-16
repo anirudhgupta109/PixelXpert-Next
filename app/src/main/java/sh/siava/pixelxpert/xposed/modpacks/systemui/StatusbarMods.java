@@ -1212,15 +1212,17 @@ public class StatusbarMods extends XposedModPack {
 			mClockContainer = new LinearLayout(mContext);
 			mClockContainer.setOrientation(LinearLayout.HORIZONTAL);
 			mClockContainer.setGravity(Gravity.CENTER_VERTICAL);
-			mClockContainer.setBaselineAligned(true);
+			mClockContainer.setBaselineAligned(false);
 			
 			mBeforeClockView = new TextView(mContext);
 			mBeforeClockView.setSingleLine(true);
-			mBeforeClockView.setGravity(Gravity.NO_GRAVITY);
+			mBeforeClockView.setGravity(Gravity.CENTER_VERTICAL);
+			mBeforeClockView.setIncludeFontPadding(false);
 			
 			mAfterClockView = new TextView(mContext);
 			mAfterClockView.setSingleLine(true);
-			mAfterClockView.setGravity(Gravity.NO_GRAVITY);
+			mAfterClockView.setGravity(Gravity.CENTER_VERTICAL);
+			mAfterClockView.setIncludeFontPadding(false);
 			
 			// Try to explicitly match the SystemUI clock text appearance
 			try {
@@ -1311,12 +1313,15 @@ public class StatusbarMods extends XposedModPack {
 				
 				// Setup gravity for views
 				LinearLayout.LayoutParams beforeLp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+				beforeLp.gravity = Gravity.CENTER_VERTICAL;
 				mClockContainer.addView(mBeforeClockView, beforeLp);
 				
 				LinearLayout.LayoutParams jpLp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+				jpLp.gravity = Gravity.CENTER_VERTICAL;
 				mClockContainer.addView(mJetpackClockView, jpLp);
 				
 				LinearLayout.LayoutParams afterLp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+				afterLp.gravity = Gravity.CENTER_VERTICAL;
 				mClockContainer.addView(mAfterClockView, afterLp);
 				
 				viewToMove = mClockContainer;
