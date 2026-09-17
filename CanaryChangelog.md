@@ -1,3 +1,7 @@
+**canary-513**  
+- handle signature change of calculateChargingSpeed in Android 17 QPR  
+- correct ReflectionConsumer type for multi-method hooks  
+  
 **canary-512**  
 - prevent handler freeze and massive speed spikes  
   
