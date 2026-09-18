@@ -145,5 +145,6 @@ jobs:
         echo "$SF_KEY" > ~/.ssh/id_rsa
         chmod 600 ~/.ssh/id_rsa
         ssh-keyscan frs.sourceforge.net >> ~/.ssh/known_hosts
-        rsync -avP -e ssh --mkpath output/* anirudhgupta109@frs.sourceforge.net:/home/frs/project/agbuilds/PixelXpert-Next/${{ env.SF_VERSION }}/
+        ssh anirudhgupta109@frs.sourceforge.net mkdir -p /home/frs/project/agbuilds/PixelXpert-Next/${{ env.SF_VERSION }}/ || true
+        rsync -avP -e ssh output/* anirudhgupta109@frs.sourceforge.net:/home/frs/project/agbuilds/PixelXpert-Next/${{ env.SF_VERSION }}/
 
