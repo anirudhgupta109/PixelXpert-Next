@@ -12,7 +12,7 @@ git log "$RANGE" --format="%B" 2>/dev/null | grep -i "^[[:space:]]*CHANGELOG:[[:
 
 # 2. If none, extract clean commit subjects
 if [ ! -s changeLog.md ]; then
-  git log "$RANGE" --no-merges --format="%s" 2>/dev/null | grep -vEi "^(New Crowdin|Version update:|canary release|Update edit2MakeNewCanary|Update CanaryChangelog\.md|Add archived notice)" | sed -E 's/^[a-zA-Z]+(\([^)]+\))?:[[:space:]]*//' | sed 's/^/- /; s/$/  /' > changeLog.md || true
+  git log "$RANGE" --no-merges --format="%s" 2>/dev/null | grep -vEi "^(New Crowdin|Version update:|canary release|Update edit2MakeNewCanary|Update CanaryChangelog\.md|Add archived notice|ci:|chore:|build:|test:|docs:|Stable release|stable-)" | sed -E 's/^[a-zA-Z]+(\([^)]+\))?:[[:space:]]*//' | sed 's/^/- /; s/$/  /' > changeLog.md || true
 fi
 
 # 3. Ultimate fallback

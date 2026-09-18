@@ -131,3 +131,20 @@ jobs:
         token: ${{ secrets.TELEGRAM_TOKEN }}
         message: ${{ env.TMessage }}
 
+    - name: Get Stable Version for SourceForge
+      run: |
+        VERSION=${GITHUB_REF_NAME#v}
+        echo "SF_VERSION=$VERSION" >> $GITHUB_ENV
+
+    - name: SourceForge Upload
+      continue-on-error: true
+      env:
+        SF_KEY: ${{ secrets.SF_KEY }}
+      run: |
+        mkdir -p ~/.ssh
+        echo "$SF_KEY" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        ssh-keyscan frs.sourceforge.net >> ~/.ssh/known_hosts
+        ssh anirudhgupta109@frs.sourceforge.net mkdir -p /home/frs/project/agbuilds/PixelXpert-Next/${{ env.SF_VERSION }}/ || true
+        rsync -avP -e ssh output/* anirudhgupta109@frs.sourceforge.net:/home/frs/project/agbuilds/PixelXpert-Next/${{ env.SF_VERSION }}/
+
