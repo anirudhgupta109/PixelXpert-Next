@@ -58,7 +58,7 @@ PS. You might need to configure your metamodule (in the case of Mountify, set `M
 - Reboot
 - Flash PixelXpert-Next in Magisk/KSU
 - Reboot
-- Grant root for PixelXpert-Next in KSU (doesn’t automatically request) or Magisk (if it’s not already)
+- Grant root for PixelXpert-Next in KSU (doesn’t automatically request, it will be listed only when `Show System Apps` option is enabled from the three dot menu) or Magisk (if it’s not already)
 - Enable PixelXpert-Next in LSPosed if it isn’t already (ensure all the scopes are checked)
 - Preferably reboot
 - Open PixelXpert-Next app and apply changes
