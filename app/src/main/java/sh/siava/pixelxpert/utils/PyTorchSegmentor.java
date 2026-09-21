@@ -19,7 +19,6 @@ import android.util.Pair;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.downloader.Error;
 import com.downloader.OnDownloadListener;
@@ -126,8 +125,9 @@ public class PyTorchSegmentor {
 								Log.i(TAG, String.format("PRDownloader %s download completed successfully", notificationTag));
 
 								try {
-									Intent intent = new Intent(BuildConfig.APPLICATION_ID + ".ACTION_MODEL_DOWNLOADED");
-									LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+									Intent intent = new Intent(BuildConfig.APPLICATION_ID + ".ACTION_MODEL_DOWNLOADED")
+											.setPackage(BuildConfig.APPLICATION_ID);
+									context.sendBroadcast(intent);
 								} catch (Throwable ignored) {}
 							}
 

@@ -1,6 +1,7 @@
 package sh.siava.pixelxpert.ui.activities;
 
 import static android.app.NotificationManager.IMPORTANCE_DEFAULT;
+import static android.content.Context.RECEIVER_NOT_EXPORTED;
 import static sh.siava.pixelxpert.Constants.LAUNCH_REASON_EXTRA;
 import static sh.siava.pixelxpert.Constants.LAUNCH_REASON_XPOSED_SERVICE_FAIL;
 import static sh.siava.pixelxpert.R.string.update_channel_name;
@@ -34,7 +35,6 @@ import androidx.annotation.NonNull;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.navigation.NavController;
 import androidx.navigation.NavGraph;
 import androidx.navigation.fragment.NavHostFragment;
@@ -99,9 +99,8 @@ public class SettingsActivity extends BaseActivity implements PreferenceFragment
 		setContentView(binding.getRoot());
 
 		createNotificationChannel();
-		setupNavigation(savedInstanceState);
-
 		PreferenceHelper.init();
+		setupNavigation(savedInstanceState);
 
 		if (getIntent() != null) {
 			if (getIntent().getBooleanExtra("updateTapped", false)) {
@@ -560,21 +559,19 @@ public class SettingsActivity extends BaseActivity implements PreferenceFragment
 		setIntent(intent);
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	protected void onResume() {
 		super.onResume();
-		LocalBroadcastManager.getInstance(this).registerReceiver(
+		registerReceiver(
 				updateCheckReceiver,
-				new IntentFilter(BuildConfig.APPLICATION_ID + ".UPDATE_CHECK")
-		);
+				new IntentFilter(BuildConfig.APPLICATION_ID + ".UPDATE_CHECK"),
+				RECEIVER_NOT_EXPORTED);
 		handleUpdateBadge(PXPreferences.getInt("latestVersionCode", -1));
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	protected void onPause() {
 		super.onPause();
-		LocalBroadcastManager.getInstance(this).unregisterReceiver(updateCheckReceiver);
+		unregisterReceiver(updateCheckReceiver);
 	}
 }

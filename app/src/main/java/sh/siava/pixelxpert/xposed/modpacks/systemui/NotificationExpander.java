@@ -214,9 +214,8 @@ public class NotificationExpander extends XposedModPack {
 	public void expandAll(boolean expand) {
 		if (NotifCollection == null) return;
 
-		Collection<Object> entries;
-		//noinspection unchecked
-		entries = (Collection<Object>) getObjectField(NotifCollection, "mReadOnlyNotificationSet");
+		Object value = getObjectField(NotifCollection, "mReadOnlyNotificationSet");
+		if (!(value instanceof Collection<?> entries)) return;
 		for (Object entry : entries.toArray()) {
 			Object row = getObjectField(entry, "row");
 			if (row != null) {

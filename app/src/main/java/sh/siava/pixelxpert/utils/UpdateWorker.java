@@ -14,7 +14,6 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.app.NotificationCompat;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.work.ListenableWorker;
 import androidx.work.WorkerParameters;
 
@@ -96,12 +95,12 @@ public class UpdateWorker extends ListenableWorker {
 		notificationManager.notify(UPDATE_AVAILABLE_ID, notificationBuilder.build());
 	}
 
-	@SuppressWarnings("deprecation")
 	public static void showBadgeDrawable(Context context, int latestVersionCode) {
 		PXPreferences.putInt("latestVersionCode", latestVersionCode);
-		Intent broadcastIntent = new Intent(BuildConfig.APPLICATION_ID + ".UPDATE_CHECK");
+		Intent broadcastIntent = new Intent(BuildConfig.APPLICATION_ID + ".UPDATE_CHECK")
+				.setPackage(BuildConfig.APPLICATION_ID);
 		broadcastIntent.putExtra("latestVersionCode", latestVersionCode);
-		LocalBroadcastManager.getInstance(context).sendBroadcast(broadcastIntent);
+		context.sendBroadcast(broadcastIntent);
 	}
 
 	public void createChannel(NotificationManager notificationManager) {

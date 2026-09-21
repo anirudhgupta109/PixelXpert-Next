@@ -6,6 +6,7 @@ import static sh.siava.pixelxpert.utils.MiscUtils.setOnBackPressedDispatcherCall
 import static sh.siava.pixelxpert.utils.MiscUtils.setupToolbar;
 import static sh.siava.pixelxpert.utils.PreferenceHelper.checkIfRequiresSystemUIRestart;
 
+import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -36,6 +37,7 @@ import sh.siava.pixelxpert.ui.misc.StateManager;
 public abstract class ControlledPreferenceFragmentCompat extends PreferenceFragmentCompat {
 
 	public ExtendedSharedPreferences mPreferences;
+	private SharedPreferences preferenceStore;
 	private final OnSharedPreferenceChangeListener changeListener = (sharedPreferences, key) -> {
 		updateScreen(key);
 		checkIfRequiresSystemUIRestart(getContext(), key);
@@ -161,7 +163,10 @@ public abstract class ControlledPreferenceFragmentCompat extends PreferenceFragm
 	public RecyclerView.Adapter<?> onCreateAdapter(@NonNull PreferenceScreen preferenceScreen) {
 		mPreferences = PixelXpert.get().getDefaultPreferences();
 
-		mPreferences.registerOnSharedPreferenceChangeListener(changeListener);
+		preferenceStore = getPreferenceManager().getSharedPreferences();
+		if (preferenceStore != null) {
+			preferenceStore.registerOnSharedPreferenceChangeListener(changeListener);
+		}
 
 		updateScreen(null);
 
@@ -170,8 +175,8 @@ public abstract class ControlledPreferenceFragmentCompat extends PreferenceFragm
 
 	@Override
 	public void onDestroy() {
-		if (mPreferences != null) {
-			mPreferences.unregisterOnSharedPreferenceChangeListener(changeListener);
+		if (preferenceStore != null) {
+			preferenceStore.unregisterOnSharedPreferenceChangeListener(changeListener);
 		}
 		super.onDestroy();
 	}

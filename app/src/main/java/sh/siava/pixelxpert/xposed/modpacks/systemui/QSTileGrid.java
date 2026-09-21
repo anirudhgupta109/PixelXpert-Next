@@ -16,6 +16,7 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 
 import io.github.libxposed.api.XposedInterface;
 import io.github.libxposed.api.XposedModuleInterface;
@@ -23,7 +24,6 @@ import sh.siava.pixelxpert.xposed.XposedModPack;
 import sh.siava.pixelxpert.xposed.annotations.SystemUIModPack;
 import sh.siava.pixelxpert.xposed.utils.SystemUtils;
 import sh.siava.pixelxpert.xposed.utils.toolkit.ComposeFontUtils;
-import sh.siava.pixelxpert.xposed.utils.toolkit.FakeIntegerResource;
 import sh.siava.pixelxpert.xposed.utils.reflection.ReflectedClass;
 
 @SuppressWarnings("RedundantThrows")
@@ -79,18 +79,33 @@ public class QSTileGrid extends XposedModPack {
 	@Override
 	public void onPackageLoaded(XposedModuleInterface.PackageReadyParam PRParam) throws Throwable {
 		ReflectedClass PaginatedGridLayoutClass = ReflectedClass.ofIfPossible("com.android.systemui.qs.panels.ui.compose.PaginatedGridLayout");
-		ReflectedClass QSColumnsRepositoryClass = ReflectedClass.ofIfPossible("com.android.systemui.qs.panels.data.repository.QSColumnsRepository");
-		ReflectedClass QuickQuickSettingsRowRepositoryClass = ReflectedClass.ofIfPossible("com.android.systemui.qs.panels.data.repository.QuickQuickSettingsRowRepository");
+		ReflectedClass.of(Resources.class).before("getInteger").run(param -> {
+			Resources resources = param.getThisObject();
+			int id = param.getArg(0);
+			String resourceName;
+			try {
+				resourceName = resources.getResourceName(id);
+			} catch (Resources.NotFoundException ignored) {
+				return;
+			}
+			boolean isLandscape = resources.getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
+			if (resourceName.endsWith("quick_settings_infinite_grid_num_columns")) {
+				int columns = isLandscape ? QSColQtyL : QSColQty;
+				if (columns != QS_COL_NOT_SET) param.setResult(columns);
+			} else if (resourceName.endsWith("quick_qs_paginated_grid_num_rows")) {
+				int rows = isLandscape ? QQSTileRowsL : QQSTileRows;
+				if (rows != NOT_SET) param.setResult(rows);
+			}
+		});
 		ReflectedClass CommonTileKtClass = ReflectedClass.ofIfPossible("com.android.systemui.qs.panels.ui.compose.infinitegrid.CommonTileKt");
 
 		//region expressive compose UI rows
-		//noinspection unchecked
-		final Set<XposedInterface.HookHandle>[] QSRowsHooks = new Set[1];
+		AtomicReference<Set<XposedInterface.HookHandle>> QSRowsHooks = new AtomicReference<>();
 
 		PaginatedGridLayoutClass
 				.before("TileGrid")
 				.run(param ->
-						QSRowsHooks[0] = ReflectedClass.of(Resources.class)
+						QSRowsHooks.set(ReflectedClass.of(Resources.class)
 								.before("getInteger")
 								.run(param1 -> {
 									if(param1.args[0].equals(mContext.getResources().getIdentifier("quick_settings_paginated_grid_num_rows", "integer", mContext.getPackageName()))) {
@@ -105,7 +120,7 @@ public class QSTileGrid extends XposedModPack {
 											param1.setResult(QSRowQty);
 										}
 									}
-								}));
+								})));
 
 		//region expressive compose tile label size
 		CommonTileKtClass
@@ -129,54 +144,9 @@ public class QSTileGrid extends XposedModPack {
 		PaginatedGridLayoutClass
 				.after("TileGrid")
 				.run(param -> {
-					try {
-						QSRowsHooks[0].forEach(XposedInterface.HookHandle::unhook);
-					}
-					finally {
-						QSRowsHooks[0] = null;
-					}
+					Set<XposedInterface.HookHandle> handles = QSRowsHooks.getAndSet(null);
+					if (handles != null) handles.forEach(XposedInterface.HookHandle::unhook);
 				});
 		//endregion
-
-		//region expressive compose UI cols
-		QSColumnsRepositoryClass
-				.beforeConstruction()
-				.run(param ->
-						param.args[0] = new FakeIntegerResource(mContext) {
-							@Override
-							public int getInteger(int id) {
-								if(mContext.getResources().getResourceName(id).endsWith("quick_settings_infinite_grid_num_columns")) {
-									boolean isLandscape = mContext.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
-									if (isLandscape && QSColQtyL != QS_COL_NOT_SET) {
-										return QSColQtyL;
-									}
-									if (!isLandscape && QSColQty != QS_COL_NOT_SET) {
-										return QSColQty;
-									}
-								}
-
-								return mContext.getResources().getInteger(id);
-							}
-						});
-		//endregion
-
-		//region expressive compose UI QQS rows
-		QuickQuickSettingsRowRepositoryClass
-				.beforeConstruction()
-				.run(param ->
-					param.args[0] = new FakeIntegerResource(mContext) {
-						@Override
-						public int getInteger(int id) {
-							if(getResourceName(id).endsWith("quick_qs_paginated_grid_num_rows"))
-							{
-								boolean isLandscape = mContext.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
-								if(isLandscape && QQSTileRowsL != NOT_SET)
-									return QQSTileRowsL;
-								else if(!isLandscape && QQSTileRows != NOT_SET)
-									return QQSTileRows;
-							}
-							return mContext.getResources().getInteger(id);
-						}
-					});
 	}
 }
