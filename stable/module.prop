@@ -1,6 +1,6 @@
 id=PixelXpert-Next
 name=PixelXpert-Next
-version=v6.0.4
+version=v6.0.5
 versionCode=514
 author=PixelXpert-Next Team
 description=Xposed based module for customizations on Pixel roms. Android 13+
