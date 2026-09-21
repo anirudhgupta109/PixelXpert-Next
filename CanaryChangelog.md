@@ -1,3 +1,6 @@
+**canary-514**  
+- Adapt setUserExpanded signature to prevent SysUI crash  
+  
 **canary-513**  
 - handle signature change of calculateChargingSpeed in Android 17 QPR  
 - correct ReflectionConsumer type for multi-method hooks  
