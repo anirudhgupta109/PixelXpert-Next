@@ -1,3 +1,7 @@
+**canary-515**  
+- fix hiding status bar icons  
+- resolve Network Traffic mid-right visibility issue  
+  
 **canary-514**  
 - Adapt setUserExpanded signature to prevent SysUI crash  
   
