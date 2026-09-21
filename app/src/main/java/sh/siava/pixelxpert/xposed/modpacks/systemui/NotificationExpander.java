@@ -5,6 +5,7 @@ import static android.view.View.VISIBLE;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static de.robv.android.xposed.XposedHelpers.callMethod;
 import static de.robv.android.xposed.XposedHelpers.getObjectField;
+import static de.robv.android.xposed.XposedHelpers.getStaticObjectField;
 import static sh.siava.pixelxpert.xposed.XPrefs.Xprefs;
 import static sh.siava.pixelxpert.xposed.utils.SystemUtils.idOf;
 import static sh.siava.pixelxpert.xposed.utils.reflection.ReflectionTools.reAddView;
@@ -23,6 +24,7 @@ import android.widget.LinearLayout;
 import androidx.annotation.NonNull;
 import androidx.core.content.res.ResourcesCompat;
 
+import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.regex.Pattern;
 
@@ -229,6 +231,22 @@ public class NotificationExpander extends XposedModPack {
 	}
 
 	private void setRowExpansion(Object row, boolean expand) {
-		callMethod(row, "setUserExpanded", expand, true);
+		try {
+			for (Method method : row.getClass().getDeclaredMethods()) {
+				if (!method.getName().equals("setUserExpanded")) continue;
+				Class<?>[] parameterTypes = method.getParameterTypes();
+				method.setAccessible(true);
+				if (parameterTypes.length == 3 && parameterTypes[0] == boolean.class
+						&& parameterTypes[1] == boolean.class && parameterTypes[2].isEnum()) {
+					method.invoke(row, expand, true, getStaticObjectField(parameterTypes[2], "USER_ACTION"));
+					return;
+				}
+				if (parameterTypes.length == 2 && parameterTypes[0] == boolean.class
+						&& parameterTypes[1] == boolean.class) {
+					method.invoke(row, expand, true);
+					return;
+				}
+			}
+		} catch (Throwable ignored) {}
 	}
 }
