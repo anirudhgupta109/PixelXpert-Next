@@ -16,6 +16,9 @@ runSQL(){
  
 #grant silent root access to given UID 
 grantRootUID(){ 
+	if [ -z "$1" ]; then
+		return 1
+	fi
 	DBPATH=$MAGISKDBPATH 
 	 
 	#new record - older magisk compatibility 
@@ -42,7 +45,9 @@ grantRootApps(){
 
 prepareSQL 
  
-grantRootApps
+if [ -n "$MAGISK_VER_CODE" ] && [ "$KSU" != "true" ] && [ "$APATCH" != "true" ]; then
+	grantRootApps
+fi
 
 # Wait for boot to finish
 until [ "$(getprop sys.boot_completed)" = "1" ]; do

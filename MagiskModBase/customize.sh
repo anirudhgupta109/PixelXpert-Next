@@ -17,6 +17,10 @@ runSQL(){
 
 #grant silent root access to given UID
 grantRootUID(){
+	if [ -z "$1" ]; then
+		ui_print "- Error: No UID provided for root grant"
+		return 1
+	fi
 	DBPATH=$MAGISKDBPATH
 	
 	#new record - older magisk compatibility
@@ -104,7 +108,8 @@ enforceSepolicyWhitelist()
 	# Whitelist approach: only keep sepolicy.rule if it's a pure Magisk install
 	# KSU and APatch might spoof MAGISK_VER_CODE, so we explicitly ensure they are not active.
 	if [ -n "$MAGISK_VER_CODE" ] && [ "$KSU" != "true" ] && [ "$APATCH" != "true" ]; then
-		ui_print "- Magisk detected, keeping sepolicy.rule"
+		ui_print "- Magisk detected, keeping and applying sepolicy.rule"
+		magiskpolicy --live --apply "$MODPATH/sepolicy.rule"
 	else
 		# If not Magisk (or if it's KSU/APatch), remove the rule
 		rm -f "$MODPATH/sepolicy.rule"
@@ -117,7 +122,13 @@ prepareSQL
 ui_print ''
 ui_print ''
 
-grantRootApps
+if [ -n "$MAGISK_VER_CODE" ] && [ "$KSU" != "true" ] && [ "$APATCH" != "true" ]; then
+	grantRootApps
+else
+	ui_print "- Manual intervention required!!!!"
+	ui_print "- Please grant root manually to PixelXpert-Next."
+	ui_print "- (You may need to enable 'Show system apps' in your root manager)"
+fi
 
 set_perm $MODPATH/service.sh 0 0 0755
 
