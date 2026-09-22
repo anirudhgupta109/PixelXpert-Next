@@ -1,3 +1,7 @@
+**canary-516**  
+- fix Notification Default Expansion on CP3A/CP41  
+- fix Quick QS panel pulldown gesture on CP3A/CP41  
+  
 **canary-515**  
 - fix hiding status bar icons  
 - resolve Network Traffic mid-right visibility issue  
