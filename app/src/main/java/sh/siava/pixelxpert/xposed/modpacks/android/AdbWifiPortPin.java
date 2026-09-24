@@ -101,7 +101,7 @@ public class AdbWifiPortPin extends XposedModPack {
 	private void forward(Socket clientSocket, int targetPort) {
 		try {
 			Socket targetSocket = new Socket("localhost", targetPort);
-			
+
 			Thread t1 = new Thread(() -> {
 				try {
 					InputStream in = clientSocket.getInputStream();
@@ -117,7 +117,7 @@ public class AdbWifiPortPin extends XposedModPack {
 					closeSockets(clientSocket, targetSocket);
 				}
 			});
-			
+
 			Thread t2 = new Thread(() -> {
 				try {
 					InputStream in = targetSocket.getInputStream();
@@ -133,7 +133,7 @@ public class AdbWifiPortPin extends XposedModPack {
 					closeSockets(clientSocket, targetSocket);
 				}
 			});
-			
+
 			t1.start();
 			t2.start();
 		} catch (Exception e) {

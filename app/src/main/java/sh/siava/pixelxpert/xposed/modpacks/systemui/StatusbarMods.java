@@ -739,7 +739,7 @@ public class StatusbarMods extends XposedModPack {
 					if (input == null || input.isEmpty()) return "";
 					return "'" + input.replace("'", "''") + "'";
 				};
-				
+
 				if (!mStringFormatBefore.isEmpty()) {
 					customFormat = escapeAll.apply(mStringFormatBefore.trim()) + "\u202f" + customFormat;
 				}
@@ -748,7 +748,7 @@ public class StatusbarMods extends XposedModPack {
 				}
 				param.setResult(customFormat);
 			});
-			
+
 			clockInteractorClass.after("createFormatters").run(param -> {
 				Object formatters = param.getResult();
 				if (formatters == null) return;
@@ -874,7 +874,7 @@ public class StatusbarMods extends XposedModPack {
 		try {
 			callMethod(mPhoneStatusbarView, "updateStatusBarHeight");
 		} catch (Throwable ignored) {
-			
+
 
 		}
 	}
@@ -920,7 +920,7 @@ public class StatusbarMods extends XposedModPack {
 		parent.addView(mLeftVerticalSplitContainer, parent.indexOfChild(mNotificationIconContainer));
 		parent.removeView(mNotificationIconContainer);
 		mLeftVerticalSplitContainer.addView(mNotificationContainerContainer);
-		
+
 		if (multiRowClockBottom) {
 			mLeftVerticalSplitContainer.addView(mLeftExtraRowContainer);
 		}
@@ -1060,7 +1060,7 @@ public class StatusbarMods extends XposedModPack {
 				SystemUtils.TelephonyManager().registerTelephonyCallback(voDataExec, voDataCallback);
 				telephonyCallbackRegistered = true;
 			}
-		} catch (Exception ignored) {						
+		} catch (Exception ignored) {
 
 		}
 
@@ -1072,7 +1072,7 @@ public class StatusbarMods extends XposedModPack {
 			//noinspection DataFlowIssue
 			SystemUtils.TelephonyManager().unregisterTelephonyCallback(voDataCallback);
 			telephonyCallbackRegistered = false;
-		} catch (Exception ignored) {						
+		} catch (Exception ignored) {
 
 		}
 		removeSBIconSlot(VO_LTE_SLOT);
@@ -1110,7 +1110,7 @@ public class StatusbarMods extends XposedModPack {
 				mPhoneStatusbarView.post(() -> {
 					try {
 						callMethod(mStatusBarIconController, "setIcon", VO_WIFI_SLOT, vowifiStatusbarIconHolder);
-					} catch (Exception ignored) {						
+					} catch (Exception ignored) {
 
 					}
 				});
@@ -1126,7 +1126,7 @@ public class StatusbarMods extends XposedModPack {
 		mPhoneStatusbarView.post(() -> {
 			try {
 				callMethod(mStatusBarIconController, "removeAllIconsForSlot", slot, false);
-			} catch (Throwable ignored) {						
+			} catch (Throwable ignored) {
 
 			}
 		});
@@ -1251,7 +1251,7 @@ public class StatusbarMods extends XposedModPack {
 				// Leaving index as null appends it to the very end (right-most element)
 				break;
 		}
-		
+
 		if (targetArea == null || targetArea == parent) return;
 
 		if (isJetpackClock) {
@@ -1259,7 +1259,7 @@ public class StatusbarMods extends XposedModPack {
 		}
 		try {
 			if (parent != null) parent.removeView(viewToMove);
-			
+
 			if (isJetpackClock && viewToMove == mJetpackClockView) {
 				ViewGroup.LayoutParams lp = viewToMove.getLayoutParams();
 				if (lp != null) {

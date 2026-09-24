@@ -203,7 +203,7 @@ public class UpdateFragment extends BaseFragment {
 					requireActivity().runOnUiThread(() -> {
 						try {
 							MarkdownView mMarkdownView = view.findViewById(R.id.changelogView);
-							
+
 							fetchChangelog((String) result.get("changelog"), (markdown) -> {
 								if (getActivity() != null) {
 									requireActivity().runOnUiThread(() -> {

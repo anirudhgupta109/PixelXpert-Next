@@ -451,7 +451,7 @@ public class StringFormatter {
 			return String.copyValueOf(bytes);
 		} catch (Exception ignored) {
 			return "$H" + format;
-		}		
+		}
 	}
 
 	private CharSequence persianDateOf(String format) {

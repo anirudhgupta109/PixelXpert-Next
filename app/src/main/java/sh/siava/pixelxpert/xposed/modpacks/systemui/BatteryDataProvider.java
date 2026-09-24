@@ -103,7 +103,7 @@ public class BatteryDataProvider extends XposedModPack {
 
 					int curr = 0;
 					int volt = 0;
-					
+
 					if (param.args.length > 2) {
 						if (param.args[0] instanceof Integer) {
 							// Old signature: (int current, int voltage, Context context)

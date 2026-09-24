@@ -103,7 +103,7 @@ public class StatusbarGestures extends XposedModPack {
 							param.args[0] instanceof MotionEvent
 									? (MotionEvent) param.args[0]
 									: (MotionEvent) param.args[1];
-					
+
 					MotionEvent clone = MotionEvent.obtain(event);
 					if (clone.getActionMasked() == MotionEvent.ACTION_CANCEL) {
 						clone.setAction(MotionEvent.ACTION_UP);

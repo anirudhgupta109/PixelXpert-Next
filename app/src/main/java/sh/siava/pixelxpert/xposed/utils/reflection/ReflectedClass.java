@@ -174,7 +174,7 @@ public class ReflectedClass
 	{
 		return findMethods(clazz, namePattern);
 	}
-	
+
 	private static class MethodData
 	{
 		String methodName;
@@ -246,7 +246,7 @@ public class ReflectedClass
 					}
 					consumer.run(param);
 				}, true, xposedInterface);
-				
+
 				if(log || FLAG_DEBUG_HOOKS)
 				{
 					StackTraceElement element = Thread.currentThread().getStackTrace()[2];
