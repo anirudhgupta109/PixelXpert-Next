@@ -1,3 +1,7 @@
+**canary-517**  
+- fix Shuffle PIN for Compose Keyguard  
+- Disable root grant on !magisk installs + abort install incase no pkg uid found  
+  
 **canary-516**  
 - fix Notification Default Expansion on CP3A/CP41  
 - fix Quick QS panel pulldown gesture on CP3A/CP41  
