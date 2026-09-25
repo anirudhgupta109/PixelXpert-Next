@@ -1,3 +1,6 @@
+**canary-519**  
+- securely disable Auto-Confirm PIN during FBE (Direct Boot)  
+  
 **canary-518**  
 - replace thread logic with native LockPatternUtils bypass  
   
