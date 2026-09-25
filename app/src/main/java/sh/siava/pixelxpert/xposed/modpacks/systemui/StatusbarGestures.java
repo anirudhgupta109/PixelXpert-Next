@@ -46,6 +46,7 @@ public class StatusbarGestures extends XposedModPack {
 	@SuppressLint("StaticFieldLeak")
 	private static StatusbarGestures instance;
 	private Object mShadeInteractor;
+	private Object mCommandQueue;
 
 	public StatusbarGestures(Context context) {
 		super(context);
@@ -77,6 +78,11 @@ public class StatusbarGestures extends XposedModPack {
 		ReflectedClass PhoneStatusBarViewClass = ReflectedClass.of("com.android.systemui.statusbar.phone.PhoneStatusBarView");
 
 		//17QPR1
+		ReflectedClass CommandQueueClass = ReflectedClass.ofIfPossible("com.android.systemui.statusbar.CommandQueue");
+		CommandQueueClass
+				.afterConstruction()
+				.run(param -> mCommandQueue = param.thisObject);
+
 		ReflectedClass ShadeInteractorSceneContainerImplClass = ReflectedClass.ofIfPossible("com.android.systemui.shade.domain.interactor.ShadeInteractorSceneContainerImpl");
 		ReflectedClass ShadeInteractorImplClass = ReflectedClass.ofIfPossible("com.android.systemui.shade.domain.interactor.ShadeInteractorImpl");
 		ReflectedClass ShadeSurfaceImplClass = ReflectedClass.ofIfPossible("com.android.systemui.shade.ShadeSurfaceImpl");
@@ -190,6 +196,8 @@ public class StatusbarGestures extends XposedModPack {
 					try {
 						if(NotificationPanelViewController != null && hasMethod(NotificationPanelViewController.getClass(), "expandToQs")) { //Pre 17QPR1
 							callMethod(NotificationPanelViewController, "expandToQs");
+						} else if (mCommandQueue != null) {
+							callMethod(mCommandQueue, "animateExpandSettingsPanel", (String) null);
 						} else if (mShadeInteractor != null) {
 							callMethod(mShadeInteractor, "expandQuickSettingsShade", "asdf", null);
 						}
@@ -229,7 +237,7 @@ public class StatusbarGestures extends XposedModPack {
 				isShade = true; // Fallback for CP3A/CP41
 			}
 		}
-		return (isShade || mShadeInteractor != null);
+		return (isShade || mShadeInteractor != null || mCommandQueue != null);
 	}
 
 	private GestureDetector.OnGestureListener getPullUpListener() {
@@ -251,7 +259,13 @@ public class StatusbarGestures extends XposedModPack {
 			callMethod(NotificationPanelViewController, "collapse", true, 1f);
 		}
 		catch (Throwable ignored) {
-			callMethod(NotificationPanelViewController, "collapse", 1f, true);
+			try {
+				callMethod(NotificationPanelViewController, "collapse", 1f, true);
+			} catch (Throwable ignored2) {
+				if (mCommandQueue != null) {
+					callMethod(mCommandQueue, "animateCollapsePanels");
+				}
+			}
 		}
 	}
 
