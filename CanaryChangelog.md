@@ -1,3 +1,6 @@
+**canary-518**  
+- replace thread logic with native LockPatternUtils bypass  
+  
 **canary-517**  
 - fix Shuffle PIN for Compose Keyguard  
 - Disable root grant on !magisk installs + abort install incase no pkg uid found  
