@@ -58,7 +58,6 @@
 - Add A17 build id to pixelbuild filters  
   
 **canary-504**  
-- Stable release  
 - Do not reposition 'Ongoing Chip' to prevent clock from disappearing when notifications are cleared  
 - Use system clock seconds setting from SysUI Tuner if show seconds is enabled  
 - implement Android 17 ClockInteractor hook to support custom clock formats  
@@ -74,7 +73,6 @@
   
 **canary-501**  
 - Allow magiskd to interact with priv-apps targetting API 36  
-- Stable release  
   
 **canary-500**  
 - PixelXpert-Next: Introduction of fork and GH Actions rectifications  

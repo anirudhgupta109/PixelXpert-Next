@@ -1,11 +1,16 @@
+**6.0.7**  
+Once Google puts the P11 series on track with the other devices again, like in the QPR2 betas, I can fix the abnormalities present
+- Optimize Magisk install scripts and remove unnecessary files/functions for KSU/APatch
+- Fix shuffle pin for compose keyguard (the one on android betas and the new September Stable)
+- Use the inbuilt easy unlock for all pin lengths (system one restricts it for only >=6 digits)
+
+
 **6.0.6**  
 - Fix hiding statusbar icons (NOTE: some icons are now in jetpack compose and can not be hidden)
 - Fix Quick QS Panel pulldown gesture
 - Fix notification default expansion
 
 **6.0.5**  
-NOTE: Google hasn't released an equivalent version of the September Update for Pixel 11 Series, because of which, some features have been broken and will be broken even after this release
-Once Google puts the P11 series on track with the other devices again, like in the QPR2 betas, I can fix the abnormalities present
 - Fix Network Traffic not working on mid-right location for A17 September Stable
 
 **6.0.4**  
