@@ -1021,6 +1021,21 @@ public class StatusbarMods extends XposedModPack {
 			setObjectField(statusbarIcon, "number", 0);
 			setObjectField(statusbarIcon, "contentDescription", slotName);
 
+			// Android 15 QPR3 requires Type and Shape
+			try {
+				Class<?> typeEnum = de.robv.android.xposed.XposedHelpers.findClassIfExists("com.android.internal.statusbar.StatusBarIcon$Type", mContext.getClassLoader());
+				if (typeEnum != null) {
+					setObjectField(statusbarIcon, "type", Enum.valueOf((Class<Enum>) typeEnum, "SystemIcon"));
+				}
+			} catch (Throwable ignored) {}
+
+			try {
+				Class<?> shapeEnum = de.robv.android.xposed.XposedHelpers.findClassIfExists("com.android.internal.statusbar.StatusBarIcon$Shape", mContext.getClassLoader());
+				if (shapeEnum != null) {
+					setObjectField(statusbarIcon, "shape", Enum.valueOf((Class<Enum>) shapeEnum, "WRAP_CONTENT"));
+				}
+			} catch (Throwable ignored) {}
+
 			return statusbarIcon;
 		} catch (Throwable ignored) {
 			return null;
@@ -1210,75 +1225,76 @@ public class StatusbarMods extends XposedModPack {
 
 	//region clock and date related
 	private void placeClock() {
-		View viewToMove = mClockView;
+		if (mPhoneStatusbarView == null || mClockView == null) return;
+
+		java.util.List<View> viewsToMove = new java.util.ArrayList<>();
+		viewsToMove.add(mClockView);
+
 		if (isJetpackClock) {
 			if (mJetpackClockView != null && mJetpackClockView.getParent() == null) {
 				mJetpackClockView = null; // View is detached or destroyed, find it again
 			}
 			if (mJetpackClockView == null) {
-				// The clock is natively created in mStatusbarStartSide, search there.
-				// If it's already moved, mJetpackClockView would not be null.
-				// We don't search the right side to avoid accidentally matching the battery ComposeView.
 				mJetpackClockView = findComposeView(mStatusbarStartSide);
 			}
-			if (mJetpackClockView != null) {
-				viewToMove = mJetpackClockView;
+			if (mJetpackClockView != null && mJetpackClockView != mClockView) {
+				viewsToMove.add(mJetpackClockView);
 			}
 		}
 
-		ViewGroup parent = (ViewGroup) viewToMove.getParent();
-		ViewGroup targetArea = null;
-		Integer index = null;
+		for (View viewToMove : viewsToMove) {
+			ViewGroup parent = (ViewGroup) viewToMove.getParent();
+			ViewGroup targetArea = null;
+			Integer index = null;
 
-		switch (clockPosition) {
-			case POSITION_LEFT:
-				if (notificationAreaMultiRow) {
-					targetArea = mLeftExtraRowContainer;
-					index = 0;
-				} else {
-					targetArea = mStatusbarStartSide;
-					index = 1;
-				}
-				viewToMove.setPadding(0, 0, leftClockPadding, 0);
-				break;
-			case POSITION_CENTER:
-				targetArea = (ViewGroup) mCenteredIconArea;
-				viewToMove.setPadding(rightClockPadding, 0, rightClockPadding, 0);
-				break;
-			case POSITION_RIGHT:
-				viewToMove.setPadding(rightClockPadding, 0, 0, 0);
-				targetArea = ((ViewGroup) mSystemIconArea.getParent());
-				// Leaving index as null appends it to the very end (right-most element)
-				break;
-		}
-
-		if (targetArea == null || targetArea == parent) return;
-
-		if (isJetpackClock) {
-			isMovingClock = true;
-		}
-		try {
-			if (parent != null) parent.removeView(viewToMove);
-
-			if (isJetpackClock && viewToMove == mJetpackClockView) {
-				ViewGroup.LayoutParams lp = viewToMove.getLayoutParams();
-				if (lp != null) {
-					if (clockPosition == POSITION_RIGHT) {
-						lp.width = ViewGroup.LayoutParams.WRAP_CONTENT;
+			switch (clockPosition) {
+				case POSITION_LEFT:
+					if (notificationAreaMultiRow) {
+						targetArea = mLeftExtraRowContainer;
+						index = 0;
 					} else {
-						lp.width = ViewGroup.LayoutParams.MATCH_PARENT;
+						targetArea = mStatusbarStartSide;
+						index = 1;
 					}
-					viewToMove.setLayoutParams(lp);
-				}
+					viewToMove.setPadding(0, 0, leftClockPadding, 0);
+					break;
+				case POSITION_CENTER:
+					targetArea = (ViewGroup) mCenteredIconArea;
+					viewToMove.setPadding(rightClockPadding, 0, rightClockPadding, 0);
+					break;
+				case POSITION_RIGHT:
+					viewToMove.setPadding(rightClockPadding, 0, 0, 0);
+					targetArea = ((ViewGroup) mSystemIconArea.getParent());
+					break;
 			}
 
-			if (index != null) {
-				targetArea.addView(viewToMove, index);
-			} else {
-				targetArea.addView(viewToMove);
+			if (targetArea == null || targetArea == parent) continue;
+
+			if (isJetpackClock) isMovingClock = true;
+			try {
+				if (parent != null) parent.removeView(viewToMove);
+
+				if (isJetpackClock && viewToMove == mJetpackClockView) {
+					ViewGroup.LayoutParams lp = viewToMove.getLayoutParams();
+					if (lp != null) {
+						if (clockPosition == POSITION_RIGHT) {
+							lp.width = ViewGroup.LayoutParams.WRAP_CONTENT;
+						} else {
+							lp.width = ViewGroup.LayoutParams.MATCH_PARENT;
+						}
+						viewToMove.setLayoutParams(lp);
+					}
+				}
+
+				if (index != null) {
+					targetArea.addView(viewToMove, index);
+				} else {
+					targetArea.addView(viewToMove);
+				}
+			} catch (Throwable ignored) {
+			} finally {
+				isMovingClock = false;
 			}
-		} finally {
-			isMovingClock = false;
 		}
 	}
 
