@@ -66,6 +66,7 @@ public class HighBrightnessTorchController {
     }
 
     private boolean updateCameraDetails() {
+        if (cameraManager == null) return false;
         try {
             for (String id : cameraManager.getCameraIdList()) {
                 CameraCharacteristics characteristics = cameraManager.getCameraCharacteristics(id);
@@ -93,10 +94,16 @@ public class HighBrightnessTorchController {
     }
 
     public boolean isSupported() {
+        if (maxBrightness == -1) {
+            updateCameraDetails();
+        }
         return maxBrightness > 0;
     }
 
     public int getMaxBrightness() {
+        if (maxBrightness == -1) {
+            updateCameraDetails();
+        }
         return maxBrightness;
     }
 
