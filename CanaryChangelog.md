@@ -1,8 +1,8 @@
-**canary-521**  
-- Fix tile missing field crash  
+**canary-522**  
+- Integrate native High Brightness Flashlight with gesture support  
   
 **canary-521**  
-- Bug fixes and improvements  
+- Fix caffeine tile missing field crash  
   
 **canary-520**  
 MANUAL FLASHING IS REQUIRED FOR THIS BUILD!!!!
