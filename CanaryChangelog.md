@@ -1,4 +1,7 @@
 **canary-521**  
+- Fix tile missing field crash  
+  
+**canary-521**  
 - Bug fixes and improvements  
   
 **canary-520**  
