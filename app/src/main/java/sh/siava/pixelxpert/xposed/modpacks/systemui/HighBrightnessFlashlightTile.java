@@ -127,6 +127,7 @@ public class HighBrightnessFlashlightTile extends XposedModPack {
 			int current = controller.getCurrentBrightness();
 			int max = controller.getMaxBrightness();
 			if (current >= max) {
+				Xprefs.edit().putInt("high_brightness_flashlight_level", 16).apply();
 				controller.closeCamera();
 			} else {
 				int next = Math.min(current + 16, max);
