@@ -1,3 +1,11 @@
+**6.0.8**  
+MANUAL FLASHING IS REQUIRED FOR THIS BUILD!!!!
+RE-GRANTING ROOT + RE-ENABLING IN LSPOSED IS NEEDED ON BOOT UP FOLLOWED BY A REBOOT TO HOOK INTO SYSTEM!!!
+READ MORE ON XDA Thread!!!!!
+- Switch PX-N from a system priv-app to a user app
+- Add caffeine QS tile
+
+
 **6.0.7**  
 Once Google puts the P11 series on track with the other devices again, like in the QPR2 betas, I can fix the abnormalities present
 - Optimize Magisk install scripts and remove unnecessary files/functions for KSU/APatch
