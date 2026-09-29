@@ -66,8 +66,12 @@ public class HighBrightnessTorchController {
     }
 
     private boolean updateCameraDetails() {
-        if (cameraManager == null) return false;
+        if (cameraManager == null) {
+            XposedBridge.log("HighBrightnessTorch: cameraManager is null!");
+            return false;
+        }
         try {
+            XposedBridge.log("HighBrightnessTorch: Querying camera details");
             for (String id : cameraManager.getCameraIdList()) {
                 CameraCharacteristics characteristics = cameraManager.getCameraCharacteristics(id);
                 Boolean flashAvailable = characteristics.get(CameraCharacteristics.FLASH_INFO_AVAILABLE);
@@ -76,20 +80,22 @@ public class HighBrightnessTorchController {
                     if (lensFacing != null && lensFacing == CameraMetadata.LENS_FACING_BACK) {
                         try {
                             Integer max = characteristics.get(CHARACTERISTICS_FLASHLIGHT_BRIGHTNESS_LEVEL_MAX);
+                            XposedBridge.log("HighBrightnessTorch: Found max brightness = " + max + " for camera " + id);
                             if (max != null && max > 0) {
                                 cameraId = id;
                                 maxBrightness = max;
                                 return true;
                             }
                         } catch (IllegalArgumentException e) {
-                            // Key not supported
+                            XposedBridge.log("HighBrightnessTorch: Key not supported for camera " + id);
                         }
                     }
                 }
             }
-        } catch (CameraAccessException e) {
-            XposedBridge.log("Failed to query cameras: " + e.getMessage());
+        } catch (Exception e) {
+            XposedBridge.log("HighBrightnessTorch: Exception - " + e.getMessage());
         }
+        XposedBridge.log("HighBrightnessTorch: updateCameraDetails failed. maxBrightness remains " + maxBrightness);
         return false;
     }
 

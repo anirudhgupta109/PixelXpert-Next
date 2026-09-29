@@ -128,6 +128,9 @@ public class SystemUtils {
 	}
 
 	private boolean isTorchOnInternal() {
+		if (Xprefs.getBoolean("enable_high_brightness_flashlight", false) && HighBrightnessTorchController.getInstance() != null && HighBrightnessTorchController.getInstance().isSupported()) {
+			if (HighBrightnessTorchController.getInstance().isOn()) return true;
+		}
 		if (getCameraManager() == null) {
 			return false;
 		}
