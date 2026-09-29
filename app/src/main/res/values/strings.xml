@@ -8,7 +8,7 @@
     <string name="caffeine_tile_title">Caffeine</string>
     <string name="high_brightness_flashlight_tile_title">High Brightness Flashlight</string>
     <string name="enable_high_brightness_flashlight_title">High Brightness Flashlight</string>
-    <string name="enable_high_brightness_flashlight_summary">Allow gestures to utilize the high brightness flashlight</string>
+    <string name="enable_high_brightness_flashlight_summary">Utilizes camera to reach higher brightness than what the system allows. Uses more power!</string>
     <string name="sliding_tile_subtitle">Tap to adjust</string>
     <string name="app_switch_tile_title">Switch App Profile</string>
     <string name="hide_default">Hide (Default)</string>

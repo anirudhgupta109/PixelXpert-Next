@@ -3,6 +3,7 @@ package sh.siava.pixelxpert.xposed.modpacks.systemui;
 import static de.robv.android.xposed.XposedHelpers.callMethod;
 import static de.robv.android.xposed.XposedHelpers.getObjectField;
 import static de.robv.android.xposed.XposedHelpers.setObjectField;
+import static sh.siava.pixelxpert.xposed.XPrefs.Xprefs;
 
 import android.content.Context;
 import android.content.Intent;
@@ -132,7 +133,8 @@ public class HighBrightnessFlashlightTile extends XposedModPack {
 				controller.setBrightness(next);
 			}
 		} else {
-			controller.setBrightness(16);
+			int last = Xprefs.getInt("high_brightness_flashlight_level", 16);
+			controller.setBrightness(last);
 		}
 		updateTile();
 	}

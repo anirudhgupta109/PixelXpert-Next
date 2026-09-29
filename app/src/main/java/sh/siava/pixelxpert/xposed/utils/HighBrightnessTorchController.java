@@ -66,12 +66,8 @@ public class HighBrightnessTorchController {
     }
 
     private boolean updateCameraDetails() {
-        if (cameraManager == null) {
-            XposedBridge.log("HighBrightnessTorch: cameraManager is null!");
-            return false;
-        }
+        if (cameraManager == null) return false;
         try {
-            XposedBridge.log("HighBrightnessTorch: Querying camera details");
             for (String id : cameraManager.getCameraIdList()) {
                 CameraCharacteristics characteristics = cameraManager.getCameraCharacteristics(id);
                 Boolean flashAvailable = characteristics.get(CameraCharacteristics.FLASH_INFO_AVAILABLE);
@@ -80,22 +76,20 @@ public class HighBrightnessTorchController {
                     if (lensFacing != null && lensFacing == CameraMetadata.LENS_FACING_BACK) {
                         try {
                             Integer max = characteristics.get(CHARACTERISTICS_FLASHLIGHT_BRIGHTNESS_LEVEL_MAX);
-                            XposedBridge.log("HighBrightnessTorch: Found max brightness = " + max + " for camera " + id);
                             if (max != null && max > 0) {
                                 cameraId = id;
                                 maxBrightness = max;
                                 return true;
                             }
                         } catch (IllegalArgumentException e) {
-                            XposedBridge.log("HighBrightnessTorch: Key not supported for camera " + id);
+                            // Key not supported
                         }
                     }
                 }
             }
         } catch (Exception e) {
-            XposedBridge.log("HighBrightnessTorch: Exception - " + e.getMessage());
+            // Ignore
         }
-        XposedBridge.log("HighBrightnessTorch: updateCameraDetails failed. maxBrightness remains " + maxBrightness);
         return false;
     }
 
@@ -122,7 +116,6 @@ public class HighBrightnessTorchController {
     }
 
     public void setBrightness(int brightness) {
-        XposedBridge.log("HighBrightnessTorch: setBrightness " + brightness);
         if (!isSupported()) return;
 
         brightness = Math.min(Math.max(brightness, 0), maxBrightness);
@@ -171,12 +164,10 @@ public class HighBrightnessTorchController {
 
                 @Override
                 public void onError(CameraDevice c, int error) {
-                    XposedBridge.log("HighBrightnessTorch: Camera error " + error);
                     closeCamera();
                 }
             }, cameraHandler);
         } catch (CameraAccessException | SecurityException e) {
-            XposedBridge.log("HighBrightnessTorch: Failed to open camera - " + e.getMessage());
             isActivating = false;
         }
     }
@@ -197,14 +188,12 @@ public class HighBrightnessTorchController {
 
                         @Override
                         public void onConfigureFailed(CameraCaptureSession s) {
-                            XposedBridge.log("HighBrightnessTorch: Session configure failed");
                             closeCamera();
                         }
                     }
             );
             camera.createCaptureSession(sessionConfig);
         } catch (CameraAccessException e) {
-            XposedBridge.log("HighBrightnessTorch: Failed to create session - " + e.getMessage());
             closeCamera();
         }
     }
@@ -219,13 +208,11 @@ public class HighBrightnessTorchController {
             builder.set(REQUEST_FLASHLIGHT_BRIGHTNESS, curBrightness);
             session.capture(builder.build(), null, cameraHandler);
         } catch (CameraAccessException e) {
-            XposedBridge.log("HighBrightnessTorch: Failed to capture - " + e.getMessage());
             closeCamera();
         }
     }
 
     public void closeCamera() {
-        XposedBridge.log("HighBrightnessTorch: closeCamera");
         curBrightness = 0;
         isActivating = false;
         if (session != null) {
