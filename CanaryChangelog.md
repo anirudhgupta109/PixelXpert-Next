@@ -1,3 +1,6 @@
+**canary-523**  
+- prevent duplicated carrier text hooks  
+  
 **canary-522**  
 - Integrate native High Brightness Flashlight with gesture support  
   
