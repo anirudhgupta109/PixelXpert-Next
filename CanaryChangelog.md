@@ -1,3 +1,6 @@
+**canary-524**  
+- integrate bottom QS brightness slider + brightness slider in QQS  
+  
 **canary-523**  
 - prevent duplicated carrier text hooks  
   
