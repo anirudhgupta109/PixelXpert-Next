@@ -1,3 +1,6 @@
+**canary-525**  
+- Keep QS brightness slider full width below tiles and media in landscape  
+  
 **canary-524**  
 - integrate bottom QS brightness slider + brightness slider in QQS  
   
