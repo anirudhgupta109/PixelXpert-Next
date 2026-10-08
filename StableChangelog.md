@@ -1,13 +1,16 @@
+**6.0.9**  
+NOTE: another month, another way Google has screwed over the P11 series by not giving the new SystemUI changes that other Pixels have, so I still can't fix the issues introduced in the September build
+- Add high brightness flash QS tile and allow for gestures to utilize this high brightness mode
+- Fix multiple hooks into carrier text causing a memory leak
+- Add bottom brightness slider and persistent brightness slider in collapsed quick settings [thanks to DrDisagree for the patches!]
+
+
 **6.0.8**  
-MANUAL FLASHING IS REQUIRED FOR THIS BUILD!!!!
-RE-GRANTING ROOT + RE-ENABLING IN LSPOSED IS NEEDED ON BOOT UP FOLLOWED BY A REBOOT TO HOOK INTO SYSTEM!!!
-READ MORE ON XDA Thread!!!!!
 - Switch PX-N from a system priv-app to a user app
 - Add caffeine QS tile
 
 
 **6.0.7**  
-Once Google puts the P11 series on track with the other devices again, like in the QPR2 betas, I can fix the abnormalities present
 - Optimize Magisk install scripts and remove unnecessary files/functions for KSU/APatch
 - Fix shuffle pin for compose keyguard (the one on android betas and the new September Stable)
 - Use the inbuilt easy unlock for all pin lengths (system one restricts it for only >=6 digits)

@@ -14,9 +14,6 @@
 - Fix caffeine tile missing field crash  
   
 **canary-520**  
-MANUAL FLASHING IS REQUIRED FOR THIS BUILD!!!!
-RE-GRANTING ROOT + RE-ENABLING IN LSPOSED IS NEEDED ON BOOT UP FOLLOWED BY A REBOOT TO HOOK INTO SYSTEM!!!
-READ MORE ON TG CHANNEL!!!!!
 - Add caffeine QS tile  
 - Update module structure to install as a user app  
   
