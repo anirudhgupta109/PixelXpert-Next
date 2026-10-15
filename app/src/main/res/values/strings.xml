@@ -386,7 +386,7 @@
     <string name="vibrate_on_call_active_title">Vibrate on outgoing call answered</string>
     <string name="vibrate_on_call_drop_title">Vibrate when call disconnects</string>
     <string name="vibration_type_notification">Intensity defined by system notification vibration settings</string>
-    <string name="dialer_record_all_contacts_title">Automatically record all contacts</string>
+    <string name="dialer_record_all_contacts_title">Automatically record calls with contacts</string>
     <string name="dialer_record_all_contacts_summary">Include current and future contacts when automatic recording for selected numbers is enabled in Google Phone. Unknown numbers follow Phone’s separate setting.</string>
     <string name="dialer_mute_record_message_title">Remove call recording announcement</string>
     <string name="dialer_mute_record_message_summary">Only applies to Google phone app with call recording enabled</string>
