@@ -1,8 +1,6 @@
 package sh.anirudhgupta109.pxn.xposed.modpacks.dialer.compat
 
-import com.android.tools.smali.dexlib2.DexFileFactory
 import com.android.tools.smali.dexlib2.Opcode
-import com.android.tools.smali.dexlib2.Opcodes
 import com.android.tools.smali.dexlib2.iface.ClassDef
 import com.android.tools.smali.dexlib2.iface.Method
 import com.android.tools.smali.dexlib2.iface.instruction.*
@@ -22,10 +20,7 @@ internal data class FermatRecordingTargets(
 	companion object {
 		fun resolve(apks: List<File>, recordingResourceIds: List<Int>): FermatRecordingTargets {
 			require(recordingResourceIds.size == 3 && recordingResourceIds.all { it != 0 })
-			val classes = apks.flatMap { apk ->
-				val dex = DexFileFactory.loadDexContainer(apk, Opcodes.getDefault())
-				dex.dexEntryNames.flatMap { requireNotNull(dex.getEntry(it)).dexFile.classes }
-			}.associateBy { it.type }
+			val classes = DialerDiscoveryCache.classes(apks)
 			val cues = mutableListOf<Method>()
 			val recordingClasses = mutableListOf<ClassDef>()
 			val readers = mutableMapOf<FieldReference, MutableSet<Method>>()
