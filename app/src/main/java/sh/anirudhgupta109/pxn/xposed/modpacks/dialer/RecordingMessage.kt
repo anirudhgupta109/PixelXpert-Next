@@ -8,6 +8,7 @@ import io.github.libxposed.api.XposedModuleInterface
 import java.io.ByteArrayInputStream
 import java.util.Locale
 import java.util.concurrent.ConcurrentHashMap
+import sh.anirudhgupta109.pxn.xposed.XPLauncher
 import sh.anirudhgupta109.pxn.xposed.XPrefs.Xprefs
 import sh.anirudhgupta109.pxn.xposed.XposedModPack
 import sh.anirudhgupta109.pxn.xposed.annotations.DialerModPack
@@ -67,6 +68,14 @@ class RecordingMessage(context: Context) : XposedModPack(context) {
 	override fun onPackageLoaded(PRParam: XposedModuleInterface.PackageReadyParam) {
 		if (PRParam != null && PRParam.classLoader != null) {
 			ReflectedClass.setDefaultClassloader(PRParam.classLoader)
+		}
+
+		if (PRParam.packageName == "com.google.android.dialer") {
+			XPLauncher.instance?.let { xposed ->
+				sh.anirudhgupta109.pxn.xposed.modpacks.dialer.compat.FermatRecordingCompat.install(
+					mContext, PRParam.classLoader, { removeRecodingMessage }, xposed,
+				)
+			}
 		}
 
 		val res = mContext.resources
