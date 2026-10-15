@@ -143,6 +143,8 @@ androidComponents {
 }
 
 dependencies {
+	testImplementation("junit:junit:4.13.2")
+
 	// Compose / Material 3 - pinned explicitly (no BOM; see gradle/libs.versions.toml)
 	implementation(libs.compose.ui)
 	implementation(libs.compose.foundation)
@@ -213,3 +215,8 @@ dependencies {
 	coreLibraryDesugaring(libs.desugar.jdk.libs)
 }
 
+
+// JVM tests consume the app's generated registry; they do not declare mod packs.
+// Running the production registry processor on test sources rejects the empty set.
+tasks.matching { it.name == "kspDebugUnitTestKotlin" || it.name == "kspReleaseUnitTestKotlin" }
+	.configureEach { enabled = false }

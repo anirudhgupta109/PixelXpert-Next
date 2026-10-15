@@ -34,6 +34,9 @@ class RecordingMessage(context: Context) : XposedModPack(context) {
 		private var removeRecodingMessage = false
 
 		@JvmStatic
+		private var recordAllContacts = false
+
+		@JvmStatic
 		private val matchedResourceIds: MutableSet<Int> = ConcurrentHashMap.newKeySet()
 
 		@JvmStatic
@@ -56,10 +59,11 @@ class RecordingMessage(context: Context) : XposedModPack(context) {
 	@Suppress("SENSELESS_COMPARISON")
 	override fun onPreferenceUpdated(vararg key: String?) {
 
-		if (key.isNotEmpty() && key[0]!!.equals("DialerRemoveRecordMessage")) {
+		if (key.any { it == "DialerRemoveRecordMessage" || it == "DialerRecordAllContacts" }) {
 			SystemUtils.killSelf()
 		}
 		removeRecodingMessage = Xprefs.getBoolean("DialerRemoveRecordMessage", false)
+		recordAllContacts = Xprefs.getBoolean("DialerRecordAllContacts", false)
 	}
 
 	@SuppressLint("DiscouragedApi")
@@ -67,6 +71,12 @@ class RecordingMessage(context: Context) : XposedModPack(context) {
 	override fun onPackageLoaded(PRParam: XposedModuleInterface.PackageReadyParam) {
 		if (PRParam != null && PRParam.classLoader != null) {
 			ReflectedClass.setDefaultClassloader(PRParam.classLoader)
+		}
+
+		if (PRParam.packageName == "com.google.android.dialer") {
+			sh.anirudhgupta109.pxn.xposed.modpacks.dialer.compat.FermatRecordingCompat.install(
+				mContext, PRParam.classLoader, { removeRecodingMessage }, { recordAllContacts },
+			)
 		}
 
 		val res = mContext.resources
