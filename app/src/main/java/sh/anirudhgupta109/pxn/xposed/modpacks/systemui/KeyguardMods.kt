@@ -26,6 +26,9 @@ import io.github.libxposed.api.XposedModuleInterface
 import java.lang.ref.WeakReference
 import java.util.regex.Pattern
 import sh.anirudhgupta109.pxn.xposed.XPrefs.Xprefs
+import sh.anirudhgupta109.pxn.xposed.XPLauncher
+import sh.anirudhgupta109.pxn.xposed.modpacks.systemui.compat.ShortcutComposeHooks
+import sh.anirudhgupta109.pxn.xposed.modpacks.systemui.compat.ShortcutRenderScope
 import sh.anirudhgupta109.pxn.xposed.XposedModPack
 import sh.anirudhgupta109.pxn.xposed.annotations.SystemUIModPack
 import sh.anirudhgupta109.pxn.xposed.utils.StringFormatter
@@ -63,7 +66,7 @@ class KeyguardMods(context: Context) : XposedModPack(context) {
 		const val EXTRA_TEMPERATURE = "temperature"
 
 		private val WALLPAPER_DIM_AMOUNT_DIMMED: Any = 0.6F // DefaultDeviceEffectsApplier
-		private val isRenderingShortcut: ThreadLocal<Boolean> = ThreadLocal.withInitial { false }
+		private val shortcutRenderScope = ShortcutRenderScope()
 
 		private var ShowChargingInfo = false
 
@@ -176,19 +179,15 @@ class KeyguardMods(context: Context) : XposedModPack(context) {
 				ControlledLaunchableImageViewBackgroundDrawable.captureDrawable(thisView.findViewById(SystemUtils.idOf("end_button")))
 			}
 
-		ShortcutElementProviderClass
-			.before("KeyguardShortcut")
-			.run { param -> isRenderingShortcut.set(true) }
-
-		ShortcutElementProviderClass
-			.after("KeyguardShortcut")
-			.run { param -> isRenderingShortcut.set(false) }
+		XPLauncher.instance?.let { xposed ->
+			ShortcutComposeHooks.install(xposed, ShortcutElementProviderClass.clazz, mContext.applicationInfo, shortcutRenderScope)
+		}
 
 		BackgroundKtClass
 			.before(Pattern.compile("background.*|m.*background.*"))
 			.run { param ->
 				//noinspection DataFlowIssue
-				if (transparentBGcolor && isRenderingShortcut.get() && param.args.size == 3 && param.args[1] is Long) {
+				if (transparentBGcolor && shortcutRenderScope.isActive && param.args.size == 3 && param.args[1] is Long) {
 					param.args[1] = 0L // Color.Transparent
 				}
 			}
@@ -197,7 +196,7 @@ class KeyguardMods(context: Context) : XposedModPack(context) {
 			.before(Pattern.compile("Icon.*|m.*Icon.*"))
 			.run { param ->
 				//noinspection DataFlowIssue
-				if (transparentBGcolor && isRenderingShortcut.get() && param.args.size >= 4 && param.args[3] is Long) {
+				if (transparentBGcolor && shortcutRenderScope.isActive && param.args.size >= 4 && param.args[3] is Long) {
 					val wallpaperTextColorAccent = getColorAttrDefaultColor(
 						mContext,
 						mContext.resources.getIdentifier("wallpaperTextColorAccent", "attr", mContext.packageName),
