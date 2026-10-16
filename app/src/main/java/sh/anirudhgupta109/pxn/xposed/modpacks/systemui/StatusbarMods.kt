@@ -8,6 +8,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.graphics.Color
+import android.graphics.Typeface
 import android.graphics.drawable.Icon
 import android.net.Uri
 import android.os.Handler
@@ -95,6 +96,9 @@ class StatusbarMods @SuppressLint("DiscouragedApi") constructor(context: Context
 
 		/** U+200B, zero width but full line height; keeps a 70% line box full. */
 		private const val ZERO_WIDTH_SPACE = "\u200b"
+
+		// The Compose clock uses bodyMediumEmphasized (weight 500)
+		private const val CLOCK_FONT_WEIGHT = 500
 		private var isJetpackClock = false
 
 		@JvmStatic
@@ -1403,6 +1407,11 @@ class StatusbarMods @SuppressLint("DiscouragedApi") constructor(context: Context
 		return if (fromDimen > 0f) fromDimen else 42f
 	}
 
+	// The clock's font family with the weight the Compose clock asks for
+	// Family comes from the legacy clock's text appearance.
+	private fun clockTypeface(): Typeface =
+		Typeface.create(mClockView?.typeface ?: Typeface.DEFAULT, CLOCK_FONT_WEIGHT, false)
+
 	// One flanking TextView. Height is MATCH_PARENT with CENTER_VERTICAL, like the Compose clock
 	private fun makeCompanionView(): TextView {
 		val sizePx = companionTextSizePx()
@@ -1412,7 +1421,7 @@ class StatusbarMods @SuppressLint("DiscouragedApi") constructor(context: Context
 			includeFontPadding = false
 			setPadding(0, 0, 0, 0)
 			setTextSize(TypedValue.COMPLEX_UNIT_PX, sizePx)
-			mClockView?.typeface?.let { typeface = it }
+			typeface = clockTypeface()
 			setTextColor(currentClockColor)
 			layoutParams = LinearLayout.LayoutParams(
 				ViewGroup.LayoutParams.WRAP_CONTENT,
