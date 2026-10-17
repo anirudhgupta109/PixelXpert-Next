@@ -143,6 +143,8 @@ androidComponents {
 }
 
 dependencies {
+	implementation("com.android.tools.smali:smali-dexlib2:3.0.10")
+	implementation("com.google.guava:guava:31.1-android")
 	// Compose / Material 3 - pinned explicitly (no BOM; see gradle/libs.versions.toml)
 	implementation(libs.compose.ui)
 	implementation(libs.compose.foundation)
