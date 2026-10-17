@@ -31,6 +31,7 @@ val preferenceDefaults: Map<String, String?> = mapOf(
 	"DateFormatAfterSBC" to "",
 	"DateFormatBeforeSBC" to "",
 	"DialerRemoveRecordMessage" to "false",
+	"DialerRecordAllContacts" to "false",
 	"DisableLockScreenPill" to "false",
 	"DisableOngoingNotifDismiss" to "false",
 	"DoubleTapSleep" to "false",
