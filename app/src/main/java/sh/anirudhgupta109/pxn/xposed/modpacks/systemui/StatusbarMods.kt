@@ -26,7 +26,9 @@ import android.text.style.CharacterStyle
 import android.text.style.RelativeSizeSpan
 import android.util.TypedValue
 import android.view.Gravity
+import android.view.MotionEvent
 import android.view.View
+import android.view.ViewConfiguration
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.LinearLayout
@@ -36,14 +38,18 @@ import androidx.annotation.Nullable
 import de.robv.android.xposed.XposedHelpers.callMethod
 import de.robv.android.xposed.XposedHelpers.getAdditionalInstanceField
 import de.robv.android.xposed.XposedHelpers.getBooleanField
+import de.robv.android.xposed.XposedHelpers.getFloatField
 import de.robv.android.xposed.XposedHelpers.getObjectField
 import de.robv.android.xposed.XposedHelpers.setAdditionalInstanceField
 import de.robv.android.xposed.XposedHelpers.setObjectField
 import io.github.libxposed.api.XposedModuleInterface
+import java.lang.ref.WeakReference
 import java.util.Arrays
 import java.util.Locale
 import java.util.concurrent.Executor
+import java.util.regex.Pattern
 import javax.security.auth.callback.Callback
+import kotlin.math.abs
 import org.objenesis.ObjenesisHelper
 import sh.anirudhgupta109.pxn.BuildConfig
 import sh.anirudhgupta109.pxn.Constants
@@ -99,6 +105,12 @@ class StatusbarMods @SuppressLint("DiscouragedApi") constructor(context: Context
 		private const val COMPOSE_CLOCK_FAMILY = "variable-body-medium-emphasized"
 		private const val CLOCK_FONT_WEIGHT = 500
 		private var isJetpackClock = false
+
+		// The Compose shade header tags its clock and date elements with these.
+		private const val COMPOSE_CLOCK_TAG = "com.android.systemui:id/expanded_header_clock"
+		private const val COMPOSE_DATE_TAG = "com.android.systemui:id/expanded_shade_header_day_date"
+		// Ours, added to the collapsed header's date - SystemUI gives no click handler of its own.
+		private const val QQS_DATE_TAG = "pxn_qqs_header_date"
 
 		@JvmStatic
 		var isMovingClock = false
@@ -862,7 +874,36 @@ class StatusbarMods @SuppressLint("DiscouragedApi") constructor(context: Context
 
 				mView.findViewById<View>(SystemUtils.idOf("date")).setOnClickListener(clickListener)
 				mView.findViewById<View>(SystemUtils.idOf("date")).setOnLongClickListener(clickListener)
+
+				// The build controls the gestures now - the Compose path below must leave them alone.
+				legacyTapListenerAttached = true
 			}
+
+		// Compose shade header
+		try {
+			ReflectedClass.ofIfPossible("androidx.compose.ui.platform.AndroidComposeView")
+				.takeIf { it.clazz != null }?.before("dispatchTouchEvent")
+				?.run { param ->
+					(param.thisObject as? View)?.let { view ->
+						(param.args?.firstOrNull() as? MotionEvent)?.let { recordComposeTap(view, it) }
+					}
+				}
+			ReflectedClass.ofIfPossible("com.android.systemui.clock.domain.interactor.ClockInteractor")
+				.takeIf { it.clazz != null }?.before("launchClockActivity")
+				?.run { param -> if (interceptComposeHeaderTap()) param.setResult(null) }
+			// The collapsed header draws its date as a plain text without a click
+			// handler; tag it so a tap on it can be recognised off the Compose view.
+			ReflectedClass.ofIfPossible("com.android.systemui.shade.ui.composable.VariableDayDateKt")
+				.takeIf { it.clazz != null }?.before(Pattern.compile("VariableDayDate.*"))
+				?.run { param ->
+					val index = param.method.parameterTypes.indexOfFirst { it.name == "androidx.compose.ui.Modifier" }
+					val modifier = param.args.getOrNull(index) ?: return@run
+					val tagger = ReflectedClass.ofIfPossible("com.android.systemui.compose.modifiers.SysuiTestTagKt")
+					// Prepended so the expanded header keeps its own date tag on top.
+					tagger?.callStaticMethod("sysuiResTag", modifier, QQS_DATE_TAG)?.let { param.args[index] = it }
+				}
+		} catch (t: Throwable) {
+		}
 
 		//modding clock, adding additional objects,
 		PhoneStatusBarViewControllerClass
@@ -1405,6 +1446,160 @@ class StatusbarMods @SuppressLint("DiscouragedApi") constructor(context: Context
 			return false
 		}
 	}
+	//endregion
+
+	//region icon tap related (Compose shade header)
+	// true when xml header controls the gestures
+	private var legacyTapListenerAttached = false
+	private var composeTapView: WeakReference<View>? = null
+	private var composeTapDownAt = 0L
+	private var composeTapUpAt = 0L
+	private var composeTapDownX = 0f
+	private var composeTapDownY = 0f
+	private var composeTapX = 0f
+	private var composeTapY = 0f
+
+	private fun recordComposeTap(view: View, event: MotionEvent) {
+		composeTapView = WeakReference(view)
+		when (event.actionMasked) {
+			MotionEvent.ACTION_DOWN -> {
+				composeTapDownAt = System.currentTimeMillis()
+				composeTapDownX = event.x
+				composeTapDownY = event.y
+			}
+			MotionEvent.ACTION_UP -> {
+				composeTapX = event.x
+				composeTapY = event.y
+				composeTapUpAt = System.currentTimeMillis()
+				handleCollapsedDateTap(view)
+			}
+		}
+	}
+
+	/** True when this gesture was handled here - skips SystemUI's own clock launch. */
+	private fun interceptComposeHeaderTap(): Boolean {
+		val view = composeTapView?.get() ?: return false
+		val downAt = composeTapDownAt
+		val upAt = composeTapUpAt
+		composeTapDownAt = 0L // Consume it - later click cannot reuse it.
+		composeTapUpAt = 0L
+		// Leave SystemUI alone when the XML header above controls the gestures
+		if (legacyTapListenerAttached || downAt == 0L || upAt < downAt) return false
+		if (System.currentTimeMillis() - upAt > 2000) return false
+
+		val onClock = composeElementUnder(view, COMPOSE_CLOCK_TAG, composeTapX, composeTapY)
+		val onDate = composeElementUnder(view, COMPOSE_DATE_TAG, composeTapX, composeTapY)
+		if (!onClock && !onDate) return false
+
+		return when {
+			// Long press on either element opens Date & time settings.
+			upAt - downAt >= ViewConfiguration.getLongPressTimeout() -> {
+				launchDateTimeSettings()
+				true
+			}
+			// Date tap: calendar; a clock tap: alarm clock.
+			onDate -> {
+				launchCalendar()
+				true
+			}
+			else -> false
+		}
+	}
+
+	/**
+	 * The collapsed (QQS) header draws its date as a plain text.
+	 * The date is tagged by the VariableDayDate hook and handled to the Compose view.
+	 */
+	private fun handleCollapsedDateTap(view: View) {
+		val downAt = composeTapDownAt
+		val upAt = composeTapUpAt
+		if (legacyTapListenerAttached || downAt == 0L || upAt < downAt) return
+
+		// Only taps
+		val slop = ViewConfiguration.get(view.context).scaledTouchSlop
+		if (abs(composeTapX - composeTapDownX) > slop || abs(composeTapY - composeTapDownY) > slop) return
+		// Both elements sit in the top strip
+		if (headerStripHeightPx > 0 && composeTapDownY > headerStripHeightPx) return
+
+		// The expanded header handles the same element through launchClockActivity().
+		val x = composeTapX
+		val y = composeTapY
+		if (composeElementUnder(view, COMPOSE_DATE_TAG, x, y)) return
+		if (!composeElementUnder(view, "com.android.systemui:id/$QQS_DATE_TAG", x, y)) return
+
+		composeTapDownAt = 0L // Consume it - no other handler knows this gesture.
+		composeTapUpAt = 0L
+		if (upAt - downAt >= ViewConfiguration.getLongPressTimeout()) {
+			launchDateTimeSettings()
+		} else {
+			launchCalendar()
+		}
+	}
+
+	private fun launchCalendar() {
+		val today = CalendarContract.CONTENT_URI.buildUpon().appendPath("time")
+		today.appendPath(System.currentTimeMillis().toString())
+		callMethod(mActivityStarter, "postStartActivityDismissingKeyguard", Intent(Intent.ACTION_VIEW, today.build()), 0)
+	}
+
+	private fun launchDateTimeSettings() {
+		val intent = Intent(Intent.ACTION_MAIN)
+			.setClassName("com.android.settings", "com.android.settings.Settings\$DateTimeSettingsActivity")
+		callMethod(mActivityStarter, "startActivity", intent, true /* dismissShade */)
+	}
+
+	/** Height of the status bar strip - holds the collapsed shade header. */
+	private val headerStripHeightPx: Int by lazy {
+		try {
+			val id = mContext.resources.getIdentifier("status_bar_height", "dimen", "android")
+			if (id != 0) mContext.resources.getDimensionPixelSize(id) else 0
+		} catch (t: Throwable) {
+			0
+		}
+	}
+
+	// True - (x, y) is inside the Compose header element.
+	// A node that is composed but not laid out - the header state that is not showing -
+	// carries the same tag and reports stale rect at the origin, ignore those
+	private fun composeElementUnder(view: View, tag: String, x: Float, y: Float): Boolean {
+		try {
+			val testTag = ReflectedClass.ofIfPossible("androidx.compose.ui.semantics.SemanticsProperties")
+				.clazz?.getField("TestTag")?.get(null)
+			val root = getObjectField(view, "semanticsOwner")
+				?.let { callMethod(it, "getUnmergedRootSemanticsNode") } as? Any ?: return false
+
+			val queue = ArrayDeque<Any>().apply { add(root) }
+			var budget = 512
+			while (queue.isNotEmpty() && budget-- > 0) {
+				val node = queue.removeFirst()
+				val nodeTag = (callMethod(node, "getConfig") as? Iterable<*>)
+					?.mapNotNull { it as? Map.Entry<*, *> }
+					?.firstOrNull { it.key === testTag }
+					?.value
+				if (nodeTag == tag && isPlaced(node)) {
+					val bounds = callMethod(node, "getBoundsInRoot")
+					if (x >= getFloatField(bounds, "left") && x <= getFloatField(bounds, "right") &&
+						y >= getFloatField(bounds, "top") && y <= getFloatField(bounds, "bottom")
+					) {
+						return true
+					}
+				}
+				(callMethod(node, "getChildren\$ui", false, false) as? List<*>)
+					?.forEach { if (it != null) queue.add(it) }
+			}
+		} catch (t: Throwable) {
+		}
+		return false
+	}
+
+	/** False for semantics node whose layout never placed. */
+	private fun isPlaced(node: Any): Boolean = try {
+		val layoutNode = getObjectField(node, "layoutNode")
+		layoutNode == null || callMethod(layoutNode, "isPlaced") == true
+	} catch (t: Throwable) {
+		true // keep the element tappable.
+	}
+
 	//endregion
 
 	//region clock and date related
