@@ -14,11 +14,6 @@ import de.robv.android.xposed.XposedHelpers.getObjectField
 import de.robv.android.xposed.XposedHelpers.setObjectField
 import io.github.libxposed.api.XposedModule
 import io.github.libxposed.api.XposedModuleInterface
-import java.util.LinkedList
-import java.util.concurrent.CompletableFuture
-import java.util.concurrent.CopyOnWriteArrayList
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 import sh.anirudhgupta109.pxn.BuildConfig
 import sh.anirudhgupta109.pxn.Constants
 import sh.anirudhgupta109.pxn.IPixelXpertProxy
@@ -28,6 +23,11 @@ import sh.anirudhgupta109.pxn.xposed.utils.BootLoopProtector.isBootLooped
 import sh.anirudhgupta109.pxn.xposed.utils.SystemUtils
 import sh.anirudhgupta109.pxn.xposed.utils.reflection.ReflectedClass
 import sh.anirudhgupta109.pxn.xposed.utils.toolkit.Logger
+import java.util.LinkedList
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.CopyOnWriteArrayList
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 
 /**
  * The module's entry point, and everything that has to happen before a mod pack
@@ -53,7 +53,9 @@ import sh.anirudhgupta109.pxn.xposed.utils.toolkit.Logger
  * Step 4 also runs `XPrefs.onContentProviderLoaded()`, which is what first fans
  * a preference change out to the packs added in step 3.
  */
-class XPLauncher : XposedModule(), ServiceConnection {
+class XPLauncher :
+	XposedModule(),
+	ServiceConnection {
 
 	/** Package under hook; null until [XPrefs.init] has run. */
 	var mContext: Context? = null

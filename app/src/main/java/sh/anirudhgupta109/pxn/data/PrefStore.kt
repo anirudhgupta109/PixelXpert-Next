@@ -9,14 +9,14 @@ import android.net.Uri
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import sh.anirudhgupta109.pxn.BuildConfig
+import sh.anirudhgupta109.pxn.ui.prefs.node.ValuePref
 import java.io.IOException
 import java.io.InputStream
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
 import java.io.OutputStream
 import kotlin.math.roundToInt
-import sh.anirudhgupta109.pxn.BuildConfig
-import sh.anirudhgupta109.pxn.ui.prefs.node.ValuePref
 
 /**
  * Reads and writes the module's preferences.
@@ -56,14 +56,11 @@ class PrefStore(context: Context) {
 
 	// ------------------------------------------------------------------ reads
 
-	fun getString(key: String, default: String? = null): String? =
-		prefs.getString(key, default)
+	fun getString(key: String, default: String? = null): String? = prefs.getString(key, default)
 
-	fun getBoolean(key: String, default: Boolean = false): Boolean =
-		prefs.getBoolean(key, default)
+	fun getBoolean(key: String, default: Boolean = false): Boolean = prefs.getBoolean(key, default)
 
-	fun getFloat(key: String, default: Float = 0f): Float =
-		prefs.getFloat(key, default)
+	fun getFloat(key: String, default: Float = 0f): Float = prefs.getFloat(key, default)
 
 	/**
 	 * Integer read with the same tolerance [sliderValue] applies: a writer
@@ -85,8 +82,7 @@ class PrefStore(context: Context) {
 			?: default
 	}
 
-	fun getStringSet(key: String, default: Set<String>? = null): Set<String>? =
-		prefs.getStringSet(key, default)
+	fun getStringSet(key: String, default: Set<String>? = null): Set<String>? = prefs.getStringSet(key, default)
 
 	/**
 	 * Slider read as an integer: the slider's stored number is read as a
@@ -141,8 +137,11 @@ class PrefStore(context: Context) {
 		val d = pref.default
 		return when (pref) {
 			is sh.anirudhgupta109.pxn.ui.prefs.node.SwitchPref ->
-				if (contains(pref.key)) getBoolean(pref.key, d == "true").toString()
-				else d
+				if (contains(pref.key)) {
+					getBoolean(pref.key, d == "true").toString()
+				} else {
+					d
+				}
 
 			is sh.anirudhgupta109.pxn.ui.prefs.node.SliderPref ->
 				if (contains(pref.key)) sliderValue(pref.key, d) else d
@@ -151,8 +150,12 @@ class PrefStore(context: Context) {
 				if (contains(pref.key)) {
 					if (pref.multiSelect) {
 						getStringSet(pref.key)?.joinToString(",") ?: d
-					} else getString(pref.key, d)
-				} else d
+					} else {
+						getString(pref.key, d)
+					}
+				} else {
+					d
+				}
 
 			is sh.anirudhgupta109.pxn.ui.prefs.node.TimePref ->
 				if (contains(pref.key)) getInt(pref.key, d?.toIntOrNull() ?: 0).toString() else d
@@ -164,7 +167,9 @@ class PrefStore(context: Context) {
 					} catch (e: ClassCastException) {
 						getInt(pref.key, d?.toIntOrNull() ?: 0).toString()
 					}
-				} else d
+				} else {
+					d
+				}
 
 			else ->
 				if (contains(pref.key)) getString(pref.key, d) else d
@@ -180,17 +185,22 @@ class PrefStore(context: Context) {
 			is sh.anirudhgupta109.pxn.ui.prefs.node.SliderPref -> {
 				// A range value is not a single number; storing it as one
 				// would coerce "0,50" to 0f and lose the upper bound.
-				if (value != null && value.toFloatOrNull() == null) putString(pref.key, value)
-				else putFloat(pref.key, value?.toFloatOrNull() ?: 0f)
+				if (value != null && value.toFloatOrNull() == null) {
+					putString(pref.key, value)
+				} else {
+					putFloat(pref.key, value?.toFloatOrNull() ?: 0f)
+				}
 			}
 
 			is sh.anirudhgupta109.pxn.ui.prefs.node.ListPref ->
 				if (pref.multiSelect) {
 					putStringSet(
 						pref.key,
-						value?.split(',')?.map(String::trim)?.filter(String::isNotEmpty)?.toSet()
+						value?.split(',')?.map(String::trim)?.filter(String::isNotEmpty)?.toSet(),
 					)
-				} else putString(pref.key, value)
+				} else {
+					putString(pref.key, value)
+				}
 
 			is sh.anirudhgupta109.pxn.ui.prefs.node.TimePref ->
 				putInt(pref.key, value?.toIntOrNull() ?: 0)
@@ -236,8 +246,7 @@ class PrefStore(context: Context) {
 	 * backups stay importable and the keys they hold are the ones in
 	 * `<pkg>_preferences`.
 	 */
-	fun exportTo(uri: Uri): Boolean =
-		appContext.contentResolver.openOutputStream(uri)?.use(::writeAll) ?: false
+	fun exportTo(uri: Uri): Boolean = appContext.contentResolver.openOutputStream(uri)?.use(::writeAll) ?: false
 
 	private fun writeAll(out: OutputStream): Boolean = try {
 		ObjectOutputStream(out).use { it.writeObject(prefs.all) }
@@ -255,8 +264,7 @@ class PrefStore(context: Context) {
 	 * false and leaves prefs untouched, because the clear only happens once
 	 * the map has decoded.
 	 */
-	fun importFrom(uri: Uri): Boolean =
-		appContext.contentResolver.openInputStream(uri)?.use(::readAll) ?: false
+	fun importFrom(uri: Uri): Boolean = appContext.contentResolver.openInputStream(uri)?.use(::readAll) ?: false
 
 	@Suppress("UNCHECKED_CAST")
 	private fun readAll(input: InputStream): Boolean {
@@ -315,28 +323,17 @@ class PrefStore(context: Context) {
 		 * `context.getSharedPreferences(FILE_NAME, ...)` directly is the bug
 		 * this function exists to prevent.
 		 */
-		fun open(context: Context): SharedPreferences =
-			context.applicationContext
-				.createDeviceProtectedStorageContext()
-				.getSharedPreferences(FILE_NAME, Context.MODE_PRIVATE)
+		fun open(context: Context): SharedPreferences = context.applicationContext
+			.createDeviceProtectedStorageContext()
+			.getSharedPreferences(FILE_NAME, Context.MODE_PRIVATE)
 
-		/**
-		 * Flags the store as ready for the hooks.
-		 *
-		 * The marker is a no-op for readers in this app - generated screens
-		 * already fall back to their declared defaults for an absent key -
-		 * but the hooks still read it: `ExtendedRemotePreferences` holds back
-		 * its listener fan-out until the marker is `true`, so without it a
-		 * mod pack would load once and then never see another preference
-		 * change.
-		 *
-		 * Called from `PxnApp.onCreate`, which Android runs before the content
-		 * provider that serves the hooks is created, so the very first remote
-		 * read already observes it.
-		 */
 		/**
 		 * Writes [LEGACY_INIT_MARKER] so the hooks stop withholding preference
 		 * changes, then moves any keys left in credential-protected storage.
+		 *
+		 * Withholding means `ExtendedRemotePreferences` holds back its
+		 * listener fan-out until the marker is `true`; without it a mod pack
+		 * would load once and then never see another preference change.
 		 *
 		 * `RemotePrefProvider` is `directBootAware`, so Android may start this
 		 * process before the user has unlocked. The store itself is
@@ -450,6 +447,7 @@ const val REMOTE_PREF_AUTHORITY: String = BuildConfig.APPLICATION_ID
 @Composable
 fun PrefStore.valueOf(pref: ValuePref): String? {
 	val rev by revision.collectAsState()
-	@Suppress("UNUSED_EXPRESSION") rev
+	@Suppress("UNUSED_EXPRESSION")
+	rev
 	return read(pref)
 }

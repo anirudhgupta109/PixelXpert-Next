@@ -11,7 +11,7 @@ dependencyResolutionManagement {
 	repositories {
 		google()
 		mavenCentral()
-		maven { setUrl("https://jitpack.io")  }
+		maven { setUrl("https://jitpack.io") }
 		// Official Xposed repository - hosts de.robv.android.xposed:api:82, the
 		// reflection/hook helpers (XposedHelpers, XposedBridge) the hook DSL is
 		// written against. Declared compileOnly, so it is never packaged into

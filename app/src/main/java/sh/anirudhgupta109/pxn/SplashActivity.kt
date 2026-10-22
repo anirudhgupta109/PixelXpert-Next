@@ -41,13 +41,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toBitmap
-import java.util.concurrent.CountDownLatch
-import kotlin.concurrent.thread
 import sh.anirudhgupta109.pxn.BuildConfig
 import sh.anirudhgupta109.pxn.theme.PxnTheme
 import sh.anirudhgupta109.pxn.util.AppUtils
 import sh.anirudhgupta109.pxn.util.ModuleInstaller
 import sh.anirudhgupta109.pxn.util.PixelGate
+import java.util.concurrent.CountDownLatch
+import kotlin.concurrent.thread
 
 private enum class CheckState { RUNNING, DONE, FAILED }
 
@@ -294,11 +294,7 @@ private fun SplashContent(
 }
 
 @Composable
-private fun CheckRow(
-	label: String,
-	state: CheckState,
-	modifier: Modifier = Modifier,
-) {
+private fun CheckRow(label: String, state: CheckState, modifier: Modifier = Modifier) {
 	Row(
 		modifier = modifier
 			.fillMaxWidth()

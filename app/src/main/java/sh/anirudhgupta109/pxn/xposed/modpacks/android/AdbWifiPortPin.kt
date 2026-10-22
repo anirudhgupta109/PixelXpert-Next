@@ -2,14 +2,14 @@ package sh.anirudhgupta109.pxn.xposed.modpacks.android
 
 import android.content.Context
 import io.github.libxposed.api.XposedModuleInterface
-import java.io.InputStream
-import java.io.OutputStream
-import java.net.ServerSocket
-import java.net.Socket
 import sh.anirudhgupta109.pxn.xposed.XPrefs.Xprefs
 import sh.anirudhgupta109.pxn.xposed.XposedModPack
 import sh.anirudhgupta109.pxn.xposed.annotations.FrameworkModPack
 import sh.anirudhgupta109.pxn.xposed.utils.reflection.ReflectedClass
+import java.io.InputStream
+import java.io.OutputStream
+import java.net.ServerSocket
+import java.net.Socket
 
 /**
  * Pins the wireless-debugging adb port to a fixed number so `adb connect`

@@ -36,10 +36,7 @@ import com.google.devtools.ksp.symbol.KSClassDeclaration
  * there; further packs are added by annotating a class with a target
  * annotation, with no change here.
  */
-class ModPackProcessor(
-	private val codeGenerator: CodeGenerator,
-	private val logger: KSPLogger,
-) : SymbolProcessor {
+class ModPackProcessor(private val codeGenerator: CodeGenerator, private val logger: KSPLogger) : SymbolProcessor {
 
 	private var generated = false
 
@@ -79,7 +76,7 @@ class ModPackProcessor(
 					// when @MainProcessModPack is present alongside it; packs
 					// without @ChildProcessModPack default to main-process.
 					targetsMainProcess =
-						childProcessName == null || pack.has(MAIN_PROCESS_ANNOTATION),
+					childProcessName == null || pack.has(MAIN_PROCESS_ANNOTATION),
 				)
 			}
 		}
@@ -152,8 +149,7 @@ class ModPackProcessor(
 	}
 }
 
-private fun KSClassDeclaration.has(shortName: String): Boolean =
-	annotations.any { it.matches(shortName) }
+private fun KSClassDeclaration.has(shortName: String): Boolean = annotations.any { it.matches(shortName) }
 
 private fun KSClassDeclaration.annotationValue(annotation: String, argument: String): Any? =
 	annotations.firstOrNull { it.matches(annotation) }
@@ -161,8 +157,7 @@ private fun KSClassDeclaration.annotationValue(annotation: String, argument: Str
 		?.firstOrNull { it.name?.asString() == argument }
 		?.value
 
-private fun KSAnnotation.matches(shortName: String): Boolean =
-	this.shortName.asString() == shortName
+private fun KSAnnotation.matches(shortName: String): Boolean = this.shortName.asString() == shortName
 
 private fun String.escape(): String = buildString {
 	for (c in this@escape) {

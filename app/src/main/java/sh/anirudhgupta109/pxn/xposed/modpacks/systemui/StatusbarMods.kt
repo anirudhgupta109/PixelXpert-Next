@@ -40,14 +40,6 @@ import de.robv.android.xposed.XposedHelpers.getObjectField
 import de.robv.android.xposed.XposedHelpers.setAdditionalInstanceField
 import de.robv.android.xposed.XposedHelpers.setObjectField
 import io.github.libxposed.api.XposedModuleInterface
-import java.lang.reflect.InvocationHandler
-import java.lang.reflect.Method
-import java.lang.reflect.Proxy
-import java.util.Arrays
-import java.util.Locale
-import java.util.concurrent.Executor
-import java.util.regex.Pattern
-import javax.security.auth.callback.Callback
 import org.objenesis.ObjenesisHelper
 import sh.anirudhgupta109.pxn.BuildConfig
 import sh.anirudhgupta109.pxn.Constants
@@ -65,6 +57,14 @@ import sh.anirudhgupta109.pxn.xposed.utils.reflection.ReflectedClass
 import sh.anirudhgupta109.pxn.xposed.utils.reflection.ReflectionTools.reAddView
 import sh.anirudhgupta109.pxn.xposed.utils.toolkit.ObjectTools.getStateFlowImplOf
 import sh.anirudhgupta109.pxn.xposed.utils.toolkit.ResourceTools
+import java.lang.reflect.InvocationHandler
+import java.lang.reflect.Method
+import java.lang.reflect.Proxy
+import java.util.Arrays
+import java.util.Locale
+import java.util.concurrent.Executor
+import java.util.regex.Pattern
+import javax.security.auth.callback.Callback
 
 /**
  * Status-bar content and layout pack: the clock can be moved between left /
@@ -84,7 +84,9 @@ import sh.anirudhgupta109.pxn.xposed.utils.toolkit.ResourceTools
  * long-lived here.
  */
 @SystemUIModPack
-class StatusbarMods @SuppressLint("DiscouragedApi") constructor(context: Context) : XposedModPack(context) {
+class StatusbarMods
+@SuppressLint("DiscouragedApi")
+constructor(context: Context) : XposedModPack(context) {
 
 	companion object {
 		//region Clock
@@ -142,7 +144,7 @@ class StatusbarMods @SuppressLint("DiscouragedApi") constructor(context: Context
 		//endregion
 
 		//region privacy chip
-		private var HidePrivacyChip = false //works
+		private var HidePrivacyChip = false // works
 		//endregion
 
 		//region general use
@@ -154,6 +156,7 @@ class StatusbarMods @SuppressLint("DiscouragedApi") constructor(context: Context
 		private var NotificationIconLimit = 4
 		private var currentClockColor = 0
 		private val mTextColorCallbacks = ArrayList<StatusbarTextColorCallback>()
+
 		// PADDING_DEFAULT from the outset: until the hook has actually read a
 		// stored pair there is nothing to enforce, which is also the state the
 		// new reset icon puts things back into. Starting at 0 is only safe when
@@ -163,6 +166,7 @@ class StatusbarMods @SuppressLint("DiscouragedApi") constructor(context: Context
 		// opinion" - and the guard below only recognises PADDING_DEFAULT.
 		private var SBPaddingStart = PADDING_DEFAULT
 		private var SBPaddingEnd = PADDING_DEFAULT
+
 		// The system's own paddings, snapshotted on the first pass through the
 		// hook - i.e. before we have ever overwritten them - so that a reset
 		// has something to put back.
@@ -174,7 +178,7 @@ class StatusbarMods @SuppressLint("DiscouragedApi") constructor(context: Context
 		private const val VO_LTE_SLOT = "volte"
 		private const val VO_WIFI_SLOT = "vowifi"
 
-		private var VolteIconEnabled = false //works
+		private var VolteIconEnabled = false // works
 
 		private var VowifiIconEnabled = false
 		//endregion
@@ -188,14 +192,12 @@ class StatusbarMods @SuppressLint("DiscouragedApi") constructor(context: Context
 		//region app profile switch
 		const val APP_SWITCH_SLOT = "app_switch"
 
-		private var StatusbarAppSwitchIconEnabled = false //works
+		private var StatusbarAppSwitchIconEnabled = false // works
 		//endregion
 
 		@JvmStatic
 		@ColorInt
-		fun getCurrentClockColor(): Int {
-			return currentClockColor
-		}
+		fun getCurrentClockColor(): Int = currentClockColor
 
 		@JvmStatic
 		fun registerTextColorCallback(callback: StatusbarTextColorCallback): Int {
@@ -227,8 +229,10 @@ class StatusbarMods @SuppressLint("DiscouragedApi") constructor(context: Context
 	private var mClockContainer: LinearLayout? = null
 	private var mBeforeClockView: TextView? = null
 	private var mAfterClockView: TextView? = null
+
 	// One callback for the whole container
 	private var mCompanionFormatCallback: FormattedStringCallback? = null
+
 	// Mirrors SystemUI's own clock visibility
 	private var mStatusBarClockVisible = true
 
@@ -244,8 +248,10 @@ class StatusbarMods @SuppressLint("DiscouragedApi") constructor(context: Context
 	//endregion
 
 	init {
-		rightClockPadding = mContext.resources.getDimensionPixelSize(SystemUtils.dimenIdOf("status_bar_clock_starting_padding"))
-		leftClockPadding = mContext.resources.getDimensionPixelSize(SystemUtils.dimenIdOf("status_bar_left_clock_end_padding"))
+		rightClockPadding =
+			mContext.resources.getDimensionPixelSize(SystemUtils.dimenIdOf("status_bar_clock_starting_padding"))
+		leftClockPadding =
+			mContext.resources.getDimensionPixelSize(SystemUtils.dimenIdOf("status_bar_left_clock_end_padding"))
 	}
 
 	//region network traffic
@@ -281,7 +287,7 @@ class StatusbarMods @SuppressLint("DiscouragedApi") constructor(context: Context
 	private var volteStatusbarIconHolder: Any? = null
 	private var telephonyCallbackRegistered = false
 	private var lastVolteAvailable = false
-	private val voDataCallback = serverStateCallback()
+	private val voDataCallback = ServerStateCallback()
 
 	private var vowifiStatusbarIcon: Any? = null
 	private var vowifiStatusbarIconHolder: Any? = null
@@ -327,7 +333,6 @@ class StatusbarMods @SuppressLint("DiscouragedApi") constructor(context: Context
 
 	@Suppress("SENSELESS_COMPARISON")
 	override fun onPreferenceUpdated(vararg key: String?) {
-
 		StatusbarAppSwitchIconEnabled = Xprefs.getBoolean("StatusbarAppSwitchIconEnabled", false)
 
 		HidePrivacyChip = Xprefs.getBoolean("HidePrivacyChip", false)
@@ -337,7 +342,8 @@ class StatusbarMods @SuppressLint("DiscouragedApi") constructor(context: Context
 		CombineSignalIcons = Xprefs.getBoolean("combinedSignalEnabled", false)
 		wifiVisibleChanged()
 
-		if (key.isNotEmpty() && key[0] == "notificationAreaMultiRow") { //WHY we check the old value? because if prefs is empty it will fill it up and count an unwanted change
+		// WHY we check the old value? because if prefs is empty it will fill it up and count an unwanted change
+		if (key.isNotEmpty() && key[0] == "notificationAreaMultiRow") {
 			val newnotificationAreaMultiRow = Xprefs.getBoolean("notificationAreaMultiRow", false)
 			if (newnotificationAreaMultiRow != notificationAreaMultiRow) {
 				SystemUtils.killSelf()
@@ -460,7 +466,7 @@ class StatusbarMods @SuppressLint("DiscouragedApi") constructor(context: Context
 				networkTrafficULColor,
 				networkTrafficOpacity,
 				networkTrafficShowIcons,
-				networkTrafficShowInBits
+				networkTrafficShowInBits,
 			)
 		}
 		if (networkOnSBEnabled) {
@@ -503,21 +509,25 @@ class StatusbarMods @SuppressLint("DiscouragedApi") constructor(context: Context
 					mStringFormatAfter = ""
 					mStringFormatBefore = ""
 				}
+
 				1 -> {
 					mStringFormatBefore = "\$GEEE "
 					mStringFormatAfter = ""
 					mBeforeSmall = false
 				}
+
 				2 -> {
 					mStringFormatBefore = "\$GEEE "
 					mStringFormatAfter = ""
 					mBeforeSmall = true
 				}
+
 				3 -> {
 					mStringFormatBefore = ""
 					mStringFormatAfter = " \$GEEE"
 					mAfterSmall = false
 				}
+
 				4 -> {
 					mStringFormatBefore = ""
 					mStringFormatAfter = " \$GEEE"
@@ -552,6 +562,7 @@ class StatusbarMods @SuppressLint("DiscouragedApi") constructor(context: Context
 		if (key.isNotEmpty()) {
 			when (key[0]) {
 				"statusbarPaddings" -> updateStatusbarHeight()
+
 				"VolteIconEnabled", "VowifiIconEnabled" -> {
 					if (VolteIconEnabled || VowifiIconEnabled) {
 						initVoData()
@@ -585,7 +596,8 @@ class StatusbarMods @SuppressLint("DiscouragedApi") constructor(context: Context
 			return
 		}
 		try {
-			mClockView!!.post { //the builtin update method doesn't care about the format. Just the text sadly
+			mClockView!!.post {
+				// the builtin update method doesn't care about the format. Just the text sadly
 				callMethod(getObjectField(mClockView, "mCalendar"), "setTimeInMillis", System.currentTimeMillis())
 
 				mClockView!!.text = callMethod(mClockView, "getSmallTime") as CharSequence
@@ -598,7 +610,11 @@ class StatusbarMods @SuppressLint("DiscouragedApi") constructor(context: Context
 	override fun onPackageLoaded(PRParam: XposedModuleInterface.PackageReadyParam) {
 		StatusBarIconClass = ReflectedClass.of("com.android.internal.statusbar.StatusBarIcon")
 		StatusBarIconHolderClass = ReflectedClass.ofIfPossible("com.android.systemui.statusbar.phone.StatusBarIconHolder")
-		isLegacyStatusBar = ReflectedClass.ofIfPossible("com.android.systemui.statusbar.pipeline.shared.ui.binder.HomeStatusBarIconBlockListBinder").clazz != null
+		isLegacyStatusBar =
+			ReflectedClass.ofIfPossible(
+				"com.android.systemui.statusbar.pipeline.shared.ui.binder.HomeStatusBarIconBlockListBinder",
+			).clazz !=
+			null
 
 		onPreferenceUpdated()
 		val filter = IntentFilter()
@@ -608,7 +624,9 @@ class StatusbarMods @SuppressLint("DiscouragedApi") constructor(context: Context
 		//region needed classes
 		val ClockClass = ReflectedClass.of("com.android.systemui.statusbar.policy.Clock")
 		val PhoneStatusBarViewClass = ReflectedClass.of("com.android.systemui.statusbar.phone.PhoneStatusBarView")
-		val NotificationIconContainerClass = ReflectedClass.of("com.android.systemui.statusbar.phone.NotificationIconContainer")
+		val NotificationIconContainerClass = ReflectedClass.of(
+			"com.android.systemui.statusbar.phone.NotificationIconContainer",
+		)
 		val TunerServiceImplClass = ReflectedClass.of("com.android.systemui.tuner.TunerServiceImpl")
 
 		try {
@@ -621,14 +639,32 @@ class StatusbarMods @SuppressLint("DiscouragedApi") constructor(context: Context
 		} catch (ignored: Throwable) {
 		}
 
-		val ConnectivityCallbackHandlerClass = ReflectedClass.of("com.android.systemui.statusbar.connectivity.CallbackHandler")
-		val NotificationIconContainerAlwaysOnDisplayViewModelClass = ReflectedClass.ofIfPossible("com.android.systemui.statusbar.notification.icon.ui.viewmodel.NotificationIconContainerAlwaysOnDisplayViewModel")
-		val NotificationIconContainerStatusBarViewModelClass = ReflectedClass.ofIfPossible("com.android.systemui.statusbar.notification.icon.ui.viewmodel.NotificationIconContainerStatusBarViewModel")
+		val ConnectivityCallbackHandlerClass = ReflectedClass.of(
+			"com.android.systemui.statusbar.connectivity.CallbackHandler",
+		)
+		val NotificationIconContainerAlwaysOnDisplayViewModelClass = ReflectedClass.ofIfPossible(
+			"com.android.systemui.statusbar.notification.icon.ui.viewmodel.NotificationIconContainerAlwaysOnDisplayViewModel",
+		)
+		val NotificationIconContainerStatusBarViewModelClass = ReflectedClass.ofIfPossible(
+			"com.android.systemui.statusbar.notification.icon.ui.viewmodel.NotificationIconContainerStatusBarViewModel",
+		)
 		val PrivacyItemClass = ReflectedClass.of("com.android.systemui.privacy.PrivacyItem")
-		val PhoneStatusBarViewControllerClass = ReflectedClass.of("com.android.systemui.statusbar.phone.PhoneStatusBarViewController")
-		val KeyguardStateControllerImplClass = ReflectedClass.of("com.android.systemui.statusbar.policy.KeyguardStateControllerImpl")
-		val StatusBarIconControllerImplClass = ReflectedClass.ofIfPossible("com.android.systemui.statusbar.phone.ui.StatusBarIconControllerImpl").let {
-			if (it.clazz != null) it else ReflectedClass.ofIfPossible("com.android.systemui.statusbar.phone.StatusBarIconControllerImpl")
+		val PhoneStatusBarViewControllerClass = ReflectedClass.of(
+			"com.android.systemui.statusbar.phone.PhoneStatusBarViewController",
+		)
+		val KeyguardStateControllerImplClass = ReflectedClass.of(
+			"com.android.systemui.statusbar.policy.KeyguardStateControllerImpl",
+		)
+		val StatusBarIconControllerImplClass = ReflectedClass.ofIfPossible(
+			"com.android.systemui.statusbar.phone.ui.StatusBarIconControllerImpl",
+		).let {
+			if (it.clazz !=
+				null
+			) {
+				it
+			} else {
+				ReflectedClass.ofIfPossible("com.android.systemui.statusbar.phone.StatusBarIconControllerImpl")
+			}
 		}
 		val CommandQueueClass = ReflectedClass.ofIfPossible("com.android.systemui.statusbar.CommandQueue")
 		val ShadeHeaderControllerClass = ReflectedClass.of("com.android.systemui.shade.ShadeHeaderController")
@@ -706,8 +742,8 @@ class StatusbarMods @SuppressLint("DiscouragedApi") constructor(context: Context
 				}
 			}
 
-		if (NotificationIconContainerAlwaysOnDisplayViewModelClass.clazz != null) //Viewbinder implementation of the notification icon container
-		{
+		// Viewbinder implementation of the notification icon container
+		if (NotificationIconContainerAlwaysOnDisplayViewModelClass.clazz != null) {
 			NotificationIconContainerAlwaysOnDisplayViewModelClass
 				.afterConstruction()
 				.run { param ->
@@ -725,9 +761,8 @@ class StatusbarMods @SuppressLint("DiscouragedApi") constructor(context: Context
 
 		initSwitchIcon()
 
-		//forcing a refresh on statusbar once the charging chip goes away to avoid layout issues
-		//only needed if chip is shown on lockscreen and device is unlocked quickly afterwards
-
+		// forcing a refresh on statusbar once the charging chip goes away to avoid layout issues
+		// only needed if chip is shown on lockscreen and device is unlocked quickly afterwards
 
 		//region combined signal icons
 		TunerServiceImplClass
@@ -765,7 +800,8 @@ class StatusbarMods @SuppressLint("DiscouragedApi") constructor(context: Context
 		//endregion
 
 		//region privacy chip
-		PrivacyItemClass //A16 //qpr2b2 has removed the constructor, but it does do a distinct thing before using them. (Sunglass + roll emoji goes here)
+		// A16 //qpr2b2 has removed the constructor, but it does do a distinct thing before using them. (Sunglass + roll emoji goes here)
+		PrivacyItemClass
 			.before("hashCode")
 			.run { param ->
 				if (HidePrivacyChip) {
@@ -808,22 +844,24 @@ class StatusbarMods @SuppressLint("DiscouragedApi") constructor(context: Context
 
 				val screenWidth = mContext.resources.displayMetrics.widthPixels
 
-				val paddingStart = if (SBPaddingStart == PADDING_DEFAULT)
+				val paddingStart = if (SBPaddingStart == PADDING_DEFAULT) {
 					originalPaddingStart
-				else
+				} else {
 					Math.round(SBPaddingStart * screenWidth / 100f)
+				}
 
-				val paddingEnd = if (SBPaddingEnd == PADDING_DEFAULT)
+				val paddingEnd = if (SBPaddingEnd == PADDING_DEFAULT) {
 					originalPaddingEnd
-				else
+				} else {
 					Math.round(SBPaddingEnd * screenWidth / 100f)
+				}
 
 				sbContentsView.setPaddingRelative(paddingStart, sbContentsView.paddingTop, paddingEnd, sbContentsView.paddingBottom)
 			}
 		//endregion
 
 		//region multi row statusbar
-		//bypassing the max icon limit during measurement
+		// bypassing the max icon limit during measurement
 		NotificationIconContainerClass
 			.before("onMeasure")
 			.run { param -> setObjectField(param.thisObject, "mIsStaticLayout", false) }
@@ -834,7 +872,7 @@ class StatusbarMods @SuppressLint("DiscouragedApi") constructor(context: Context
 
 		//endregion
 
-		//update statusbar
+		// update statusbar
 		PhoneStatusBarViewClass
 			.after("onConfigurationChanged")
 			.run {
@@ -845,7 +883,7 @@ class StatusbarMods @SuppressLint("DiscouragedApi") constructor(context: Context
 				}, 2000)
 			}
 
-		//stealing a working activity starter
+		// stealing a working activity starter
 		ActivityStarterImplClass
 			.afterConstruction()
 			.run { param ->
@@ -885,14 +923,24 @@ class StatusbarMods @SuppressLint("DiscouragedApi") constructor(context: Context
 			log("StatusbarMods: could not hook the Compose shade date", t)
 		}
 
-		//modding clock, adding additional objects,
+		// modding clock, adding additional objects,
 		PhoneStatusBarViewControllerClass
 			.after("onViewAttached")
 			.run { param ->
 				mClockView = mPhoneStatusbarView!!.findViewById(SystemUtils.idOf("clock"))
 				updateClockColor()
 
-				mPhoneStatusbarView!!.addOnLayoutChangeListener { v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
+				mPhoneStatusbarView!!.addOnLayoutChangeListener {
+						v,
+						left,
+						top,
+						right,
+						bottom,
+						oldLeft,
+						oldTop,
+						oldRight,
+						oldBottom,
+					->
 					setHeights()
 				}
 
@@ -908,13 +956,11 @@ class StatusbarMods @SuppressLint("DiscouragedApi") constructor(context: Context
 
 				makeLeftSplitArea()
 
-				if (BBarEnabled) //in case we got the config but view wasn't ready yet
-				{
+				if (BBarEnabled) { // in case we got the config but view wasn't ready yet
 					placeBatteryBar()
 				}
 
-				if (VolteIconEnabled || VowifiIconEnabled) //in case we got the config but context wasn't ready yet
-				{
+				if (VolteIconEnabled || VowifiIconEnabled) { // in case we got the config but context wasn't ready yet
 					initVoData()
 				}
 
@@ -931,7 +977,7 @@ class StatusbarMods @SuppressLint("DiscouragedApi") constructor(context: Context
 				placeClock()
 			}
 
-		//clock mods
+		// clock mods
 		// ClockKt is what says the status-bar clock lives in a ComposeView.
 		val hasComposeClock = ReflectedClass.ofIfPossible("com.android.systemui.clock.ui.composable.ClockKt").clazz != null
 		if (hasComposeClock) {
@@ -963,13 +1009,14 @@ class StatusbarMods @SuppressLint("DiscouragedApi") constructor(context: Context
 		ClockClass
 			.after("getSmallTime")
 			.run { param ->
-				if (param.thisObject != mClockView)
-					return@run //We don't want custom format in QS header. do we?
+				if (param.thisObject != mClockView) {
+					return@run // We don't want custom format in QS header. do we?
+				}
 				if (isJetpackClock) return@run
 
 				val result = SpannableStringBuilder()
-				result.append(getFormattedString(mStringFormatBefore, mBeforeSmall, mBeforeClockColor)) //before clock
-				val clockText = SpannableStringBuilder.valueOf(param.getResult<CharSequence>()) //THE clock
+				result.append(getFormattedString(mStringFormatBefore, mBeforeSmall, mBeforeClockColor)) // before clock
+				val clockText = SpannableStringBuilder.valueOf(param.getResult<CharSequence>()) // THE clock
 				if (clockColor != null) {
 					clockText.setSpan(NetworkTraffic.TrafficStyle(clockColor!!), 0, clockText.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
 				}
@@ -977,13 +1024,15 @@ class StatusbarMods @SuppressLint("DiscouragedApi") constructor(context: Context
 				if (mAmPmStyle != AM_PM_STYLE_GONE) {
 					result.append(getFormattedString("\$Ga", mAmPmStyle == AM_PM_STYLE_SMALL, clockColor))
 				}
-				result.append(getFormattedString(mStringFormatAfter, mAfterSmall, mAfterClockColor)) //after clock
+				result.append(getFormattedString(mStringFormatAfter, mAfterSmall, mAfterClockColor)) // after clock
 
 				if (getAdditionalInstanceField(param.thisObject, "stringFormatCallBack") == null) {
 					val callback = object : FormattedStringCallback {
 						override fun onRefreshNeeded() {
-							if (!mShowSeconds) //don't update again if it's going to do it every second anyway
+							if (!mShowSeconds) {
+								// don't update again if it's going to do it every second anyway
 								updateClock()
+							}
 						}
 					}
 
@@ -993,12 +1042,13 @@ class StatusbarMods @SuppressLint("DiscouragedApi") constructor(context: Context
 				param.setResult(result)
 			}
 
-		//using clock colors for network traffic and battery bar
+		// using clock colors for network traffic and battery bar
 		ClockClass
 			.after("onDarkChanged")
 			.run { param ->
-				if (param.thisObject != mClockView)
-					return@run //We don't want colors of QS header. only statusbar
+				if (param.thisObject != mClockView) {
+					return@run // We don't want colors of QS header. only statusbar
+				}
 
 				updateClockColor()
 				if (BatteryBarView.hasInstance()) {
@@ -1007,16 +1057,22 @@ class StatusbarMods @SuppressLint("DiscouragedApi") constructor(context: Context
 			}
 
 		//region mobile roaming
-		val MobileIconsInteractorImplClass = ReflectedClass.of("com.android.systemui.statusbar.pipeline.mobile.domain.interactor.MobileIconsInteractorImpl")
+		val MobileIconsInteractorImplClass = ReflectedClass.of(
+			"com.android.systemui.statusbar.pipeline.mobile.domain.interactor.MobileIconsInteractorImpl",
+		)
 
-		//we must use the classes defined in the apk. using our own will fail
+		// we must use the classes defined in the apk. using our own will fail
 		val ReadonlyStateFlowClass = ReflectedClass.of("kotlinx.coroutines.flow.ReadonlyStateFlow")
 
 		MobileIconsInteractorImplClass
 			.after("getMobileConnectionInteractorForSubId")
 			.run { param ->
 				if (HideRoamingState) {
-					setObjectField(param.getResult<Any?>(), "isRoaming", ReadonlyStateFlowClass.clazz!!.constructors[0].newInstance(getStateFlowImplOf(false)))
+					setObjectField(
+						param.getResult<Any?>(),
+						"isRoaming",
+						ReadonlyStateFlowClass.clazz!!.constructors[0].newInstance(getStateFlowImplOf(false)),
+					)
 				}
 			}
 		//endregion
@@ -1057,15 +1113,16 @@ class StatusbarMods @SuppressLint("DiscouragedApi") constructor(context: Context
 		mNotificationIconContainer = mPhoneStatusbarView!!.findViewById(SystemUtils.idOf("notificationIcons"))
 
 		mNotificationContainerContainer = LinearLayout(mContext)
-		mNotificationContainerContainer!!.clipChildren = false //allowing headsup icon to go beyond
+		mNotificationContainerContainer!!.clipChildren = false // allowing headsup icon to go beyond
 
 		if (mLeftVerticalSplitContainer == null) {
 			mLeftVerticalSplitContainer = LinearLayout(mContext)
-			mLeftVerticalSplitContainer!!.clipChildren = false //allowing headsup icon to go beyond
+			mLeftVerticalSplitContainer!!.clipChildren = false // allowing headsup icon to go beyond
 		} else {
 			mLeftVerticalSplitContainer!!.removeAllViews()
-			if (mLeftVerticalSplitContainer!!.parent != null)
+			if (mLeftVerticalSplitContainer!!.parent != null) {
 				(mLeftVerticalSplitContainer!!.parent as ViewGroup).removeView(mLeftVerticalSplitContainer!!)
+			}
 		}
 
 		mLeftVerticalSplitContainer!!.orientation = LinearLayout.VERTICAL
@@ -1075,7 +1132,17 @@ class StatusbarMods @SuppressLint("DiscouragedApi") constructor(context: Context
 		lp.bottomMargin = margin
 
 		mLeftVerticalSplitContainer!!.layoutParams = lp
-		mLeftVerticalSplitContainer!!.addOnLayoutChangeListener { v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
+		mLeftVerticalSplitContainer!!.addOnLayoutChangeListener {
+				v,
+				left,
+				top,
+				right,
+				bottom,
+				oldLeft,
+				oldTop,
+				oldRight,
+				oldBottom,
+			->
 			setHeights()
 		}
 
@@ -1125,7 +1192,8 @@ class StatusbarMods @SuppressLint("DiscouragedApi") constructor(context: Context
 
 	private fun repositionOngoingChip() {
 		if (isJetpackClock) return // In Android 17, the ComposeView contains the Clock, so we can't move it!
-		val ongoingChipComposeView = findComposeView(mPhoneStatusbarView!!.findViewById(SystemUtils.idOf("status_bar_start_side_except_heads_up")))
+		val ongoingChipComposeView =
+			findComposeView(mPhoneStatusbarView!!.findViewById(SystemUtils.idOf("status_bar_start_side_except_heads_up")))
 		reAddView(mNotificationContainerContainer!!, ongoingChipComposeView)
 	}
 
@@ -1133,8 +1201,9 @@ class StatusbarMods @SuppressLint("DiscouragedApi") constructor(context: Context
 		if (parent == null) return null
 		for (i in 0 until parent.childCount) {
 			val child = parent.getChildAt(i)
-			if (child != null && child.javaClass.name.endsWith("ComposeView"))
+			if (child != null && child.javaClass.name.endsWith("ComposeView")) {
 				return child
+			}
 		}
 		return null
 	}
@@ -1142,19 +1211,39 @@ class StatusbarMods @SuppressLint("DiscouragedApi") constructor(context: Context
 	private fun setHeights() {
 		@SuppressLint("DiscouragedApi")
 		val statusbarHeight = mPhoneStatusbarView!!.layoutParams.height
-			- mContext.resources.getDimensionPixelSize(SystemUtils.dimenIdOf("status_bar_padding_top"))
+		-mContext.resources.getDimensionPixelSize(SystemUtils.dimenIdOf("status_bar_padding_top"))
 
-		mNotificationContainerContainer!!.layoutParams.height = if (mLeftExtraRowContainer!!.visibility == View.VISIBLE) statusbarHeight / 2 else ViewGroup.LayoutParams.MATCH_PARENT
-		mLeftExtraRowContainer!!.layoutParams.height = if (mNotificationContainerContainer!!.visibility == View.VISIBLE) statusbarHeight / 2 else ViewGroup.LayoutParams.MATCH_PARENT
+		mNotificationContainerContainer!!.layoutParams.height =
+			if (mLeftExtraRowContainer!!.visibility == View.VISIBLE) statusbarHeight / 2 else ViewGroup.LayoutParams.MATCH_PARENT
+		mLeftExtraRowContainer!!.layoutParams.height =
+			if (mNotificationContainerContainer!!.visibility ==
+				View.VISIBLE
+			) {
+				statusbarHeight / 2
+			} else {
+				ViewGroup.LayoutParams.MATCH_PARENT
+			}
 		if (networkOnSBEnabled) {
-			networkTrafficSB!!.layoutParams.height = statusbarHeight / (if (networkTrafficPosition == POSITION_LEFT && notificationAreaMultiRow) 2 else 1)
+			networkTrafficSB!!.layoutParams.height =
+				statusbarHeight / (if (networkTrafficPosition == POSITION_LEFT && notificationAreaMultiRow) 2 else 1)
 		}
 	}
 	//endregion
 
 	//region battery bar related
 	private fun refreshBatteryBar(instance: BatteryBarView) {
-		BatteryBarView.setStaticColor(batteryLevels, batteryColors, indicateCharging, chargingColor, indicateFastCharging, fastChargingColor, indicatePowerSave, powerSaveColor, BBarTransitColors, BBAnimateCharging)
+		BatteryBarView.setStaticColor(
+			batteryLevels,
+			batteryColors,
+			indicateCharging,
+			chargingColor,
+			indicateFastCharging,
+			fastChargingColor,
+			indicatePowerSave,
+			powerSaveColor,
+			BBarTransitColors,
+			BBAnimateCharging,
+		)
 		instance.visibility = if (BBarEnabled) View.VISIBLE else View.GONE
 		instance.setColorful(BBarColorful)
 		instance.setOnlyWhileCharging(BBOnlyWhileCharging)
@@ -1187,7 +1276,11 @@ class StatusbarMods @SuppressLint("DiscouragedApi") constructor(context: Context
 			setObjectField(statusbarIcon, "visible", true)
 
 			//noinspection JavaReflectionMemberAccess
-			setObjectField(statusbarIcon, "user", UserHandle::class.java.getDeclaredConstructor(Int::class.javaPrimitiveType).newInstance(0))
+			setObjectField(
+				statusbarIcon,
+				"user",
+				UserHandle::class.java.getDeclaredConstructor(Int::class.javaPrimitiveType).newInstance(0),
+			)
 			setObjectField(statusbarIcon, "pkg", BuildConfig.APPLICATION_ID)
 			setObjectField(statusbarIcon, "icon", icon)
 			setObjectField(statusbarIcon, "iconLevel", 0)
@@ -1205,8 +1298,9 @@ class StatusbarMods @SuppressLint("DiscouragedApi") constructor(context: Context
 		val holder = ObjenesisHelper.newInstance(StatusBarIconHolderClass!!.clazz)
 		val iconFiled = arrayOfNulls<String>(1)
 		StatusBarIconHolderClass!!.clazz!!.fields.forEach { field ->
-			if (field.name.lowercase(Locale.getDefault()).contains("icon"))
+			if (field.name.lowercase(Locale.getDefault()).contains("icon")) {
 				iconFiled[0] = field.name
+			}
 		}
 
 		setObjectField(holder, iconFiled[0], statusbarIcon)
@@ -1220,7 +1314,6 @@ class StatusbarMods @SuppressLint("DiscouragedApi") constructor(context: Context
 	private fun initVoData() {
 		try {
 			if (!telephonyCallbackRegistered) {
-
 				val volteIcon = Icon.createWithResource(BuildConfig.APPLICATION_ID, R.drawable.ic_volte)
 				val volteStatusbarIcon = getStatusbarIconFor(volteIcon, VO_LTE_SLOT)
 				this.volteStatusbarIcon = volteStatusbarIcon
@@ -1263,7 +1356,9 @@ class StatusbarMods @SuppressLint("DiscouragedApi") constructor(context: Context
 		removeSBIconSlot(VO_WIFI_SLOT)
 	}
 
-	private inner class serverStateCallback : TelephonyCallback(), TelephonyCallback.ServiceStateListener {
+	private inner class ServerStateCallback :
+		TelephonyCallback(),
+		TelephonyCallback.ServiceStateListener {
 		override fun onServiceStateChanged(serviceState: ServiceState) {
 			updateVoData(false)
 		}
@@ -1374,6 +1469,7 @@ class StatusbarMods @SuppressLint("DiscouragedApi") constructor(context: Context
 					endSideContent.addView(networkTrafficSB!!, insertIndex)
 					networkTrafficSB!!.setPadding(rightClockPadding, 0, leftClockPadding, 0)
 				}
+
 				POSITION_LEFT -> {
 					if (notificationAreaMultiRow) {
 						mLeftExtraRowContainer!!.addView(networkTrafficSB!!, mLeftExtraRowContainer!!.childCount)
@@ -1382,6 +1478,7 @@ class StatusbarMods @SuppressLint("DiscouragedApi") constructor(context: Context
 					}
 					networkTrafficSB!!.setPadding(0, 0, leftClockPadding, 0)
 				}
+
 				POSITION_CENTER -> {
 					mStatusbarStartSide!!.addView(networkTrafficSB!!)
 					networkTrafficSB!!.setPadding(rightClockPadding, 0, leftClockPadding, 0)
@@ -1396,7 +1493,9 @@ class StatusbarMods @SuppressLint("DiscouragedApi") constructor(context: Context
 	//endregion
 
 	//region icon tap related
-	internal inner class ClickListener : View.OnClickListener, View.OnLongClickListener {
+	internal inner class ClickListener :
+		View.OnClickListener,
+		View.OnLongClickListener {
 		override fun onClick(v: View) {
 			val name = mContext.resources.getResourceName(v.id)
 
@@ -1420,7 +1519,8 @@ class StatusbarMods @SuppressLint("DiscouragedApi") constructor(context: Context
 					"com.android.settings",
 					"com.android.settings.Settings\$DateTimeSettingsActivity",
 				)
-				callMethod(mActivityStarter, "startActivity", mIntent, true /* dismissShade */)
+				// dismissShade
+				callMethod(mActivityStarter, "startActivity", mIntent, true)
 				return true
 			}
 			return false
@@ -1482,9 +1582,13 @@ class StatusbarMods @SuppressLint("DiscouragedApi") constructor(context: Context
 							block()
 							composeUnit
 						}
+
 						"equals" -> proxy === args?.getOrNull(0)
+
 						"hashCode" -> System.identityHashCode(proxy)
+
 						"toString" -> "PXNShadeDateClick"
+
 						else -> null
 					}
 				},
@@ -1526,6 +1630,7 @@ class StatusbarMods @SuppressLint("DiscouragedApi") constructor(context: Context
 	//endregion
 
 	//region clock and date related
+
 	/**
 	 * The status-bar clock text size, in px. The Compose clock and the legacy
 	 * Clock TextView share the same metric. Falls back to dimension.
@@ -1710,10 +1815,12 @@ class StatusbarMods @SuppressLint("DiscouragedApi") constructor(context: Context
 				}
 				viewToMove!!.setPadding(0, 0, leftClockPadding, 0)
 			}
+
 			POSITION_CENTER -> {
 				targetArea = mCenteredIconArea as ViewGroup?
 				viewToMove!!.setPadding(rightClockPadding, 0, rightClockPadding, 0)
 			}
+
 			POSITION_RIGHT -> {
 				viewToMove!!.setPadding(rightClockPadding, 0, 0, 0)
 				targetArea = mSystemIconArea!!.parent as ViewGroup?
@@ -1765,11 +1872,11 @@ class StatusbarMods @SuppressLint("DiscouragedApi") constructor(context: Context
 	private fun getFormattedString(dateFormat: String, small: Boolean, @Nullable @ColorInt textColor: Int?): CharSequence {
 		if (dateFormat.isEmpty()) return ""
 
-		//There's some format to work on
+		// There's some format to work on
 		val formatted = SpannableStringBuilder(stringFormatter.formatString(dateFormat))
 
 		if (small) {
-			//small size requested
+			// small size requested
 			val style: CharacterStyle = RelativeSizeSpan(0.7f)
 			formatted.setSpan(style, 0, formatted.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
 		}
@@ -1787,8 +1894,8 @@ class StatusbarMods @SuppressLint("DiscouragedApi") constructor(context: Context
 	}
 
 	private fun wifiVisibleChanged() {
-		try { //don't crash the system if failed
-			//inspired from from TunerServiceImpl#reloadAll
+		try { // don't crash the system if failed
+			// inspired from from TunerServiceImpl#reloadAll
 			var hideListString = Settings.Secure.getString(
 				getObjectField(mTunerService, "mContentResolver") as ContentResolver,
 				ICON_HIDE_LIST,

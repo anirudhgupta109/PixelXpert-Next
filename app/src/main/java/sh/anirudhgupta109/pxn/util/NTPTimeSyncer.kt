@@ -5,9 +5,9 @@ import com.lyft.kronos.AndroidClockFactory
 import com.lyft.kronos.KronosClock
 import com.lyft.kronos.SyncListener
 import com.topjohnwu.superuser.Shell
+import sh.anirudhgupta109.pxn.data.PrefStore
 import java.lang.Object
 import java.util.Locale
-import sh.anirudhgupta109.pxn.data.PrefStore
 
 /**
  * One NTP query, and the root command that applies the answer to the clock.

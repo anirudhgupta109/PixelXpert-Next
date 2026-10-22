@@ -60,14 +60,14 @@ import sh.anirudhgupta109.pxn.data.PrefStore
 import sh.anirudhgupta109.pxn.theme.LocalPxnMotionScheme
 import sh.anirudhgupta109.pxn.theme.PxnMotionScheme
 import sh.anirudhgupta109.pxn.ui.debug.HookAuditScreen
+import sh.anirudhgupta109.pxn.ui.hooks.HooksScreen
+import sh.anirudhgupta109.pxn.ui.iconpack.IconPackScreen
 import sh.anirudhgupta109.pxn.ui.prefs.PrefScreenContent
 import sh.anirudhgupta109.pxn.ui.prefs.PullDownIndicator
 import sh.anirudhgupta109.pxn.ui.screens.header_preferences
 import sh.anirudhgupta109.pxn.ui.screens.own_prefs_header
 import sh.anirudhgupta109.pxn.ui.screens.preferenceScreens
 import sh.anirudhgupta109.pxn.ui.screens.routeToScreenKey
-import sh.anirudhgupta109.pxn.ui.hooks.HooksScreen
-import sh.anirudhgupta109.pxn.ui.iconpack.IconPackScreen
 import sh.anirudhgupta109.pxn.ui.search.SearchScreen
 import sh.anirudhgupta109.pxn.ui.update.UpdateScreen
 import sh.anirudhgupta109.pxn.util.Restarter
@@ -129,12 +129,7 @@ sealed interface Route : NavKey {
  * 0.27 unselected), so checked and unchecked states each need their own
  * vector.
  */
-private data class TabSpec(
-	val key: Route,
-	val title: Int,
-	val selectedIcon: Int,
-	val unselectedIcon: Int,
-)
+private data class TabSpec(val key: Route, val title: Int, val selectedIcon: Int, val unselectedIcon: Int)
 
 /**
  * Routes whose screen is hand-written rather than generated from a preference
@@ -331,8 +326,11 @@ fun PxnNav(startRoute: Route? = null) {
 		}
 		val screenKey = routeToScreenKey[route]
 		pushTarget(
-			if (screenKey != null) Route.Pref(screenKey, title)
-			else Route.Unported(route, title)
+			if (screenKey != null) {
+				Route.Pref(screenKey, title)
+			} else {
+				Route.Unported(route, title)
+			},
 		)
 	}
 
@@ -398,8 +396,11 @@ fun PxnNav(startRoute: Route? = null) {
 				TopAppBar(
 					title = {
 						Text(
-							text = if (heading != 0) stringResource(heading)
-							else stringResource(R.string.app_name),
+							text = if (heading != 0) {
+								stringResource(heading)
+							} else {
+								stringResource(R.string.app_name)
+							},
 						)
 					},
 					navigationIcon = {
@@ -459,8 +460,11 @@ fun PxnNav(startRoute: Route? = null) {
 						icon = {
 							val tabIcon = Icon(
 								painter = painterResource(
-									if (isSelected) spec.selectedIcon
-									else spec.unselectedIcon
+									if (isSelected) {
+										spec.selectedIcon
+									} else {
+										spec.unselectedIcon
+									},
 								),
 								contentDescription = null,
 							)
@@ -582,10 +586,7 @@ private const val OutgoingFadeFraction = 0.35f
 
 // Shared X-axis transition
 // the two destinations cross-fade while sliding a short distance along X
-private fun PxnMotionScheme.sharedAxisX(
-	forward: Boolean,
-	slideDistance: Int,
-): ContentTransform {
+private fun PxnMotionScheme.sharedAxisX(forward: Boolean, slideDistance: Int): ContentTransform {
 	// Fading the outgoing destination over the first [OutgoingFadeFraction]
 	val outgoingMillis = (spatialMillis * OutgoingFadeFraction).toInt()
 	val incomingMillis = spatialMillis - outgoingMillis
@@ -597,12 +598,12 @@ private fun PxnMotionScheme.sharedAxisX(
 		) + fadeIn(
 			animationSpec = tween(incomingMillis, delayMillis = outgoingMillis, easing = effectsEasing),
 		)
-	) togetherWith (
+		) togetherWith (
 		slideOutHorizontally(
 			animationSpec = tween(spatialMillis, easing = spatialEasing),
 			targetOffsetX = { if (forward) -slideDistance else slideDistance },
 		) + fadeOut(
 			animationSpec = tween(outgoingMillis, easing = effectsEasing),
 		)
-	)
+		)
 }

@@ -9,7 +9,6 @@ import android.content.pm.PackageManager
 import com.topjohnwu.superuser.Shell
 import de.robv.android.xposed.XposedHelpers.callMethod
 import io.github.libxposed.api.XposedModuleInterface
-import java.util.ArrayList
 import org.objenesis.ObjenesisHelper
 import sh.anirudhgupta109.pxn.BuildConfig
 import sh.anirudhgupta109.pxn.Constants
@@ -18,6 +17,7 @@ import sh.anirudhgupta109.pxn.xposed.annotations.KSUModPack
 import sh.anirudhgupta109.pxn.xposed.annotations.KSUNextModPack
 import sh.anirudhgupta109.pxn.xposed.utils.SystemUtils
 import sh.anirudhgupta109.pxn.xposed.utils.reflection.ReflectedClass
+import java.util.ArrayList
 
 /**
  * Hands the module root inside KernelSU and KernelSU-Next. It listens for the
@@ -55,7 +55,7 @@ class KSUInjector(context: Context) : XposedModPack(context) {
 			}
 		}
 
-		//In case ksu is running already, it won't understand the onCreate intent we send. broadcast it is then
+		// In case ksu is running already, it won't understand the onCreate intent we send. broadcast it is then
 		mContext.registerReceiver(broadcastReceiver, IntentFilter(Constants.PX_ROOT_EXTRA), Context.RECEIVER_EXPORTED)
 
 		MainActivityClass

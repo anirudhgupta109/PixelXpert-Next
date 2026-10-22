@@ -128,7 +128,9 @@ fun PrefScreenContent(
 ) {
 	// Re-reads every value whenever any preference is written.
 	val revision by store.revision.collectAsState()
-	@Suppress("UNUSED_VARIABLE") val ignored = revision
+
+	@Suppress("UNUSED_VARIABLE")
+	val ignored = revision
 
 	val flat = remember(screen) { screen.flatten() }
 
@@ -221,7 +223,9 @@ private fun List<FlattenedNode>.toBlocks(): List<PrefBlock> {
 fun BoxScope.PullDownIndicator(store: PrefStore) {
 	// Live across a write, like every other read on this renderer.
 	val revision by store.revision.collectAsState()
-	@Suppress("UNUSED_VARIABLE") val ignored = revision
+
+	@Suppress("UNUSED_VARIABLE")
+	val ignored = revision
 
 	if (!store.getBoolean("QSPullodwnEnabled", false)) return
 
@@ -258,17 +262,28 @@ private fun PrefNodeRow(
 ) {
 	when (node) {
 		is Illustration -> IllustrationHeader(node)
+
 		is Category -> CategoryHeader(node)
+
 		is SearchBar -> SearchHeader(node, onSearch, googleDesign)
+
 		is NavRow -> NavRowItem(node, onNavigate)
+
 		is ActionRow -> ActionRowItem(node)
+
 		// Unreachable from the home screen, a lone tile renders as a bubble of one.
 		is MainTile -> TileBubble(listOf(node), 0L, googleDesign, onNavigate)
+
 		is SwitchPref -> SwitchItem(node, store)
+
 		is SliderPref -> SliderItem(node, store)
+
 		is ListPref -> ListChoiceItem(node, store)
+
 		is TextPref -> TextItem(node, store)
+
 		is ColorPref -> ColorItem(node, store)
+
 		is TimePref -> TimeItem(node, store)
 	}
 }
@@ -306,8 +321,7 @@ private fun enabledBy(store: PrefStore, node: ValuePref): Boolean {
  * gave no sign why. 0.38 is M3's own disabled level, matching the widgets
  * these rows sit beside when they are disabled.
  */
-private fun Modifier.dimUnless(enabled: Boolean): Modifier =
-	if (enabled) this else this.alpha(0.38f)
+private fun Modifier.dimUnless(enabled: Boolean): Modifier = if (enabled) this else this.alpha(0.38f)
 
 /**
  * The node's preference key, or null for the one node type that has none.
@@ -367,9 +381,11 @@ private fun visibleBy(store: PrefStore, key: String?): Boolean {
 				store.string("taskBarMode", "0").toInt() == 1
 
 			"EnableGoogleRecents" -> !store.getBoolean("TaskbarAsRecents", false)
+
 			"TaskbarHideAllAppsIcon" -> store.getBoolean("TaskbarAsRecents", false)
 
 			"displayOverride" -> store.getBoolean("displayOverrideEnabled", false)
+
 			"carrierTextValue" -> store.getBoolean("carrierTextMod", false)
 
 			// The five battery colour rows only make sense while their level is
@@ -382,7 +398,8 @@ private fun visibleBy(store: PrefStore, key: String?): Boolean {
 			// values were written in, but the regex takes it anyway, so its
 			// levels are computed rather than left to the throw.
 			"batteryFastChargingColor", "batteryPowerSaveColor", "batteryChargingColor",
-			"batteryWarningColor", "batteryCriticalColor" -> {
+			"batteryWarningColor", "batteryCriticalColor",
+			-> {
 				val levels = sliderValues(store.getString("batteryWarningRange", ""))
 				val critZero = levels.isNotEmpty() && levels[0] == 0f
 				val warnZero = levels.isNotEmpty() && levels[1] == 0f
@@ -391,11 +408,15 @@ private fun visibleBy(store: PrefStore, key: String?): Boolean {
 				when (key) {
 					"batteryFastChargingColor" ->
 						store.getBoolean("indicateFastCharging", false) && bBarEnabled
+
 					"batteryChargingColor" ->
 						store.getBoolean("indicateCharging", false) && bBarEnabled
+
 					"batteryPowerSaveColor" ->
 						store.getBoolean("indicatePowerSave", false) && bBarEnabled
+
 					"batteryWarningColor" -> !warnZero && bBarEnabled
+
 					// batteryCriticalColor
 					else -> (!critZero || transitColors) && bBarEnabled && !warnZero
 				}
@@ -419,7 +440,8 @@ private fun visibleBy(store: PrefStore, key: String?): Boolean {
 
 			"network_settings_header", "networkTrafficPosition", "networkTrafficMode",
 			"networkTrafficShowIcons", "networkTrafficInterval", "networkTrafficThreshold",
-			"networkTrafficOpacity" -> store.getBoolean("networkOnSBEnabled", false)
+			"networkTrafficOpacity",
+			-> store.getBoolean("networkOnSBEnabled", false)
 
 			"SyncNTPTimeNow", "TimeSyncInterval", "NTPServers" ->
 				store.getBoolean("SyncNTPTime", false)
@@ -432,22 +454,27 @@ private fun visibleBy(store: PrefStore, key: String?): Boolean {
 			// status bar is actually multi-row, and the pinned port is a
 			// nothing until wireless ADB pinning is on.
 			"multiRowClockBottom" -> store.getBoolean("notificationAreaMultiRow", false)
+
 			"pinned_adb_port" -> store.getBoolean("pin_wireless_adb", false)
 
 			"networkStatDLColor", "networkStatULColor" ->
 				store.getBoolean("networkStatsColorful", false)
 
 			"NetworkStatsStartTime" -> store.string("NetworkStatsStartBase", "0") == "0"
+
 			"NetworkStatsWeekStart" -> store.string("NetworkStatsStartBase", "0") == "1"
+
 			"NetworkStatsMonthStart" -> store.string("NetworkStatsStartBase", "0") == "2"
 
 			"QSPulldownPercent", "QSPulldownSide", "oneFingerPullupEnabled" ->
 				store.getBoolean("QSPullodwnEnabled", false)
 
 			"BackLeftHeight" -> store.getBoolean("BackFromLeft", true)
+
 			"BackRightHeight" -> store.getBoolean("BackFromRight", true)
 
 			"leftSwipeUpPercentage" -> store.string("leftSwipeUpAction", "-1") != "-1"
+
 			"rightSwipeUpPercentage" -> store.string("rightSwipeUpAction", "-1") != "-1"
 
 			// Reads `AutoUpdate` with a fallback of `true`, deliberately not
@@ -685,9 +712,11 @@ private fun TileRow(
 	val circle = if (painted) Color(accent.toInt()) else MaterialTheme.colorScheme.primaryContainer
 	val glyph = when {
 		painted -> glyphOn(Color(accent.toInt()))
+
 		// The app's own design keeps the theme's glyph in the light theme and
 		// takes the background colour in the dark one
 		isSystemInDarkTheme() -> MaterialTheme.colorScheme.background
+
 		else -> MaterialTheme.colorScheme.onSurface
 	}
 
@@ -752,8 +781,11 @@ private fun glyphOn(accent: Color): Color {
 private const val GlyphTone = 30.0
 
 @Composable
-private fun summaryOrNull(res: Int, modifier: Modifier = Modifier): (@Composable () -> Unit)? =
-	if (res == 0) null else {{ Text(stringResource(res), modifier = modifier) }}
+private fun summaryOrNull(res: Int, modifier: Modifier = Modifier): (@Composable () -> Unit)? = if (res == 0) {
+	null
+} else {
+	{ Text(stringResource(res), modifier = modifier) }
+}
 
 /**
  * A row's title, or "" when it has none.
@@ -778,16 +810,17 @@ private fun titleText(node: PrefNode): String =
  * Every other key falls through to the plain resource.
  */
 @Composable
-private fun summaryOrNull(key: String, res: Int): (@Composable () -> Unit)? =
-	when (key) {
-		"CheckForUpdate" -> {
-			{ Text(stringResource(R.string.current_version, BuildConfig.VERSION_NAME)) }
-		}
-		"CrowdinProject" -> {
-			{ Text(stringResource(R.string.crowdin_summary, stringResource(R.string.app_name))) }
-		}
-		else -> summaryOrNull(res)
+private fun summaryOrNull(key: String, res: Int): (@Composable () -> Unit)? = when (key) {
+	"CheckForUpdate" -> {
+		{ Text(stringResource(R.string.current_version, BuildConfig.VERSION_NAME)) }
 	}
+
+	"CrowdinProject" -> {
+		{ Text(stringResource(R.string.crowdin_summary, stringResource(R.string.app_name))) }
+	}
+
+	else -> summaryOrNull(res)
+}
 
 @Composable
 private fun IconChevron() {
@@ -810,7 +843,9 @@ private fun SwitchItem(node: SwitchPref, store: PrefStore) {
 	// value it first rendered - after which the row writes `!checked` as the
 	// same value again and the switch appears dead.
 	val revision by store.revision.collectAsState()
-	@Suppress("UNUSED_VARIABLE") val ignored = revision
+
+	@Suppress("UNUSED_VARIABLE")
+	val ignored = revision
 
 	val enabled = enabledBy(store, node)
 	val checked = (store.read(node) ?: node.default) == "true"
@@ -954,11 +989,7 @@ private val DefaultThumbWidth = 16.dp
  * that declares no default passes an empty list and lays down nothing extra.
  */
 @Composable
-private fun SliderTrackWithDefaultMarker(
-	fractions: List<Float>,
-	enabled: Boolean,
-	content: @Composable () -> Unit,
-) {
+private fun SliderTrackWithDefaultMarker(fractions: List<Float>, enabled: Boolean, content: @Composable () -> Unit) {
 	val base = MaterialTheme.colorScheme.onSurfaceVariant
 	val marker = if (enabled) base else base.copy(alpha = 0.38f)
 	Column(Modifier.fillMaxWidth()) {
@@ -1072,11 +1103,15 @@ private fun SliderThumbWithTip(
 private fun SliderItem(node: SliderPref, store: PrefStore) {
 	// Keep `enabled` live across a write - see enabledBy.
 	val revision by store.revision.collectAsState()
-	@Suppress("UNUSED_VARIABLE") val ignored = revision
+
+	@Suppress("UNUSED_VARIABLE")
+	val ignored = revision
 	val enabled = enabledBy(store, node)
 	val steps = if (node.step > 0f) {
 		((node.max - node.min) / node.step).roundToInt().coerceAtLeast(1) - 1
-	} else 0
+	} else {
+		0
+	}
 	val range = node.min..node.max
 	val isRange = node.valueCount >= 2
 
@@ -1125,7 +1160,9 @@ private fun SliderItem(node: SliderPref, store: PrefStore) {
 					)
 				}
 			}
-		} else null,
+		} else {
+			null
+		},
 		modifier = Modifier.fillMaxWidth(),
 	)
 
@@ -1282,8 +1319,7 @@ private fun writeRange(node: SliderPref, store: PrefStore, lo: Float, hi: Float)
 	store.putString(node.key, "{\"\":[${trimFloat(lo)},${trimFloat(hi)}]}")
 }
 
-private fun trimFloat(v: Float): String =
-	if (v == v.roundToInt().toFloat()) v.roundToInt().toString() else v.toString()
+private fun trimFloat(v: Float): String = if (v == v.roundToInt().toFloat()) v.roundToInt().toString() else v.toString()
 
 /**
  * Ranges whose trailing reset icon means "stop overriding this".
@@ -1341,8 +1377,11 @@ private fun valueLabel(context: Context, key: String, v: Float): String {
 		// floor of the track, so the default can never be told apart from the
 		// lowest reachable value without this.
 		"FastChargingWattage" ->
-			if (v <= 5f) wordDefault
-			else "${trimFloat(v)} ${context.getString(R.string.watts)}"
+			if (v <= 5f) {
+				wordDefault
+			} else {
+				"${trimFloat(v)} ${context.getString(R.string.watts)}"
+			}
 
 		// `volumeStps == 10 ? Default : volumeStps`, always carrying the
 		// reboot warning the number on its own cannot.
@@ -1384,26 +1423,36 @@ private fun ListChoiceItem(node: ListPref, store: PrefStore) {
 	val context = LocalContext.current
 	// Keep `enabled` live across a write - see enabledBy.
 	val revision by store.revision.collectAsState()
-	@Suppress("UNUSED_VARIABLE") val ignored = revision
+
+	@Suppress("UNUSED_VARIABLE")
+	val ignored = revision
 	val enabled = enabledBy(store, node)
 	var open by remember { mutableStateOf(false) }
 
 	val labels = remember(node, context) {
-		if (node.entries == 0) emptyList()
-		else runCatching { context.resources.getStringArray(node.entries).toList() }
-			.getOrElse { emptyList() }
+		if (node.entries == 0) {
+			emptyList()
+		} else {
+			runCatching { context.resources.getStringArray(node.entries).toList() }
+				.getOrElse { emptyList() }
+		}
 	}
 	val values = remember(node, context) {
-		if (node.entryValues == 0) emptyList()
-		else runCatching { context.resources.getStringArray(node.entryValues).toList() }
-			.getOrElse { emptyList() }
+		if (node.entryValues == 0) {
+			emptyList()
+		} else {
+			runCatching { context.resources.getStringArray(node.entryValues).toList() }
+				.getOrElse { emptyList() }
+		}
 	}
 
 	val current = store.read(node) ?: node.default ?: ""
 	val selected: Set<String> =
 		if (node.multiSelect) {
 			current.split(',').map(String::trim).filter(String::isNotEmpty).toSet()
-		} else setOf(current)
+		} else {
+			setOf(current)
+		}
 
 	val shown = values.indices
 		.filter { values[it] in selected }
@@ -1448,8 +1497,9 @@ private fun ListChoiceItem(node: ListPref, store: PrefStore) {
 							modifier = Modifier
 								.fillMaxWidth()
 								.clickable {
-									if (node.multiSelect) toggle()
-									else {
+									if (node.multiSelect) {
+										toggle()
+									} else {
 										store.write(node, v)
 										open = false
 									}
@@ -1505,7 +1555,9 @@ private fun ListChoiceItem(node: ListPref, store: PrefStore) {
 private fun TextItem(node: TextPref, store: PrefStore) {
 	// Keep `enabled` live across a write - see enabledBy.
 	val revision by store.revision.collectAsState()
-	@Suppress("UNUSED_VARIABLE") val ignored = revision
+
+	@Suppress("UNUSED_VARIABLE")
+	val ignored = revision
 	val enabled = enabledBy(store, node)
 	var open by remember { mutableStateOf(false) }
 	var draft by remember(node.key) { mutableStateOf(store.read(node) ?: node.default ?: "") }
@@ -1588,7 +1640,9 @@ private fun TextItem(node: TextPref, store: PrefStore) {
 private fun ColorItem(node: ColorPref, store: PrefStore) {
 	// Keep `enabled` live across a write - see enabledBy.
 	val revision by store.revision.collectAsState()
-	@Suppress("UNUSED_VARIABLE") val ignored = revision
+
+	@Suppress("UNUSED_VARIABLE")
+	val ignored = revision
 	val enabled = enabledBy(store, node)
 	var open by remember { mutableStateOf(false) }
 	val current = store.read(node) ?: node.default ?: "#FFFFFF"
@@ -1714,22 +1768,20 @@ private fun formatColorHex(value: String): String {
 }
 
 /** Pure - must not touch MaterialTheme, as it is called outside composition. */
-private fun parseColor(value: String): Color {
-	return try {
-		val intVal = value.toIntOrNull()
-		if (intVal != null) {
-			Color(intVal)
-		} else {
-			val v = value.trim().removePrefix("#").removePrefix("0x").removePrefix("0X")
-			when (v.length) {
-				6 -> Color(0xFF000000 or v.toLong(16))
-				8 -> Color(v.toLong(16))
-				else -> Color.Gray
-			}
+private fun parseColor(value: String): Color = try {
+	val intVal = value.toIntOrNull()
+	if (intVal != null) {
+		Color(intVal)
+	} else {
+		val v = value.trim().removePrefix("#").removePrefix("0x").removePrefix("0X")
+		when (v.length) {
+			6 -> Color(0xFF000000 or v.toLong(16))
+			8 -> Color(v.toLong(16))
+			else -> Color.Gray
 		}
-	} catch (_: Throwable) {
-		Color.Gray
 	}
+} catch (_: Throwable) {
+	Color.Gray
 }
 
 // ------------------------------------------------------------------ time
@@ -1738,7 +1790,9 @@ private fun parseColor(value: String): Color {
 private fun TimeItem(node: TimePref, store: PrefStore) {
 	// Keep `enabled` live across a write - see enabledBy.
 	val revision by store.revision.collectAsState()
-	@Suppress("UNUSED_VARIABLE") val ignored = revision
+
+	@Suppress("UNUSED_VARIABLE")
+	val ignored = revision
 	val enabled = enabledBy(store, node)
 	var open by remember { mutableStateOf(false) }
 	val minutes = (store.read(node) ?: node.default ?: "0").toIntOrNull() ?: 0
