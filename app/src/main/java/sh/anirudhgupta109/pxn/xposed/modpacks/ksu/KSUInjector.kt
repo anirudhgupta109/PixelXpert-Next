@@ -7,7 +7,6 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
 import com.topjohnwu.superuser.Shell
-import de.robv.android.xposed.XposedHelpers.callMethod
 import io.github.libxposed.api.XposedModuleInterface
 import org.objenesis.ObjenesisHelper
 import sh.anirudhgupta109.pxn.BuildConfig
@@ -17,6 +16,7 @@ import sh.anirudhgupta109.pxn.xposed.annotations.KSUModPack
 import sh.anirudhgupta109.pxn.xposed.annotations.KSUNextModPack
 import sh.anirudhgupta109.pxn.xposed.utils.SystemUtils
 import sh.anirudhgupta109.pxn.xposed.utils.reflection.ReflectedClass
+import sh.anirudhgupta109.pxn.xposed.utils.reflection.Reflection.callMethod
 import java.util.ArrayList
 
 /**
@@ -38,6 +38,7 @@ class KSUInjector(context: Context) : XposedModPack(context) {
 
 	private lateinit var NativesClass: ReflectedClass
 	private lateinit var ProfileClass: ReflectedClass
+	private var broadcastReceiver: BroadcastReceiver? = null
 
 	/** Nothing this pack reads; declared because [XposedModPack] requires it. */
 	override fun onPreferenceUpdated(vararg key: String?) {
@@ -49,14 +50,15 @@ class KSUInjector(context: Context) : XposedModPack(context) {
 		NativesClass = ReflectedClass.of("$packageName.Natives")
 		ProfileClass = ReflectedClass.of("$packageName.Natives\$Profile")
 
-		val broadcastReceiver = object : BroadcastReceiver() {
+		val receiver = object : BroadcastReceiver() {
 			override fun onReceive(context: Context, intent: Intent) {
 				grantRootToPX(intent)
 			}
 		}
 
 		// In case ksu is running already, it won't understand the onCreate intent we send. broadcast it is then
-		mContext.registerReceiver(broadcastReceiver, IntentFilter(Constants.PX_ROOT_EXTRA), Context.RECEIVER_EXPORTED)
+		mContext.registerReceiver(receiver, IntentFilter(Constants.PX_ROOT_EXTRA), Context.RECEIVER_EXPORTED)
+		broadcastReceiver = receiver
 
 		MainActivityClass
 			.after("onCreate")
@@ -66,6 +68,11 @@ class KSUInjector(context: Context) : XposedModPack(context) {
 					grantRootToPX(launchIntent)
 				}
 			}
+	}
+
+	override fun onUnloaded() {
+		broadcastReceiver?.let { runCatching { mContext.unregisterReceiver(it) } }
+		broadcastReceiver = null
 	}
 
 	private fun grantRootToPX(launchIntent: Intent) {

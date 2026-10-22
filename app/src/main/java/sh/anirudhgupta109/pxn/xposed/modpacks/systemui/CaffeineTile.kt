@@ -13,9 +13,6 @@ import android.os.VibrationEffect
 import android.service.quicksettings.Tile
 import android.view.HapticFeedbackConstants
 import android.view.View
-import de.robv.android.xposed.XposedHelpers.callMethod
-import de.robv.android.xposed.XposedHelpers.getObjectField
-import de.robv.android.xposed.XposedHelpers.setObjectField
 import io.github.libxposed.api.XposedModuleInterface
 import sh.anirudhgupta109.pxn.BuildConfig
 import sh.anirudhgupta109.pxn.R
@@ -23,8 +20,12 @@ import sh.anirudhgupta109.pxn.service.tileServices.CaffeineTileService
 import sh.anirudhgupta109.pxn.xposed.XPLauncher
 import sh.anirudhgupta109.pxn.xposed.XposedModPack
 import sh.anirudhgupta109.pxn.xposed.annotations.SystemUIModPack
+import sh.anirudhgupta109.pxn.xposed.utils.CustomTileMatcher
 import sh.anirudhgupta109.pxn.xposed.utils.SystemUtils
 import sh.anirudhgupta109.pxn.xposed.utils.reflection.ReflectedClass
+import sh.anirudhgupta109.pxn.xposed.utils.reflection.Reflection.callMethod
+import sh.anirudhgupta109.pxn.xposed.utils.reflection.Reflection.getObjectField
+import sh.anirudhgupta109.pxn.xposed.utils.reflection.Reflection.setObjectField
 import sh.anirudhgupta109.pxn.xposed.utils.toolkit.Logger
 
 /**
@@ -72,6 +73,11 @@ class CaffeineTile(context: Context) : XposedModPack(context) {
 	override fun onPreferenceUpdated(vararg key: String?) {
 	}
 
+	override fun onUnloaded() {
+		destroyCaffeine()
+		mTile = null
+	}
+
 	override fun onPackageLoaded(PRParam: XposedModuleInterface.PackageReadyParam) {
 		val CustomTileClass = ReflectedClass.of("com.android.systemui.qs.external.CustomTile")
 		val QSFactoryImplClass = ReflectedClass.of("com.android.systemui.qs.tileimpl.QSFactoryImpl")
@@ -82,9 +88,7 @@ class CaffeineTile(context: Context) : XposedModPack(context) {
 				val arg = param.args[0] as String?
 				if (arg != null && arg.contains(CaffeineTileService::class.java.simpleName)) {
 					val result: Any? = param.getResult()
-					if (result != null) {
-						mTile = result
-						initCaffeine()
+					if (adoptTile(result)) {
 						updateTile()
 					}
 				}
@@ -93,7 +97,7 @@ class CaffeineTile(context: Context) : XposedModPack(context) {
 		CustomTileClass
 			.before("handleClick")
 			.run { param ->
-				if (param.thisObject === mTile) {
+				if (adoptTile(param.thisObject)) {
 					val arg = if (param.args.isNotEmpty()) param.args[0] else null
 					handleTileClick(arg)
 					param.setResult(null) // Prevent invoking TileService over IPC
@@ -104,7 +108,7 @@ class CaffeineTile(context: Context) : XposedModPack(context) {
 		QSTileImplClass
 			.before("handleLongClick")
 			.run { param ->
-				if (param.thisObject === mTile) {
+				if (adoptTile(param.thisObject)) {
 					val arg = if (param.args.isNotEmpty()) param.args[0] else null
 					handleTileLongClick(arg)
 					param.setResult(null)
@@ -114,7 +118,7 @@ class CaffeineTile(context: Context) : XposedModPack(context) {
 		CustomTileClass
 			.after("handleUpdateState")
 			.run { param ->
-				if (param.thisObject === mTile) {
+				if (adoptTile(param.thisObject)) {
 					val state = param.args[0]
 
 					val isHeld = mWakeLock != null && mWakeLock!!.isHeld()
@@ -135,7 +139,7 @@ class CaffeineTile(context: Context) : XposedModPack(context) {
 		CustomTileClass
 			.before("getLongClickIntent")
 			.run { param ->
-				if (param.thisObject === mTile) {
+				if (adoptTile(param.thisObject)) {
 					// Return a safe dummy intent to prevent crashes if accessibility invokes it
 					var intent = Intent("android.settings.SCREEN_TIMEOUT_SETTINGS")
 					intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -150,12 +154,26 @@ class CaffeineTile(context: Context) : XposedModPack(context) {
 		CustomTileClass
 			.before("handleDestroy")
 			.run { param ->
-				if (param.thisObject === mTile) {
+				if (CustomTileMatcher.matches(param.thisObject, CaffeineTileService::class.java)) {
 					destroyCaffeine()
+					mTile = null
 				}
 			}
 	}
 
+	private fun adoptTile(tile: Any?): Boolean {
+		if (!CustomTileMatcher.matches(tile, CaffeineTileService::class.java)) return false
+		mTile = tile
+		initCaffeine()
+		return true
+	}
+
+	// There is no public replacement for FULL_WAKE_LOCK outside a window:
+	// FLAG_KEEP_SCREEN_ON needs a window of our own, and the partial/screen
+	// wake-lock constants are deprecated for the same reason. Platform
+	// SystemUI uses FULL_WAKE_LOCK for its own caffeine tile, so this keeps
+	// the documented system behaviour.
+	@Suppress("DEPRECATION")
 	private fun initCaffeine() {
 		if (mWakeLock == null) {
 			val pm = mContext.getSystemService(PowerManager::class.java)

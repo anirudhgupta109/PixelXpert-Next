@@ -2,17 +2,17 @@ package sh.anirudhgupta109.pxn.xposed.modpacks.systemui
 
 import android.content.Context
 import android.util.Pair
-import de.robv.android.xposed.XposedBridge.invokeOriginalMethod
-import de.robv.android.xposed.XposedHelpers.callMethod
-import de.robv.android.xposed.XposedHelpers.findClassIfExists
-import de.robv.android.xposed.XposedHelpers.getObjectField
-import de.robv.android.xposed.XposedHelpers.getStaticObjectField
 import io.github.libxposed.api.XposedModuleInterface
 import sh.anirudhgupta109.pxn.Constants
 import sh.anirudhgupta109.pxn.xposed.XPrefs.Xprefs
 import sh.anirudhgupta109.pxn.xposed.XposedModPack
 import sh.anirudhgupta109.pxn.xposed.annotations.SystemUIModPack
 import sh.anirudhgupta109.pxn.xposed.utils.reflection.ReflectedClass
+import sh.anirudhgupta109.pxn.xposed.utils.reflection.Reflection.callMethod
+import sh.anirudhgupta109.pxn.xposed.utils.reflection.Reflection.findClassIfExists
+import sh.anirudhgupta109.pxn.xposed.utils.reflection.Reflection.getObjectField
+import sh.anirudhgupta109.pxn.xposed.utils.reflection.Reflection.getStaticObjectField
+import sh.anirudhgupta109.pxn.xposed.utils.reflection.Reflection.invokeOriginalMethod
 import java.lang.reflect.Constructor
 import java.lang.reflect.InvocationHandler
 import java.lang.reflect.Method

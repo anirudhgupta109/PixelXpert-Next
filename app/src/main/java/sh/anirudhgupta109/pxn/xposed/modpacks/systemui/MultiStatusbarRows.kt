@@ -5,7 +5,6 @@ import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
-import de.robv.android.xposed.XposedHelpers.getObjectField
 import io.github.libxposed.api.XposedModuleInterface
 import sh.anirudhgupta109.pxn.xposed.XPrefs.Xprefs
 import sh.anirudhgupta109.pxn.xposed.XposedModPack
@@ -13,6 +12,7 @@ import sh.anirudhgupta109.pxn.xposed.annotations.SystemUIModPack
 import sh.anirudhgupta109.pxn.xposed.utils.FlexStatusIconContainer
 import sh.anirudhgupta109.pxn.xposed.utils.SystemUtils
 import sh.anirudhgupta109.pxn.xposed.utils.reflection.ReflectedClass
+import sh.anirudhgupta109.pxn.xposed.utils.reflection.Reflection.getObjectField
 
 /**
  * Lets the status bar's end-side icon area hold more than one row of icons.

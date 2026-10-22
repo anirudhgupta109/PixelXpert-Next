@@ -38,7 +38,6 @@ coreKtx = "1.19.1"
 koin = "4.2.2"
 libxposed-api = "102.0.0"
 libxposed-service = "102.0.0"
-xposed-legacy-api = "82"
 
 [libraries]
 androidx-activity = { module = "androidx.activity:activity", version.ref = "activity" }
@@ -91,8 +90,6 @@ koin-compose = { module = "io.insert-koin:koin-compose", version.ref = "koin" }
 koin-compose-viewmodel = { module = "io.insert-koin:koin-compose-viewmodel", version.ref = "koin" }
 libxposed-api = { module = "io.github.libxposed:api", version.ref = "libxposed-api" }
 libxposed-service = { module = "io.github.libxposed:service", version.ref = "libxposed-service" }
-# Classic Xposed API (XposedHelpers/XposedBridge) the hook code calls - compileOnly.
-xposed-legacy-api = { module = "de.robv.android.xposed:api", version.ref = "xposed-legacy-api" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

@@ -11,15 +11,15 @@ import android.content.pm.PackageManager
 import android.os.UserHandle
 import android.view.Display
 import android.view.WindowManager
-import de.robv.android.xposed.XposedHelpers.callMethod
-import de.robv.android.xposed.XposedHelpers.getIntField
-import de.robv.android.xposed.XposedHelpers.getObjectField
 import io.github.libxposed.api.XposedModuleInterface
 import sh.anirudhgupta109.pxn.Constants
 import sh.anirudhgupta109.pxn.xposed.XposedModPack
 import sh.anirudhgupta109.pxn.xposed.annotations.FrameworkModPack
 import sh.anirudhgupta109.pxn.xposed.utils.SystemUtils
 import sh.anirudhgupta109.pxn.xposed.utils.reflection.ReflectedClass
+import sh.anirudhgupta109.pxn.xposed.utils.reflection.Reflection.callMethod
+import sh.anirudhgupta109.pxn.xposed.utils.reflection.Reflection.getIntField
+import sh.anirudhgupta109.pxn.xposed.utils.reflection.Reflection.getObjectField
 
 /**
  * System-server side of the module's four global hot-key actions: home, back,
@@ -156,7 +156,7 @@ class PhoneWindowManager(context: Context) : XposedModPack(context) {
 					if (param.args[0] == null) return@run
 
 					Thread {
-						if (callMethod(param.args[0], "getBaseType").equals(WindowManager.LayoutParams.FIRST_APPLICATION_WINDOW)) {
+						if (callMethod(param.args[0], "getBaseType") == WindowManager.LayoutParams.FIRST_APPLICATION_WINDOW) {
 							val newPackageName = callMethod(param.args[0], "getOwningPackage") as String
 							val newUserID = getObjectField(callMethod(param.args[0], "getTask"), "mUserId") as Int
 							if (!newPackageName.equals(currentPackage) || newUserID != currentUser) {
@@ -187,6 +187,21 @@ class PhoneWindowManager(context: Context) : XposedModPack(context) {
 	}
 
 	@SuppressLint("MissingPermission")
+	override fun onSaveHotReloadState(outState: MutableMap<String, Any?>) {
+		windowMan?.let { outState["windowManager"] = it }
+	}
+
+	override fun onRestoreHotReloadState(savedState: Map<String, Any?>) {
+		windowMan = savedState["windowManager"]
+	}
+
+	override fun onUnloaded() {
+		if (broadcastRegistered) {
+			runCatching { mContext.unregisterReceiver(broadcastReceiver) }
+			broadcastRegistered = false
+		}
+	}
+
 	private fun sendAppProfileSwitchAvailable(isAvailable: Boolean) {
 		Thread {
 			val broadcast = Intent()

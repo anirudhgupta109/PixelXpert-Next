@@ -21,6 +21,7 @@ import androidx.core.graphics.ColorUtils
 import sh.anirudhgupta109.pxn.Constants
 import sh.anirudhgupta109.pxn.R
 import sh.anirudhgupta109.pxn.xposed.XPLauncher
+import sh.anirudhgupta109.pxn.xposed.utils.reflection.Reflection
 import sh.anirudhgupta109.pxn.xposed.utils.toolkit.Logger
 import sh.anirudhgupta109.pxn.xposed.utils.toolkit.ResourceTools
 
@@ -145,7 +146,10 @@ class AutoBrightnessButton(context: Context) : View(context) {
 		} catch (t: Throwable) {
 		}
 
-		context.sendBroadcast(Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS))
+		try {
+			Reflection.callMethod(context.getSystemService(Context.STATUS_BAR_SERVICE), "collapsePanels")
+		} catch (ignored: Throwable) {
+		}
 	}
 
 	override fun onAttachedToWindow() {

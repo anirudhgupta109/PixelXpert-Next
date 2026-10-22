@@ -9,8 +9,6 @@ import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import androidx.core.content.res.ResourcesCompat
-import de.robv.android.xposed.XposedHelpers.getObjectField
-import de.robv.android.xposed.XposedHelpers.getStaticObjectField
 import io.github.libxposed.api.XposedModuleInterface
 import sh.anirudhgupta109.pxn.R
 import sh.anirudhgupta109.pxn.xposed.XPLauncher
@@ -19,6 +17,8 @@ import sh.anirudhgupta109.pxn.xposed.XposedModPack
 import sh.anirudhgupta109.pxn.xposed.annotations.SystemUIModPack
 import sh.anirudhgupta109.pxn.xposed.utils.SystemUtils
 import sh.anirudhgupta109.pxn.xposed.utils.reflection.ReflectedClass
+import sh.anirudhgupta109.pxn.xposed.utils.reflection.Reflection.getObjectField
+import sh.anirudhgupta109.pxn.xposed.utils.reflection.Reflection.getStaticObjectField
 import sh.anirudhgupta109.pxn.xposed.utils.reflection.ReflectionTools.reAddView
 import sh.anirudhgupta109.pxn.xposed.utils.toolkit.ObjectTools.tryParseInt
 import java.util.Collection

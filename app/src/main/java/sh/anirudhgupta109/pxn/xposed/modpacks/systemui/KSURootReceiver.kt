@@ -23,12 +23,14 @@ import sh.anirudhgupta109.pxn.xposed.annotations.SystemUIModPack
 @SystemUIModPack
 class KSURootReceiver(context: Context) : XposedModPack(context) {
 
+	private var broadcastReceiver: BroadcastReceiver? = null
+
 	/** Nothing this pack reads; declared because [XposedModPack] requires it. */
 	override fun onPreferenceUpdated(vararg key: String?) {
 	}
 
 	override fun onPackageLoaded(PRParam: XposedModuleInterface.PackageReadyParam) {
-		val broadcastReceiver = object : BroadcastReceiver() {
+		val receiver = object : BroadcastReceiver() {
 			override fun onReceive(context: Context, intent: Intent?) {
 				AppUtils.runKSURootActivity(mContext, false)
 			}
@@ -37,6 +39,12 @@ class KSURootReceiver(context: Context) : XposedModPack(context) {
 		val filter = IntentFilter()
 		filter.addAction(Constants.ACTION_KSU_ACQUIRE_ROOT)
 
-		mContext.registerReceiver(broadcastReceiver, filter, Context.RECEIVER_EXPORTED)
+		mContext.registerReceiver(receiver, filter, Context.RECEIVER_EXPORTED)
+		broadcastReceiver = receiver
+	}
+
+	override fun onUnloaded() {
+		broadcastReceiver?.let { runCatching { mContext.unregisterReceiver(it) } }
+		broadcastReceiver = null
 	}
 }

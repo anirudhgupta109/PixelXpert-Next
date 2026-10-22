@@ -1,12 +1,12 @@
 package sh.anirudhgupta109.pxn.xposed.modpacks.android
 
 import android.content.Context
-import de.robv.android.xposed.XposedHelpers.setObjectField
 import io.github.libxposed.api.XposedModuleInterface
 import sh.anirudhgupta109.pxn.xposed.XPrefs.Xprefs
 import sh.anirudhgupta109.pxn.xposed.XposedModPack
 import sh.anirudhgupta109.pxn.xposed.annotations.FrameworkModPack
 import sh.anirudhgupta109.pxn.xposed.utils.reflection.ReflectedClass
+import sh.anirudhgupta109.pxn.xposed.utils.reflection.Reflection.setObjectField
 
 /**
  * Pushes the module's hotspot settings into every soft access point the

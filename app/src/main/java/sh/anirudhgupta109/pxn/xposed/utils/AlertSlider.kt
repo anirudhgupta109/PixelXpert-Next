@@ -7,10 +7,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.TextView
-import de.robv.android.xposed.XposedHelpers.callMethod
-import de.robv.android.xposed.XposedHelpers.getObjectField
-import de.robv.android.xposed.XposedHelpers.setObjectField
 import sh.anirudhgupta109.pxn.xposed.utils.reflection.ReflectedClass
+import sh.anirudhgupta109.pxn.xposed.utils.reflection.Reflection.callMethod
+import sh.anirudhgupta109.pxn.xposed.utils.reflection.Reflection.getObjectField
+import sh.anirudhgupta109.pxn.xposed.utils.reflection.Reflection.setObjectField
 import sh.anirudhgupta109.pxn.xposed.utils.toolkit.ResourceTools
 import java.lang.reflect.InvocationHandler
 import java.lang.reflect.InvocationTargetException

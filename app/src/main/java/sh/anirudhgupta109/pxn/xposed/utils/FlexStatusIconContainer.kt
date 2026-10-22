@@ -11,11 +11,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import androidx.annotation.Nullable
-import de.robv.android.xposed.XposedBridge.log
-import de.robv.android.xposed.XposedHelpers.callMethod
-import de.robv.android.xposed.XposedHelpers.findFieldIfExists
-import de.robv.android.xposed.XposedHelpers.setObjectField
 import sh.anirudhgupta109.pxn.xposed.utils.reflection.ReflectedClass
+import sh.anirudhgupta109.pxn.xposed.utils.reflection.Reflection.callMethod
+import sh.anirudhgupta109.pxn.xposed.utils.reflection.Reflection.findFieldIfExists
+import sh.anirudhgupta109.pxn.xposed.utils.reflection.Reflection.setObjectField
+import sh.anirudhgupta109.pxn.xposed.utils.toolkit.Logger
 import kotlin.math.max
 import kotlin.math.min
 
@@ -437,7 +437,7 @@ class FlexStatusIconContainer(context: Context, attrs: AttributeSet?, statusIcon
 		for (i in 0 until childCount) {
 			val child = getChildAt(i)
 			try {
-				if (callMethod(child, "getSlot").equals(slot)) {
+				if (callMethod(child, "getSlot") == slot) {
 					return child
 				}
 			} catch (ignored: Throwable) {
@@ -540,8 +540,8 @@ class FlexStatusIconContainer(context: Context, attrs: AttributeSet?, statusIcon
 			mDotIcon = null
 			System.gc()
 		} catch (t: Throwable) {
-			log("PixelXpert Error - Flex Statusbar Container")
-			log(t)
+			Logger.log("PixelXpert Error - Flex Statusbar Container")
+			Logger.log(t)
 		}
 	}
 

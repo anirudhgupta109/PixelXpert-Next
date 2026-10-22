@@ -183,10 +183,8 @@ dependencies {
 	implementation(libs.koin.compose)
 	implementation(libs.koin.compose.viewmodel)
 
-	// Xposed - libxposed API (102.0.0), plus the classic Xposed reflection
-	// helpers (XposedHelpers/XposedBridge) that the hook DSL is written against.
+	// Xposed - libxposed API (102.0.0)
 	compileOnly(libs.libxposed.api)
-	compileOnly(libs.xposed.legacy.api)
 	implementation(libs.libxposed.service)
 
 	// KSP processor that emits xposed/ModPacks.kt from the @BaseModPack

@@ -3,12 +3,12 @@ package sh.anirudhgupta109.pxn.xposed.modpacks.systemui
 import android.content.Context
 import android.util.ArraySet
 import android.view.View
-import de.robv.android.xposed.XposedHelpers.getObjectField
 import io.github.libxposed.api.XposedModuleInterface
 import sh.anirudhgupta109.pxn.xposed.XPrefs.Xprefs
 import sh.anirudhgupta109.pxn.xposed.XposedModPack
 import sh.anirudhgupta109.pxn.xposed.annotations.SystemUIModPack
 import sh.anirudhgupta109.pxn.xposed.utils.reflection.ReflectedClass
+import sh.anirudhgupta109.pxn.xposed.utils.reflection.Reflection.getObjectField
 
 /**
  * Applies the module's per-area icon hide lists to SystemUI.
@@ -74,6 +74,22 @@ class StatusIconTuner(context: Context) : XposedModPack(context) {
 				} catch (ignored: Throwable) {
 				}
 			}
+	}
+
+	override fun onSaveHotReloadState(outState: MutableMap<String, Any?>) {
+		mSBIconContainer?.let { outState["statusBar"] = it }
+		mQSIconContainer?.let { outState["quickSettings"] = it }
+		mKGIconContainer?.let { outState["keyguard"] = it }
+	}
+
+	override fun onRestoreHotReloadState(savedState: Map<String, Any?>) {
+		mSBIconContainer = savedState["statusBar"]
+		mQSIconContainer = savedState["quickSettings"]
+		mKGIconContainer = savedState["keyguard"]
+
+		setIgnoredIcons(mSBIconContainer, SBIgnoredIcons)
+		setIgnoredIcons(mQSIconContainer, QSIgnoredIcons)
+		setIgnoredIcons(mKGIconContainer, KGIgnoredIcons)
 	}
 
 	private fun setIgnoredIcons(container: Any?, ignorableSlots: MutableSet<String>) {

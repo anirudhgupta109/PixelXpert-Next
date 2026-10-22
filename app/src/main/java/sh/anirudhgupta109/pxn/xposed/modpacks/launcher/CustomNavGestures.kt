@@ -7,11 +7,6 @@ import android.content.SharedPreferences
 import android.os.Process
 import android.view.MotionEvent
 import android.widget.Toast
-import de.robv.android.xposed.XposedHelpers.callMethod
-import de.robv.android.xposed.XposedHelpers.findFieldIfExists
-import de.robv.android.xposed.XposedHelpers.getBooleanField
-import de.robv.android.xposed.XposedHelpers.getObjectField
-import de.robv.android.xposed.XposedHelpers.setObjectField
 import io.github.libxposed.api.XposedModuleInterface
 import sh.anirudhgupta109.pxn.Constants
 import sh.anirudhgupta109.pxn.xposed.XPrefs.Xprefs
@@ -20,6 +15,11 @@ import sh.anirudhgupta109.pxn.xposed.annotations.LauncherModPack
 import sh.anirudhgupta109.pxn.xposed.utils.SystemUtils
 import sh.anirudhgupta109.pxn.xposed.utils.reflection.HookHelper
 import sh.anirudhgupta109.pxn.xposed.utils.reflection.ReflectedClass
+import sh.anirudhgupta109.pxn.xposed.utils.reflection.Reflection.callMethod
+import sh.anirudhgupta109.pxn.xposed.utils.reflection.Reflection.findFieldIfExists
+import sh.anirudhgupta109.pxn.xposed.utils.reflection.Reflection.getBooleanField
+import sh.anirudhgupta109.pxn.xposed.utils.reflection.Reflection.getObjectField
+import sh.anirudhgupta109.pxn.xposed.utils.reflection.Reflection.setObjectField
 import java.util.Optional
 
 /**
@@ -229,12 +229,14 @@ class CustomNavGestures(context: Context) : XposedModPack(context) {
 				}
 			}
 
+			val tasksFieldName = mTasksFieldName ?: return
+
 			val focusedTask: Optional<Any> = recentTaskList.stream().filter { recentTask ->
 				getObjectField(
 					if (mTasksIsList) {
-						(getObjectField(recentTask, mTasksFieldName) as List<*>)[0]
+						(getObjectField(recentTask, tasksFieldName) as List<*>)[0]
 					} else {
-						(getObjectField(recentTask, mTasksFieldName) as Array<*>)[0]
+						(getObjectField(recentTask, tasksFieldName) as Array<*>)[0]
 					},
 					"isFocused",
 				) as Boolean
@@ -242,9 +244,9 @@ class CustomNavGestures(context: Context) : XposedModPack(context) {
 
 			currentFocusedTask = focusedTask.map { o ->
 				if (mTasksIsList) {
-					(getObjectField(o, mTasksFieldName) as List<*>)[0]
+					(getObjectField(o, tasksFieldName) as List<*>)[0]
 				} else {
-					(getObjectField(o, mTasksFieldName) as Array<*>)[0]
+					(getObjectField(o, tasksFieldName) as Array<*>)[0]
 				}
 			}.orElse(null)
 		} catch (ignored: Throwable) {

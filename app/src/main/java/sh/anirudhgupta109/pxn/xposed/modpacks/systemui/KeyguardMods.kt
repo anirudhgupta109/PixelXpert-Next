@@ -18,8 +18,6 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintSet
-import de.robv.android.xposed.XposedHelpers.getBooleanField
-import de.robv.android.xposed.XposedHelpers.setObjectField
 import io.github.libxposed.api.XposedModuleInterface
 import sh.anirudhgupta109.pxn.xposed.XPrefs.Xprefs
 import sh.anirudhgupta109.pxn.xposed.XposedModPack
@@ -31,6 +29,8 @@ import sh.anirudhgupta109.pxn.xposed.utils.reflection.HookHelper.callMethod
 import sh.anirudhgupta109.pxn.xposed.utils.reflection.HookHelper.getObjectField
 import sh.anirudhgupta109.pxn.xposed.utils.reflection.ReflectedClass
 import sh.anirudhgupta109.pxn.xposed.utils.reflection.ReflectedClass.ReflectionConsumer
+import sh.anirudhgupta109.pxn.xposed.utils.reflection.Reflection.getBooleanField
+import sh.anirudhgupta109.pxn.xposed.utils.reflection.Reflection.setObjectField
 import sh.anirudhgupta109.pxn.xposed.utils.reflection.ReflectionTools
 import sh.anirudhgupta109.pxn.xposed.utils.toolkit.ColorUtils.getColorAttrDefaultColor
 import java.lang.ref.WeakReference
@@ -147,6 +147,11 @@ class KeyguardMods(context: Context) : XposedModPack(context) {
 	}
 
 	@SuppressLint("DiscouragedApi", "DefaultLocale")
+	override fun onUnloaded() {
+		carrierStringFormatter.release()
+		clockStringFormatter.release()
+	}
+
 	override fun onPackageLoaded(PRParam: XposedModuleInterface.PackageReadyParam) {
 		val CarrierTextControllerClass = ReflectedClass.of("com.android.keyguard.CarrierTextController")
 		val KeyguardIndicationControllerClass = ReflectedClass.of(
@@ -209,7 +214,7 @@ class KeyguardMods(context: Context) : XposedModPack(context) {
 			.before(Pattern.compile("background.*|m.*background.*"))
 			.run { param ->
 				//noinspection DataFlowIssue
-				if (transparentBGcolor && isRenderingShortcut.get() && param.args.size == 3 && param.args[1] is Long) {
+				if (transparentBGcolor && isRenderingShortcut.get() == true && param.args.size == 3 && param.args[1] is Long) {
 					param.args[1] = 0L // Color.Transparent
 				}
 			}
@@ -218,7 +223,7 @@ class KeyguardMods(context: Context) : XposedModPack(context) {
 			.before(Pattern.compile("Icon.*|m.*Icon.*"))
 			.run { param ->
 				//noinspection DataFlowIssue
-				if (transparentBGcolor && isRenderingShortcut.get() && param.args.size >= 4 && param.args[3] is Long) {
+				if (transparentBGcolor && isRenderingShortcut.get() == true && param.args.size >= 4 && param.args[3] is Long) {
 					val wallpaperTextColorAccent = getColorAttrDefaultColor(
 						mContext,
 						mContext.resources.getIdentifier("wallpaperTextColorAccent", "attr", mContext.packageName),

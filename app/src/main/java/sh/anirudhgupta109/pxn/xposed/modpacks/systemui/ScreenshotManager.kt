@@ -3,14 +3,14 @@ package sh.anirudhgupta109.pxn.xposed.modpacks.systemui
 import android.content.Context
 import android.media.MediaPlayer
 import android.os.UserManager
-import de.robv.android.xposed.XposedHelpers.getObjectField
-import de.robv.android.xposed.XposedHelpers.setObjectField
 import io.github.libxposed.api.XposedModuleInterface
 import sh.anirudhgupta109.pxn.annotations.ChildProcessModPack
 import sh.anirudhgupta109.pxn.xposed.XPrefs.Xprefs
 import sh.anirudhgupta109.pxn.xposed.XposedModPack
 import sh.anirudhgupta109.pxn.xposed.annotations.SystemUIModPack
 import sh.anirudhgupta109.pxn.xposed.utils.reflection.ReflectedClass
+import sh.anirudhgupta109.pxn.xposed.utils.reflection.Reflection.getObjectField
+import sh.anirudhgupta109.pxn.xposed.utils.reflection.Reflection.setObjectField
 import java.util.Locale
 import java.util.concurrent.Callable
 import java.util.concurrent.ExecutorService

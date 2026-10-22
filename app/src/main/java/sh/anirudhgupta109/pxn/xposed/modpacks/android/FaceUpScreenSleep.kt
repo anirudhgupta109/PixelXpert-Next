@@ -4,17 +4,17 @@ import android.content.Context
 import android.hardware.SensorEvent
 import android.os.SystemClock
 import android.util.SparseArray
-import de.robv.android.xposed.XposedHelpers.callMethod
-import de.robv.android.xposed.XposedHelpers.getBooleanField
-import de.robv.android.xposed.XposedHelpers.getIntField
-import de.robv.android.xposed.XposedHelpers.getLongField
-import de.robv.android.xposed.XposedHelpers.getObjectField
 import io.github.libxposed.api.XposedInterface
 import io.github.libxposed.api.XposedModuleInterface
 import sh.anirudhgupta109.pxn.xposed.XPrefs.Xprefs
 import sh.anirudhgupta109.pxn.xposed.XposedModPack
 import sh.anirudhgupta109.pxn.xposed.annotations.FrameworkModPack
 import sh.anirudhgupta109.pxn.xposed.utils.reflection.ReflectedClass
+import sh.anirudhgupta109.pxn.xposed.utils.reflection.Reflection.callMethod
+import sh.anirudhgupta109.pxn.xposed.utils.reflection.Reflection.getBooleanField
+import sh.anirudhgupta109.pxn.xposed.utils.reflection.Reflection.getIntField
+import sh.anirudhgupta109.pxn.xposed.utils.reflection.Reflection.getLongField
+import sh.anirudhgupta109.pxn.xposed.utils.reflection.Reflection.getObjectField
 import java.time.Duration
 
 /**

@@ -7,8 +7,6 @@ import android.os.VibrationAttributes
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.view.KeyEvent
-import de.robv.android.xposed.XposedHelpers.callMethod
-import de.robv.android.xposed.XposedHelpers.getObjectField
 import io.github.libxposed.api.XposedModuleInterface
 import sh.anirudhgupta109.pxn.annotations.ModPackPriority
 import sh.anirudhgupta109.pxn.xposed.XPrefs.Xprefs
@@ -16,6 +14,8 @@ import sh.anirudhgupta109.pxn.xposed.XposedModPack
 import sh.anirudhgupta109.pxn.xposed.annotations.FrameworkModPack
 import sh.anirudhgupta109.pxn.xposed.utils.SystemUtils
 import sh.anirudhgupta109.pxn.xposed.utils.reflection.ReflectedClass
+import sh.anirudhgupta109.pxn.xposed.utils.reflection.Reflection.callMethod
+import sh.anirudhgupta109.pxn.xposed.utils.reflection.Reflection.getObjectField
 
 /**
  * Intercepts power menu invocations and the Power + Volume Up key chord
@@ -128,7 +128,7 @@ class LockscreenProtectionFramework(context: Context) : XposedModPack(context) {
 			SystemUtils.vibrate(effect, VibrationAttributes.USAGE_TOUCH)
 		} catch (t: Throwable) {
 			try {
-				val vib = mContext.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator
+				val vib = mContext.getSystemService(Vibrator::class.java)
 				vib?.vibrate(VibrationEffect.createWaveform(longArrayOf(0, 40, 50, 40), -1))
 			} catch (ignored: Throwable) {}
 		}

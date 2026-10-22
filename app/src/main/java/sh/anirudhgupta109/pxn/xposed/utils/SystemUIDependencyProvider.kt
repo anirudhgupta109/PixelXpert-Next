@@ -1,8 +1,8 @@
 package sh.anirudhgupta109.pxn.xposed.utils
 
-import de.robv.android.xposed.XposedHelpers.callMethod
-import de.robv.android.xposed.XposedHelpers.getStaticObjectField
 import sh.anirudhgupta109.pxn.xposed.utils.reflection.ReflectedClass
+import sh.anirudhgupta109.pxn.xposed.utils.reflection.Reflection.callMethod
+import sh.anirudhgupta109.pxn.xposed.utils.reflection.Reflection.getStaticObjectField
 
 /**
  * Asks SystemUI's own service locator for a singleton rather than reflecting

@@ -10,7 +10,6 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageView
 import androidx.core.content.res.ResourcesCompat
-import de.robv.android.xposed.XposedHelpers.findMethodBestMatch
 import io.github.libxposed.api.XposedModuleInterface
 import sh.anirudhgupta109.pxn.R
 import sh.anirudhgupta109.pxn.xposed.XPLauncher
@@ -19,6 +18,7 @@ import sh.anirudhgupta109.pxn.xposed.XposedModPack
 import sh.anirudhgupta109.pxn.xposed.annotations.LauncherModPack
 import sh.anirudhgupta109.pxn.xposed.utils.SystemUtils
 import sh.anirudhgupta109.pxn.xposed.utils.reflection.ReflectedClass
+import sh.anirudhgupta109.pxn.xposed.utils.reflection.Reflection.findMethodBestMatch
 import java.lang.reflect.Method
 
 /**

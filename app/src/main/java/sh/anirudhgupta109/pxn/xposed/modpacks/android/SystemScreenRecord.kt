@@ -2,13 +2,13 @@ package sh.anirudhgupta109.pxn.xposed.modpacks.android
 
 import android.content.Context
 import android.os.Binder
-import de.robv.android.xposed.XposedHelpers.callMethod
 import io.github.libxposed.api.XposedModuleInterface
 import sh.anirudhgupta109.pxn.Constants
 import sh.anirudhgupta109.pxn.xposed.XPrefs.Xprefs
 import sh.anirudhgupta109.pxn.xposed.XposedModPack
 import sh.anirudhgupta109.pxn.xposed.annotations.FrameworkModPack
 import sh.anirudhgupta109.pxn.xposed.utils.reflection.ReflectedClass
+import sh.anirudhgupta109.pxn.xposed.utils.reflection.Reflection.callMethod
 
 /**
  * Implements the "Allow screen recording from restricted content" toggle in

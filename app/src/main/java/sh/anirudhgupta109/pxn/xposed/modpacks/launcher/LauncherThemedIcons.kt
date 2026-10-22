@@ -4,18 +4,18 @@ import android.content.Context
 import android.graphics.drawable.AdaptiveIconDrawable
 import android.os.Handler
 import android.os.Looper
-import de.robv.android.xposed.XposedHelpers.callMethod
-import de.robv.android.xposed.XposedHelpers.findFieldIfExists
-import de.robv.android.xposed.XposedHelpers.getAdditionalInstanceField
-import de.robv.android.xposed.XposedHelpers.getIntField
-import de.robv.android.xposed.XposedHelpers.getObjectField
-import de.robv.android.xposed.XposedHelpers.setAdditionalInstanceField
 import io.github.libxposed.api.XposedModuleInterface
 import sh.anirudhgupta109.pxn.xposed.XPrefs.Xprefs
 import sh.anirudhgupta109.pxn.xposed.XposedModPack
 import sh.anirudhgupta109.pxn.xposed.annotations.LauncherModPack
 import sh.anirudhgupta109.pxn.xposed.utils.GoogleMonochromeIconFactory
 import sh.anirudhgupta109.pxn.xposed.utils.reflection.ReflectedClass
+import sh.anirudhgupta109.pxn.xposed.utils.reflection.Reflection.callMethod
+import sh.anirudhgupta109.pxn.xposed.utils.reflection.Reflection.findFieldIfExists
+import sh.anirudhgupta109.pxn.xposed.utils.reflection.Reflection.getAdditionalInstanceField
+import sh.anirudhgupta109.pxn.xposed.utils.reflection.Reflection.getIntField
+import sh.anirudhgupta109.pxn.xposed.utils.reflection.Reflection.getObjectField
+import sh.anirudhgupta109.pxn.xposed.utils.reflection.Reflection.setAdditionalInstanceField
 
 /**
  * Supplies a monochrome (themed) icon layer for launchers that lost theirs.

@@ -5,14 +5,14 @@ import android.content.Context
 import android.content.res.Configuration
 import android.graphics.Rect
 import android.view.DisplayCutout
-import de.robv.android.xposed.XposedHelpers.getObjectField
-import de.robv.android.xposed.XposedHelpers.getStaticObjectField
 import io.github.libxposed.api.XposedModuleInterface
 import sh.anirudhgupta109.pxn.xposed.XPrefs.Xprefs
 import sh.anirudhgupta109.pxn.xposed.XposedModPack
 import sh.anirudhgupta109.pxn.xposed.annotations.FrameworkModPack
 import sh.anirudhgupta109.pxn.xposed.annotations.SystemUIModPack
 import sh.anirudhgupta109.pxn.xposed.utils.reflection.ReflectedClass
+import sh.anirudhgupta109.pxn.xposed.utils.reflection.Reflection.getObjectField
+import sh.anirudhgupta109.pxn.xposed.utils.reflection.Reflection.getStaticObjectField
 
 /**
  * Gives the module its own answer for "how tall is the status bar?", by
@@ -106,15 +106,9 @@ class StatusbarSize(context: Context) : XposedModPack(context) {
 
 						val displayCutout: DisplayCutout = param.getResult()
 
-						val boundTop = (
-							getObjectField(
-								getObjectField(
-									displayCutout,
-									"mBounds",
-								),
-								"mRects",
-							) as Array<Rect>
-							)[BOUNDS_POSITION_TOP]
+						val bounds = getObjectField(displayCutout, "mBounds") ?: return@run
+						val rects = getObjectField(bounds, "mRects") ?: return@run
+						val boundTop = java.lang.reflect.Array.get(rects, BOUNDS_POSITION_TOP) as Rect
 						boundTop.bottom = Math.min(boundTop.bottom, currentHeight)
 
 						val mSafeInsets = getObjectField(

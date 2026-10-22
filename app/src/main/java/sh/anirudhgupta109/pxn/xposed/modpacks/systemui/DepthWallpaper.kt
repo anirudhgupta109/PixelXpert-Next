@@ -13,10 +13,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.FrameLayout
-import de.robv.android.xposed.XposedHelpers.callMethod
-import de.robv.android.xposed.XposedHelpers.getFloatField
-import de.robv.android.xposed.XposedHelpers.getObjectField
-import de.robv.android.xposed.XposedHelpers.setAdditionalInstanceField
 import io.github.libxposed.api.XposedModuleInterface
 import sh.anirudhgupta109.pxn.Constants
 import sh.anirudhgupta109.pxn.Constants.AI_METHOD_MLKIT
@@ -26,6 +22,10 @@ import sh.anirudhgupta109.pxn.xposed.XposedModPack
 import sh.anirudhgupta109.pxn.xposed.annotations.SystemUIModPack
 import sh.anirudhgupta109.pxn.xposed.utils.SystemUtils
 import sh.anirudhgupta109.pxn.xposed.utils.reflection.ReflectedClass
+import sh.anirudhgupta109.pxn.xposed.utils.reflection.Reflection.callMethod
+import sh.anirudhgupta109.pxn.xposed.utils.reflection.Reflection.getFloatField
+import sh.anirudhgupta109.pxn.xposed.utils.reflection.Reflection.getObjectField
+import sh.anirudhgupta109.pxn.xposed.utils.reflection.Reflection.setAdditionalInstanceField
 import sh.anirudhgupta109.pxn.xposed.utils.reflection.ReflectionTools
 import sh.anirudhgupta109.pxn.xposed.utils.reflection.ReflectionTools.reAddView
 import java.io.ByteArrayOutputStream
@@ -73,12 +73,19 @@ class DepthWallpaper(context: Context) : XposedModPack(context) {
 	private var mWallpaperBitmapContainer: FrameLayout? = null
 	private var mWallpaperDimmingOverlay: FrameLayout? = null
 	private var mLayersCreated = false
+	private var wallpaperProcessorThread: Thread? = null
+
+	override fun onUnloaded() {
+		wallpaperProcessorThread?.interrupt()
+		wallpaperProcessorThread = null
+	}
 
 	override fun onPreferenceUpdated(vararg key: String?) {
 		DWallpaperEnabled = Xprefs.getBoolean("DWallpaperEnabled", false)
 		DWOpacity = Xprefs.getSliderInt("DWOpacity", 192)
 		DWonAOD = Xprefs.getBoolean("DWonAOD", false)
-		SegmentorAI = Integer.parseInt(Xprefs.getString("SegmentorAI", AI_METHOD_MLKIT.toString()))
+		SegmentorAI =
+			Integer.parseInt(Xprefs.getString("SegmentorAI", AI_METHOD_MLKIT.toString()) ?: AI_METHOD_MLKIT.toString())
 	}
 
 	override fun onPackageLoaded(PRParam: XposedModuleInterface.PackageReadyParam) {
@@ -121,11 +128,11 @@ class DepthWallpaper(context: Context) : XposedModPack(context) {
 				setDepthWallpaper()
 				//noinspection ConstantValue
 				if (DWonAOD &&
-					!getObjectField(mScrimController, "mState").toString().equals("KEYGUARD")
+					getObjectField(mScrimController, "mState")?.toString() != "KEYGUARD"
 				) {
 					mLockScreenSubject!!.post { mLockScreenSubject!!.setAlpha(DWOpacity.toFloat()) }
 					// instead of using the mScrimName since older ones don't have that field
-				} else if (getObjectField(mScrimController, "mNotificationsScrim").equals(param.thisObject)) {
+				} else if (getObjectField(mScrimController, "mNotificationsScrim") == param.thisObject) {
 					val mScrimBehindAlphaKeyguard = getFloatField(mScrimController, "mScrimBehindAlphaKeyguard")
 
 					var notificationAlpha = param.args[0] as Float
@@ -166,17 +173,13 @@ class DepthWallpaper(context: Context) : XposedModPack(context) {
 				}
 			}
 
-		val wallpaperProcessorThread = arrayOfNulls<Thread>(1)
-
 		CanvasEngineClass
 			.after("drawFrameOnCanvas")
 			.run { param ->
-				if (wallpaperProcessorThread[0] != null) {
-					wallpaperProcessorThread[0]!!.interrupt()
-				}
+				wallpaperProcessorThread?.interrupt()
 
 				if (DWallpaperEnabled && isLockScreenWallpaper(param.thisObject)) {
-					wallpaperProcessorThread[0] = Thread {
+					wallpaperProcessorThread = Thread {
 						val wallpaperBitmap = Bitmap.createBitmap(param.args[0] as Bitmap)
 
 						val cacheIsValid = assertCache(wallpaperBitmap)
@@ -235,9 +238,9 @@ class DepthWallpaper(context: Context) : XposedModPack(context) {
 							}
 						}
 
-						wallpaperProcessorThread[0] = null
+						wallpaperProcessorThread = null
 					}
-					wallpaperProcessorThread[0]!!.start()
+					wallpaperProcessorThread?.start()
 				}
 			}
 

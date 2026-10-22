@@ -33,12 +33,6 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.annotation.ColorInt
 import androidx.annotation.Nullable
-import de.robv.android.xposed.XposedHelpers.callMethod
-import de.robv.android.xposed.XposedHelpers.getAdditionalInstanceField
-import de.robv.android.xposed.XposedHelpers.getBooleanField
-import de.robv.android.xposed.XposedHelpers.getObjectField
-import de.robv.android.xposed.XposedHelpers.setAdditionalInstanceField
-import de.robv.android.xposed.XposedHelpers.setObjectField
 import io.github.libxposed.api.XposedModuleInterface
 import org.objenesis.ObjenesisHelper
 import sh.anirudhgupta109.pxn.BuildConfig
@@ -54,6 +48,12 @@ import sh.anirudhgupta109.pxn.xposed.utils.StringFormatter.FormattedStringCallba
 import sh.anirudhgupta109.pxn.xposed.utils.SystemUtils
 import sh.anirudhgupta109.pxn.xposed.utils.batteryStyles.BatteryBarView
 import sh.anirudhgupta109.pxn.xposed.utils.reflection.ReflectedClass
+import sh.anirudhgupta109.pxn.xposed.utils.reflection.Reflection.callMethod
+import sh.anirudhgupta109.pxn.xposed.utils.reflection.Reflection.getAdditionalInstanceField
+import sh.anirudhgupta109.pxn.xposed.utils.reflection.Reflection.getBooleanField
+import sh.anirudhgupta109.pxn.xposed.utils.reflection.Reflection.getObjectField
+import sh.anirudhgupta109.pxn.xposed.utils.reflection.Reflection.setAdditionalInstanceField
+import sh.anirudhgupta109.pxn.xposed.utils.reflection.Reflection.setObjectField
 import sh.anirudhgupta109.pxn.xposed.utils.reflection.ReflectionTools.reAddView
 import sh.anirudhgupta109.pxn.xposed.utils.toolkit.ObjectTools.getStateFlowImplOf
 import sh.anirudhgupta109.pxn.xposed.utils.toolkit.ResourceTools
@@ -429,7 +429,7 @@ constructor(context: Context) : XposedModPack(context) {
 
 		//region network Traffic settings
 		networkOnSBEnabled = Xprefs.getBoolean("networkOnSBEnabled", false)
-		val networkTrafficModeStr = Xprefs.getString("networkTrafficMode", "0")
+		val networkTrafficModeStr = Xprefs.getString("networkTrafficMode", "0") ?: "0"
 		val networkTrafficMode = Integer.parseInt(networkTrafficModeStr)
 
 		val networkTrafficRXTop = Xprefs.getBoolean("networkTrafficRXTop", true)
@@ -442,13 +442,14 @@ constructor(context: Context) : XposedModPack(context) {
 		val networkTrafficShowInBits = Xprefs.getBoolean("networkTrafficShowInBits", false)
 
 		if (networkOnSBEnabled) {
-			networkTrafficPosition = Integer.parseInt(Xprefs.getString("networkTrafficPosition", POSITION_RIGHT.toString()))
+			networkTrafficPosition =
+				Integer.parseInt(Xprefs.getString("networkTrafficPosition", POSITION_RIGHT.toString()) ?: POSITION_RIGHT.toString())
 			if (networkTrafficPosition == POSITION_LEFT_EXTRA_LEVEL) {
 				Xprefs.edit().putString("networkTrafficPosition", POSITION_LEFT.toString()).apply()
 				networkTrafficPosition = POSITION_LEFT
 			}
 
-			val thresholdText = Xprefs.getString("networkTrafficThreshold", "10")
+			val thresholdText = Xprefs.getString("networkTrafficThreshold", "10") ?: "10"
 
 			var networkTrafficThreshold: Int
 			try {
@@ -478,17 +479,18 @@ constructor(context: Context) : XposedModPack(context) {
 		//endregion network settings
 
 		//region clock settings
-		clockPosition = Integer.parseInt(Xprefs.getString("SBClockLoc", POSITION_LEFT.toString()))
+		clockPosition = Integer.parseInt(Xprefs.getString("SBClockLoc", POSITION_LEFT.toString()) ?: POSITION_LEFT.toString())
 		if (clockPosition == POSITION_LEFT_EXTRA_LEVEL) {
 			Xprefs.edit().putString("SBClockLoc", POSITION_LEFT.toString()).apply()
 			clockPosition = POSITION_LEFT
 		}
 
 		mShowSeconds = Xprefs.getBoolean("SBCShowSeconds", false)
-		mAmPmStyle = Integer.parseInt(Xprefs.getString("SBCAmPmStyle", AM_PM_STYLE_GONE.toString()))
+		mAmPmStyle =
+			Integer.parseInt(Xprefs.getString("SBCAmPmStyle", AM_PM_STYLE_GONE.toString()) ?: AM_PM_STYLE_GONE.toString())
 
-		mStringFormatBefore = Xprefs.getString("DateFormatBeforeSBC", "")!!
-		mStringFormatAfter = Xprefs.getString("DateFormatAfterSBC", "")!!
+		mStringFormatBefore = Xprefs.getString("DateFormatBeforeSBC", "") ?: ""
+		mStringFormatAfter = Xprefs.getString("DateFormatAfterSBC", "") ?: ""
 		mBeforeSmall = Xprefs.getBoolean("BeforeSBCSmall", true)
 		mAfterSmall = Xprefs.getBoolean("AfterSBCSmall", true)
 
@@ -502,7 +504,7 @@ constructor(context: Context) : XposedModPack(context) {
 		clockColor = null
 
 		if ((mStringFormatBefore + mStringFormatAfter).trim().isEmpty()) {
-			val SBCDayOfWeekMode = Integer.parseInt(Xprefs.getString("SBCDayOfWeekMode", "0"))
+			val SBCDayOfWeekMode = Integer.parseInt(Xprefs.getString("SBCDayOfWeekMode", "0") ?: "0")
 
 			when (SBCDayOfWeekMode) {
 				0 -> {
@@ -694,7 +696,7 @@ constructor(context: Context) : XposedModPack(context) {
 					.after("invoke")
 					.run { param ->
 						val args = param.args
-						if (args != null && args.size >= 3 && args[0] is Boolean) {
+						if (args.size >= 3 && args[0] is Boolean) {
 							// Combine takes (allowed, suppressed, disableFlags, cont) on some
 							// (allowed, disableFlags, cont) on others.
 							val allowedByPolicy = args[0] as Boolean
@@ -769,7 +771,7 @@ constructor(context: Context) : XposedModPack(context) {
 			.afterConstruction()
 			.run { param ->
 				mTunerService = param.thisObject
-				ReflectedClass.of(getObjectField(param.thisObject, "mObserver").javaClass)
+				ReflectedClass.of(getObjectField(param.thisObject, "mObserver")?.javaClass)
 					.after("onChange")
 					.run { param2 -> wifiVisibleChanged() }
 			}
@@ -1303,7 +1305,7 @@ constructor(context: Context) : XposedModPack(context) {
 			}
 		}
 
-		setObjectField(holder, iconFiled[0], statusbarIcon)
+		setObjectField(holder, iconFiled[0] ?: return null, statusbarIcon)
 
 		return holder
 	}
@@ -1346,14 +1348,19 @@ constructor(context: Context) : XposedModPack(context) {
 	}
 
 	private fun removeVoDataCallback() {
+		unregisterVoDataCallback()
+		removeSBIconSlot(VO_LTE_SLOT)
+		removeSBIconSlot(VO_WIFI_SLOT)
+	}
+
+	private fun unregisterVoDataCallback() {
+		if (!telephonyCallbackRegistered) return
 		try {
 			//noinspection DataFlowIssue
 			SystemUtils.TelephonyManager()!!.unregisterTelephonyCallback(voDataCallback)
-			telephonyCallbackRegistered = false
 		} catch (ignored: Exception) {
 		}
-		removeSBIconSlot(VO_LTE_SLOT)
-		removeSBIconSlot(VO_WIFI_SLOT)
+		telephonyCallbackRegistered = false
 	}
 
 	private inner class ServerStateCallback :
@@ -1921,6 +1928,15 @@ constructor(context: Context) : XposedModPack(context) {
 		}
 	}
 	//endregion
+
+	override fun onUnloaded() {
+		runCatching { mContext.unregisterReceiver(mAppProfileSwitchReceiver) }
+		mainHandler.removeCallbacks(mCompanionTick)
+		mCompanionTickScheduled = false
+		mCompanionFormatCallback = null
+		stringFormatter.release()
+		unregisterVoDataCallback()
+	}
 
 	fun interface StatusbarTextColorCallback {
 		fun onTextColorChanged(textColor: Int)

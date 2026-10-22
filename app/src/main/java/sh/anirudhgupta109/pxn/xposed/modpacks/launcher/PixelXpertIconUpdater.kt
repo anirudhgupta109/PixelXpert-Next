@@ -2,12 +2,12 @@ package sh.anirudhgupta109.pxn.xposed.modpacks.launcher
 
 import android.content.Context
 import android.os.UserHandle
-import de.robv.android.xposed.XposedHelpers
 import io.github.libxposed.api.XposedModuleInterface
 import sh.anirudhgupta109.pxn.BuildConfig
 import sh.anirudhgupta109.pxn.xposed.XposedModPack
 import sh.anirudhgupta109.pxn.xposed.annotations.LauncherModPack
 import sh.anirudhgupta109.pxn.xposed.utils.reflection.ReflectedClass
+import sh.anirudhgupta109.pxn.xposed.utils.reflection.Reflection
 
 /**
  * Asks the launcher to re-check this package's icon whenever an activity resumes.
@@ -33,7 +33,7 @@ class PixelXpertIconUpdater(context: Context) : XposedModPack(context) {
 			.after("onResume")
 			.run { param ->
 				try {
-					XposedHelpers.callMethod(
+					Reflection.callMethod(
 						LauncherModel,
 						"onAppIconChanged",
 						BuildConfig.APPLICATION_ID,

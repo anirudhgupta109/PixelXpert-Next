@@ -1,16 +1,15 @@
 package sh.anirudhgupta109.pxn.xposed.modpacks.systemui
 
 import android.content.Context
-import de.robv.android.xposed.XposedHelpers.callMethod
-import de.robv.android.xposed.XposedHelpers.getFloatField
-import de.robv.android.xposed.XposedHelpers.getObjectField
 import io.github.libxposed.api.XposedModuleInterface
 import sh.anirudhgupta109.pxn.annotations.ModPackPriority
 import sh.anirudhgupta109.pxn.xposed.XPrefs.Xprefs
 import sh.anirudhgupta109.pxn.xposed.XposedModPack
 import sh.anirudhgupta109.pxn.xposed.annotations.SystemUIModPack
 import sh.anirudhgupta109.pxn.xposed.utils.reflection.ReflectedClass
-import java.util.Arrays
+import sh.anirudhgupta109.pxn.xposed.utils.reflection.Reflection.callMethod
+import sh.anirudhgupta109.pxn.xposed.utils.reflection.Reflection.getFloatField
+import sh.anirudhgupta109.pxn.xposed.utils.reflection.Reflection.getObjectField
 
 /**
  * Hands the rest of the module the device's thermal readings.
@@ -61,9 +60,8 @@ class ThermalProvider(context: Context) : XposedModPack(context) {
 
 			val maxValue = floatArrayOf(-999f)
 
-			Arrays.stream(temperatures).forEach { temperature ->
-				maxValue[0] =
-					Math.max(maxValue[0], getFloatField(temperature, "mValue"))
+			for (temperature in temperatures) {
+				maxValue[0] = Math.max(maxValue[0], getFloatField(temperature, "mValue"))
 			}
 
 			if (TemperatureUnitF) {
@@ -82,7 +80,9 @@ class ThermalProvider(context: Context) : XposedModPack(context) {
 
 			if (temperatures.isNotEmpty()) {
 				val totalValue = floatArrayOf(0f)
-				Arrays.stream(temperatures).forEach { temperature -> totalValue[0] += getFloatField(temperature, "mValue") }
+				for (temperature in temperatures) {
+					totalValue[0] += getFloatField(temperature, "mValue")
+				}
 
 				var ret = totalValue[0] / temperatures.size
 
@@ -99,10 +99,10 @@ class ThermalProvider(context: Context) : XposedModPack(context) {
 		fun getTemperatureAvgInt(type: Int): Int = Math.round(getTemperatureAvgFloat(type))
 
 		@JvmStatic
-		private fun getTemperatures(type: Int): Array<Any?> = try {
-			callMethod(thermalService, "getCurrentTemperaturesWithType", type) as Array<Any?>
+		private fun getTemperatures(type: Int): Array<*> = try {
+			callMethod(thermalService, "getCurrentTemperaturesWithType", type) as? Array<*> ?: emptyArray<Any?>()
 		} catch (ignored: Throwable) {
-			arrayOf()
+			emptyArray<Any?>()
 		}
 
 		@JvmStatic
