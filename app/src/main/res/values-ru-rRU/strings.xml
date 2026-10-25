@@ -1,18 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!--General strings-->
-    <string name="app_themed_icon_title">Включение альтернативной иконки </string>
+    <string name="app_themed_icon_title">Альтернативная иконка приложения</string>
+    <string name="google_settings_design_title">Использовать дизайн настроек Google</string>
+    <string name="google_settings_design_summary">Скругленная панель поиска и цветные иконки</string>
     <string name="xposed_desc">Настройки для устройств Google Pixel</string>
-    <string name="volume_tile_title">Громкость мультимедиа </string>
-    <string name="caffeine_tile_title">Caffeine</string>
-    <string name="high_brightness_flashlight_tile_title">High Brightness Flashlight</string>
-    <string name="enable_high_brightness_flashlight_title">High Brightness Flashlight</string>
-    <string name="enable_high_brightness_flashlight_summary">Utilizes camera to reach higher brightness than what the system allows. Uses more power!</string>
+    <string name="volume_tile_title">Громкость мультимедиа</string>
+    <string name="caffeine_tile_title">Кофеин</string>
+    <string name="high_brightness_flashlight_tile_title">Высокая яркость фонарика</string>
+    <string name="enable_high_brightness_flashlight_title">Высокая яркость фонарика</string>
+    <string name="enable_high_brightness_flashlight_summary">Использует камеру для достижения большей яркости чем позволяет система. Использует больше энергии!</string>
     <string name="app_switch_tile_title">Сменить профиль приложения</string>
     <string name="hide_default">Скрыть (по умолчанию)</string>
     <string name="percent_of_default_size">% от стандартного размера</string>
     <string name="overlay_none_title">(по умолчанию)</string>
-    <string name="general_section">General options</string>
+    <string name="general_section">Общие настройки</string>
     <string name="general_on">Вкл</string>
     <string name="general_off">Выкл</string>
     <string name="sysui_restart_needed">Требуется перезагрузка SystemUI для применения</string>
@@ -23,7 +25,7 @@
     <string name="notification_channel_update">Обновления</string>
     <string name="notification_channel_update_desc">На этом канале отображаются уведомления о последних обновлениях.</string>
     <string name="new_update_title">Доступно обновление</string>
-    <string name="new_update_desc">Доступна новая версия PixelXpert</string>
+    <string name="new_update_desc">Доступна новая версия PixelXpert-Next</string>
     <string name="skip_this_update">Пропустить это обновление</string>
     <string name="browser_not_found">Браузер не найден</string>
     <string name="settings_general_section_title">Общее</string>
@@ -52,19 +54,19 @@
     <string name="dialer_header">Телефон</string>
     <string name="dialer_header_summary">Небольшая помощь для телефонных звонков</string>
     <string name="misc_header">Разное</string>
-    <string name="misc_header_summary">Все, что еще предлагает PixelXpert</string>
+    <string name="misc_header_summary">Все, что еще предлагает PixelXpert-Next</string>
     <string name="qs_panel_category_title">Панель быстрых настроек</string>
     <string name="qs_panel_category_summary">Ползунок яркости, яркость фонарика и многое другое</string>
     <string name="theme_customization_category">Иконки и стили</string>
     <string name="theme_customization_summary">Настройка визуального стиля и иконографии</string>
     <string name="pm_header">Менеджер пакетов</string>
     <string name="pm_header_summary">Обход проверки безопасности apk файлов</string>
-    <string name="hotspot_header">Портативная точка доступа </string>
+    <string name="hotspot_header">Портативная точка доступа</string>
     <string name="hotspot_header_summary">Если вы хотите скрыть точку доступа</string>
     <!-- Hotspot settings-->
-    <string name="hotspot_hide_ssid_title">Скрыть SSID </string>
-    <string name="hotspot_inactivity_timeout_title">Таймаут бездействия </string>
-    <string name="hotspot_max_client_title">Максимальное количество клиентов </string>
+    <string name="hotspot_hide_ssid_title">Скрыть SSID</string>
+    <string name="hotspot_inactivity_timeout_title">Таймаут бездействия</string>
+    <string name="hotspot_max_client_title">Максимальное количество клиентов</string>
     <string name="hotspot_disable_approval_title">Проблемы подключения к точке доступа</string>
     <string name="hotspot_disable_approval_summary">Разрешить не \"предварительно одобренные\" клиенты для бесшовного подключения</string>
     <string name="hotspot_force_unsupported_regions">Удалить ограничения точки доступа в неподдерживаемых регионах</string>
@@ -77,7 +79,7 @@
     <string name="depth_wallpaper_aod_title">Также на \"Always on display\"</string>
     <string name="depth_wallpaper_model_ready">Модель ИИ загружена на устройство</string>
     <string name="depth_wallpaper_model_not_available">Модель ИИ недоступна на устройстве (пока)</string>
-    <string name="ls_general_options">Опции экрана блокировки </string>
+    <string name="ls_general_options">Опции экрана блокировки</string>
     <string name="hide_avatar_title">Удалить аватар пользователя (многопользовательский режим)</string>
     <string name="fingerprint_options">Отпечаток пальца</string>
     <string name="transparent_fingerprint_circle">Скрыть фон под индикатором отпечатков пальцев</string>
@@ -101,8 +103,8 @@
     <string name="easy_unlock_summary">Если не получилось в первый раз, попробуйте еще раз</string>
     <string name="charging_info_title">Информация о зарядке на экране блокировки</string>
     <string name="disable_lockscreen_pill_title">Не показывать кнопку «Настройки заблокированного экрана»</string>
-    <string name="block_qs_power_on_lockscreen_title">Block sensitive QS tiles &amp; power menu</string>
-    <string name="block_qs_power_on_lockscreen_summary">Prevents toggling network tiles and opening the power menu while the device is locked</string>
+    <string name="block_qs_power_on_lockscreen_title">Блокировать чувствительные плитки и меню питания</string>
+    <string name="block_qs_power_on_lockscreen_summary">Предотвращает переключение сетевых плиток и открытие меню питания, пока устройство заблокировано</string>
     <string name="imperial_units_title">Использовать британские единицы измерения</string>
     <!--Status bar related-->
     <string name="double_tap_sleep_title">Двойное нажатие для перехода в спящий режим</string>
@@ -116,9 +118,9 @@
     <string name="lte_4g_icon_title">Значок LTE / 4G</string>
     <string name="combined_signal_icon_title">Комбинированные значки сигналов</string>
     <string name="hide_roaming_title">Скрыть индикаторы мобильного роуминга</string>
-    <string name="caution_mobile_costs">ВНИМАНИЕ! Незнание того, что вы находитесь в роуминге, может увеличить ваши расходы на мобильную связь.</string>
+    <string name="caution_mobile_costs">ВНИМАНИЕ! Незнание того, что вы находитесь в роуминге, может увеличить ваши расходы на мобильную связь</string>
     <string name="volte_icon_title">Показывать значок VoLTE, если он доступен</string>
-    <string name="vowifi_icon_title">Показывать значок VoWiFi, когда он доступен </string>
+    <string name="vowifi_icon_title">Показывать значок VoWiFi, когда он доступен</string>
     <string name="hide_privacychip_title">Скрыть индикаторы приватности\n(Камера, Микрофон)</string>
     <!-- \n means next line-->
     <string name="sbc_position_title">Расположение часов</string>
@@ -153,7 +155,7 @@
     <string name="network_opacity_title">Непрозрачность</string>
     <string name="network_interval_title">Интервал обновления (в секундах)</string>
     <string name="network_show_icons_title">Показывать значки направления скорости загрузки интернета</string>
-    <string name="nt_mode_rxtx">Загрузка &amp; Отдача</string>
+    <string name="nt_mode_rxtx">Загрузка и Отдача</string>
     <string name="nt_mode_total">Загрузка + Отдача (комбинированная)</string>
     <string name="nt_mode_rxonly">Только загрузка</string>
     <string name="nt_mode_txonly">Только отдача</string>
@@ -184,8 +186,8 @@
     <string name="BB_batteryPowerSaveColor">Цвет экономии энергии</string>
     <string name="BB_transit_colors">Цвета оттенков между диапазоном</string>
     <string name="nt_stat_mode_today">Сегодня</string>
-    <string name="nt_stat_mode_week">Текущая неделя </string>
-    <string name="nt_stat_mode_month">Текущий месяц </string>
+    <string name="nt_stat_mode_week">Текущая неделя</string>
+    <string name="nt_stat_mode_month">Текущий месяц</string>
     <string name="sb_ignored_icons_category">Игнорируемые значки строки состояния</string>
     <string name="sb_ignored_icons">Строка состояния</string>
     <string name="sb_ignored_icons_statusbar">Выберите, какие значки будут скрыты в строке состояния</string>
@@ -240,15 +242,15 @@
     <string name="friday">Пятница</string>
     <string name="saturday">Суббота</string>
     <!--Quick settings panel related-->
-    <string name="qs_tile_qty_title">Настройки быстрых настроек счетчик плиток</string>
+    <string name="qs_tile_qty_title">Настройки количества плиток быстрых настроек</string>
     <string name="qs_pulldown_size">Ширина быстрого вытягивания</string>
     <string name="qs_pulldown_switch_title">Быстрое вытягивание панели быстрых настроек из строки состояния</string>
     <string name="qs_pulldown_side_title">Сторона быстрого вытягивания</string>
     <string name="qs_pulldown_category">Вытягивание быстрых настроек</string>
     <string name="qs_pullup_switch_title">Закрыть быстрые настройки одним свайпом</string>
-    <string name="qs_tile_qty_portrait">В портретной ориентации </string>
+    <string name="qs_tile_qty_portrait">В портретной ориентации</string>
     <string name="qs_tile_qty_landscape">В горизонтальной ориентации</string>
-    <string name="qqs_rows_number">Количество рядов быстрых настроек</string>
+    <string name="qqs_rows_number">Количество рядов свёрнутых быстрых настроек</string>
     <string name="qs_rows_number">Количество рядов быстрых настроек</string>
     <string name="qs_cols_number">Количество столбцов быстрых настроек</string>
     <string name="qs_tile_label_size">Размер текста плиток быстрых настроек</string>
@@ -264,15 +266,17 @@
     <string name="gesture_nav_pill_cat">Ширина панели жестов</string>
     <string name="gesture_nav_pill_width_title">Ширина по сравнению со стандартным размером</string>
     <string name="gesture_nav_pill_height_title">Высота по сравнению со стандартным размером</string>
-    <string name="threebutton_header_title">Навигация с помощью трех кнопок</string>
+    <string name="keyboard_space_cat">Пространство клавиатуры</string>
+    <string name="keyboard_space_hide_buttons_title">Скрыть кнопки назад и переключение языка под клавиатурой</string>
+    <string name="threebutton_header_title">Навигация с помощью трёх кнопок</string>
     <string name="taskbar_header_title">Навигация по панели задач</string>
     <string name="modify_3button_title">Изменить порядок кнопок</string>
     <string name="three_button_left_title">Левая кнопка</string>
     <string name="three_button_center_title">Центральная кнопка</string>
     <string name="three_button_right_title">Правая кнопка</string>
     <string name="hide_navbar_title">Скрыть панель жестов</string>
-    <string name="hide_navbar_insets_title">Hide navigation bar insets</string>
-    <string name="taskbar_as_recents_title">Преобразование панели задач в панель недавних PixelXpert</string>
+    <string name="hide_navbar_insets_title">Скрыть отступ панели жестов</string>
+    <string name="taskbar_as_recents_title">Преобразование панели задач в панель недавних PixelXpert-Next</string>
     <string name="taskbar_enable_google_recents">Использовать недавние приложения Android на панели задач</string>
     <string name="taskbar_height_title">Высота панели задач</string>
     <string name="taskbar_radius_title">Угловой угол панели задач</string>
@@ -299,16 +303,16 @@
     <string name="allow_all_screen_rotations_summary">Будет игнорировать плавающую кнопку ручного вращения</string>
     <string name="force_no_cutout">Игнорировать вырез камеры</string>
     <string name="clear_all_reposition_title">Добавить кнопку для очистки приложений внизу панель задач</string>
-    <string name="force_themed_icons_title">Автоматическия генерация недостающих тематических значков</string>
+    <string name="force_themed_icons_title">Автоматическая генерация недостающих тематических значков</string>
     <string name="force_themed_icons_summary">Только Pixel лаунчер</string>
     <string name="volume_button_step_title">Шаг громкости (от 0 до 100%)</string>
     <string name="display_resolution_switch_title">Изменить разрешение экрана</string>
     <string name="display_resolution_switch_summary">Перед включением убедитесь, что все изменения размера экрана/dpi были сброшены до значений умолчанию</string>
-    <string name="display_resolution_title">Разрешение диплея</string>
+    <string name="display_resolution_title">Разрешение экрана</string>
     <string name="brightness_range_title">Пределы яркости дисплея</string>
-    <string name="brightness_range_not_linear">Этот диапазон НЕ является линейным: иногда небольшая разница приводит к значительным изменениям.</string>
+    <string name="brightness_range_not_linear">Этот диапазон НЕ является линейным: иногда небольшая разница приводит к значительным изменениям</string>
     <string name="so_taptaptorch_title">Двойное нажатие для включения фонарика</string>
-    <string name="so_taptaptorch_summary">Двойное нажатие для быстрого включения фонарика</string>
+    <string name="so_taptaptorch_summary">Дважды нажмите и удерживайте для быстрого включения фонарика</string>
     <string name="so_fingerprint_sensor_enabled">Датчик отпечатков пальцев работает при выключенном экране</string>
     <string name="so_double_tap_wake_title">Двойное нажатие для пробуждения телефона</string>
     <string name="so_double_tap_wake_summary">Отключение однократного нажатия для пробуждения</string>
@@ -319,7 +323,7 @@
     <string name="force_aod_while_charging_title">Принудительный AOD во время зарядки</string>
     <string name="force_aod_while_charging_summary">Всегда включать AOD во время зарядки устройства</string>
     <string name="doze_header">Когда экран выключен…</string>
-    <string name="px_in_settings_title">Добавить PixelXpert в настройки элементов</string>
+    <string name="px_in_settings_title">Добавить PixelXpert-Next в меню настроек</string>
     <string name="advanced_power_menu_title">Расширенное меню питания</string>
     <string name="sleep_on_flat_screen_title">Выключить экран на плоской поверхности</string>
     <string name="sleep_on_flat_screen_tile_title">Сон на поверхности</string>
@@ -352,7 +356,7 @@
     <string name="statusbar_long_press_app_switch">Длительное нажатие на строке состояния для переключения профиля</string>
     <string name="statusbar_app_switch_icon">Показывать значок в строке состояния, когда переключение доступно</string>
     <!-- Cloned apps bragging message -->
-    <string name="settings_cloned_apps_active">Разблокировано для всех приложений через <font fgcolor="#FF64A829"><b><u>Pixel Xpert</u></b></font>: Наслаждайтесь!</string>
+    <string name="settings_cloned_apps_active">Разблокировано для всех приложений через <font fgcolor="#FF64A829"><b><u>Pixel Xpert-Next</u></b></font>: Наслаждайтесь!</string>
     <!-- SystemUI hook -->
     <string name="power_indication_error">Ошибка при получении данных о зарядке</string>
     <!-- Call section -->
@@ -368,13 +372,13 @@
     <string name="pull_down_right">Справа</string>
     <!-- Battery styles -->
     <string name="word_default">По умолчанию</string>
-    <string name="reset_to_default">Reset to default</string>
+    <string name="reset_to_default">Сбросить по умолчанию</string>
     <!-- Clock position -->
     <string name="clock_default">Слева (по умолчанию)</string>
     <string name="clock_center">По центру</string>
     <string name="clock_right">Справа</string>
     <!-- AM/PM style -->
-    <string name="am_pm_normal">70% размера часов</string>
+    <string name="am_pm_normal">100% размера часов</string>
     <string name="am_pm_small">70% размера часов</string>
     <!-- Date position -->
     <string name="date_before">До часов (100%)</string>
@@ -394,7 +398,7 @@
     <string name="network_stat_month">День начала месяца</string>
     <!-- Incompatibility Alert -->
     <string name="incompatible_alert_title">Несовместимый</string>
-    <string name="incompatible_alert_body">Ваше текущее ПЗУ не совместимо с этим модулем. Вы можете продолжать использовать его, но некоторые (или все) опции могут работать не так, как задумано.\\n\\nПожалуйста, не сообщайте об ошибках </string>
+    <string name="incompatible_alert_body">Ваша текущая прошивка не совместима с этим модулем. Вы можете продолжать использовать его, но некоторые (или все) опции могут работать не так, как задумано.\n\nПожалуйста, не сообщайте об ошибках</string>
     <string name="incompatible_alert_ok_btn">Я понимаю</string>
     <!-- App kill Alert -->
     <string name="app_kill_alert_title">Примечание</string>
@@ -414,12 +418,12 @@
     <string name="menu_export_settings">Экспортировать настройки в файл…</string>
     <string name="menu_restart">Перезагрузка</string>
     <string name="menu_restart_system">Перезагрузить систему</string>
-    <string name="menu_soft_restart">Перезагрузка интерфейса</string>
+    <string name="menu_soft_restart">Мягкая перезагрузка</string>
     <string name="menu_restartSysUI">Перезапустить SystemUI</string>
     <string name="menu_updates">Обновление приложения</string>
     <string name="monitoring_category_title">Параметры мониторинга</string>
     <string name="netstat_header">Настройки сетевой статистики</string>
-    <string name="string_formatter_manual_body_v3">В дополнение к обычному тексту доступны динамические переменные, такие как дата, использование данных и температура:\n\n$G\&lt;format\&gt; : григорианская дата, основанная на формате*\n$P&lt;format&gt; : персидская дата, основанная на формате*\n$Nrx : Общее количество скачиваний за указанный период ** ***\n$Ntx: Всего загрузок за указанный период ** ***\n$Nall: Общий трафик за указанный период ** ***\n$Nssid: Имя WiFi SSID (если применимо)\n\n$T\&lt;format\&gt;[interval]: Температура; \nформат может быть b (для батареи), c (для CPU), g (для GPU) и s (для кожи)\nИ наконец, есть ОПЦИОНАЛЬНОЕ количество интервалов обновления в секундах (по умолчанию: 60 секунд)\n\n*Для получения документации по формату ищите \"Java Date Format\"\n**Вы можете указать период статистики в PixelXpert/Miscellaneous menu/Network Statistics Settings\n***Если вы замените $N на $Nc, то получите статистику по мобильным данным (например, $Ncrx вместо Nrx)</string>
+    <string name="string_formatter_manual_body_v3">В дополнение к обычному тексту доступны динамические переменные, такие как дата, использование данных и температура:\n\n$G\&lt;format\&gt; : григорианская дата, основанная на формате*\n$P&lt;format&gt; : персидская дата, основанная на формате*\n$Nrx : Общее количество скачиваний за указанный период ** ***\n$Ntx: Всего загрузок за указанный период ** ***\n$Nall: Общий трафик за указанный период ** ***\n$Nssid: Имя WiFi SSID (если применимо)\n\n$T\&lt;format\&gt;[interval]: Температура; \nформат может быть b (для батареи), c (для CPU), g (для GPU) и s (для корпуса)\nИ наконец, есть ОПЦИОНАЛЬНОЕ количество интервалов обновления в секундах (по умолчанию: 60 секунд)\n\n*Для получения документации по формату ищите \"Java Date Format\"\n**Вы можете указать период статистики в PixelXpert-Next/Разное/Настройки сетевой статистики\n***Если вы замените $N на $Nc, то получите статистику по мобильным данным (например, $Ncrx вместо Nrx)</string>
     <string name="update_channel_name">Обновления</string>
     <string name="download_channel_name">Загрузки</string>
     <string name="assets_download_title">Загрузка файлов</string>
@@ -427,15 +431,15 @@
     <string name="assets_download_size_body">Прогресс: %s</string>
     <string name="update_notification_title">Обновление загружено</string>
     <string name="update_notification_text">Нажмите здесь, чтобы установить</string>
-    <string name="download_failed">Не удалось загрузить обновление </string>
-    <string name="try_again_later">Пожалуйста, повторите попытку позже </string>
+    <string name="download_failed">Не удалось загрузить обновление</string>
+    <string name="try_again_later">Пожалуйста, повторите попытку позже</string>
     <string name="update_flavor_title">Канал обновлений</string>
     <string name="stable_flavor">Стабильный</string>
     <string name="update_type_title">Тип модуля</string>
     <string name="currentVersionTitle">Установленная версия: </string>
     <string name="lastestVersionTitle">Последняя версия: </string>
-    <string name="update_source_title">Update source</string>
-    <string name="update_source_hint">Update JSON URL</string>
+    <string name="update_source_title">Обновить источник</string>
+    <string name="update_source_hint">Обновить JSON URL</string>
     <string name="root_not_here">ДОСТУП ROOT НЕ ПРЕДОСТАВЛЕН!</string>
     <string name="reboot_pending">Ожидается перезагрузка</string>
     <string name="reboot_word">Перезагрузите устройство сейчас</string>
@@ -473,14 +477,14 @@
     <string name="hooked_packages_title">Подключенные пакеты</string>
     <string name="package_hooked_successful">Ответ пакета</string>
     <string name="package_not_hook_enabled">Пакет не включен в LSposed</string>
-    <string name="enable_px_manually">Pixel Xpert is not yet activated in LSposed. Please open LSposed manager and enable Pixel Xpert, then restart this app</string>
-    <string name="package_hook_bootlooped">Перехват был не успешным из-за циклической перезагрузки</string>
+    <string name="enable_px_manually">PixelXpert-Next ещё не активирован в LSposed. Откройте менеджер LSposed и включите PixelXpert-Next, затем перезапустите это приложение</string>
+    <string name="package_hook_bootlooped">Перехват не удался из-за циклической перезагрузки</string>
     <string name="package_hook_no_response">Пакет не отвечает</string>
     <string name="package_not_found">Пакет не найден</string>
     <string name="package_checking">Загрузка%s</string>
     <string name="package_activated">Пакет успешно активирован</string>
     <string name="package_activation_failed">Не удалось активировать пакет</string>
-    <string name="lsposed_not_found">LSPosed not installed</string>
+    <string name="lsposed_not_found">LSPosed не установлен</string>
     <string name="activate_in_lsposed">Активировать в LSPosed</string>
     <string name="package_not_hook_enabled_info">Приложение установлено, но LSPosed не настроен для подключения к нему. Включите его, нажав \'%s\'.</string>
     <string name="package_hook_bootlooped_info">Перехват приложения вызвал циклическую перезагрузку, поэтому оно было отключено, чтобы предотвратить дальнейшие проблемы.</string>
@@ -489,16 +493,16 @@
     <string name="package_not_launchable">Пакет не может быть запущен</string>
     <string name="menu_launch_app">Запустить приложение</string>
     <string name="menu_restart_app">Перезапустить приложение</string>
-    <string name="why">Как?</string>
+    <string name="why">что?</string>
     <string name="okay">Хорошо</string>
     <!-- Splash Activity -->
     <string name="checking_root_permissions">Проверка прав доступа к корневой системе…</string>
     <string name="connecting_root_service">Подключение к корневому сервису…</string>
     <string name="root_access_denied">Рут доступ запрещен. Пожалуйста, предоставьте права суперпользователя.</string>
-    <string name="root_service_failed">Не удалось соединиться с root сервисом. Пожалуйста, попробуйте позже.</string>
-    <string name="checking_pixel_device">Verifying Pixel device…</string>
-    <string name="pixel_not_supported">This device is not a supported Pixel. PixelXpert requires a Pixel phone running a Pixel ROM.</string>
-    <string name="pixel_not_supported_debug">Pixel check failed: %1$s</string>
+    <string name="root_service_failed">Не удалось соединиться с root сервисом. Пожалуйста, попробуйте позже</string>
+    <string name="checking_pixel_device">Проверка устройства Pixel…</string>
+    <string name="pixel_not_supported">Это устройство не является поддерживаемым Pixel. PixelXpert требует телефон Pixel с прошивкой Pixel.</string>
+    <string name="pixel_not_supported_debug">Проверка Pixel не удалась: %1$s</string>
     <string name="exit">Выход</string>
     <!-- Bottom Navigation -->
     <string name="navigation_home">Главная</string>
@@ -531,11 +535,11 @@
     <string name="icon_pack_author">от %s</string>
     <string name="icon_pack_unknown_author">по неизвестному автору</string>
     <string name="icon_pack_unknown_name">Неизвестный набор иконок</string>
-    <string name="icon_pack_pack_reset">Reset icons</string>
+    <string name="icon_pack_pack_reset">Сбросить иконки</string>
     <string name="icon_pack_info">Информация о наборе иконок</string>
     <string name="no_icon_pack_installed">Набор иконок не установлен</string>
     <string name="icon_pack_disclaimer_title">Оговорка</string>
-    <string name="icon_pack_disclaimer_desc">Пакеты иконок не разрабатываются и не распространяются PixelXpert, поэтому команда PixelXpert не может обеспечить поддержку наборов иконок. Поддержка того, как PixelXpert обрабатывает наборы значков будет предоставляться только соответствующим разработчикам наборов.\n\nИнструкции по компиляции набора иконок см. в руководстве здесь: %s</string>
+    <string name="icon_pack_disclaimer_desc">Пакеты иконок не разрабатываются и не распространяются PixelXpert-Next, поэтому команда PixelXpert-Next не может обеспечить поддержку наборов иконок. Поддержка того, как PixelXpert-Next обрабатывает наборы значков будет предоставляться только соответствующим разработчикам наборов.\n\nИнструкции по компиляции набора иконок см. в руководстве здесь: %s</string>
     <!--Advanced power options-->
     <string name="advanced_option_button_title">Дополнительно…</string>
     <string name="reboot_bootloader_title">Перезагрузить в Bootloader</string>
@@ -546,23 +550,25 @@
     <string name="optimization_restart_needed_message">Рекомендуется перезагрузка для увеличения системной интеграции</string>
     <string name="restart_postpone">Позже</string>
     <string name="restart_now">Перезагрузить сейчас</string>
-    <string name="watts">Ваты</string>
+    <string name="watts">Ватты</string>
     <string name="fast_charging_threshold_title">Порог быстрой зарядки</string>
-    <string name="sb_multi_row_clock_bottom">Move clock to bottom row</string>
-    <string name="pin_wireless_adb_title">Pin Wireless ADB Port</string>
-    <string name="pin_wireless_adb_summary">Forward a specific static port to the randomized Wireless Debugging TLS port, allowing easy connections like \"adb connect ip:port\"</string>
-    <string name="pinned_adb_port_title">Pinned ADB Port</string>
-    <string name="pinned_adb_port_summary">The static port to listen on (default 5555)</string>
-    <string name="qs_brightness_slider_bottom_title">Brightness Slider Below Tiles</string>
-    <string name="qs_brightness_slider_bottom_desc">Move the brightness slider below the quick settings tiles</string>
-    <string name="qqs_brightness_slider_title">Always Show Brightness Slider</string>
-    <string name="qqs_brightness_slider_desc">Show the brightness slider in collapsed quick settings and share it with expanded quick settings</string>
+    <string name="sb_multi_row_clock_bottom">Переместить часы в нижний ряд</string>
+    <string name="pin_wireless_adb_title">Закрепить беспроводной порт ADB</string>
+    <string name="pin_wireless_adb_summary">Назначить определённый порт случайному беспроводному отладочному TLS порту, позволяя легко подключатся по типу \"adb connect ip:port\"</string>
+    <string name="pinned_adb_port_title">Закреплённый порт ADB</string>
+    <string name="pinned_adb_port_summary">Порт для прослушивания (по умолчанию 5555)</string>
+    <string name="qs_brightness_slider_bottom_title">Ползунок яркости ниже плиток</string>
+    <string name="qs_brightness_slider_bottom_desc">Переместить ползунок яркости ниже плиток быстрых настроек</string>
+    <string name="qqs_brightness_slider_title">Всегда показывать ползунок яркости</string>
+    <string name="qqs_brightness_slider_desc">Показывать ползунок яркости в свёрнутых быстрых настройках и поделиться им с расширенными быстрыми настройками</string>
+    <string name="QS_auto_brightness_title">Ярлык адаптивной яркости</string>
+    <string name="QS_auto_brightness_desc">Добавляет переключатель адаптивной яркости рядом с ползунком яркости</string>
     <!--Hook Audit Screen-->
-    <string name="hook_audit_title">Hook Audit &amp; Diagnostics</string>
-    <string name="hook_audit_export">Export Report</string>
-    <string name="hook_audit_copy">Copy Markdown</string>
-    <string name="hook_audit_refresh">Refresh Audit</string>
-    <string name="hook_audit_copied">Report copied to clipboard</string>
-    <string name="hook_audit_waiting">Waiting for hooked processes to reply…</string>
-    <string name="hook_audit_waiting_desc">Ensure the module is enabled in LSPosed, target apps are selected in scope, and they have been restarted. Tap Refresh to request audit. A SystemUI restart might be needed!</string>
+    <string name="hook_audit_title">Перехват аудита и диагностика</string>
+    <string name="hook_audit_export">Экспортировать Отчёт</string>
+    <string name="hook_audit_copy">Копировать Markdown</string>
+    <string name="hook_audit_refresh">Обновить Аудит</string>
+    <string name="hook_audit_copied">Отчёт скопирован в буфер обмена</string>
+    <string name="hook_audit_waiting">Ожидание ответа перехваченных процессов…</string>
+    <string name="hook_audit_waiting_desc">Убедитесь, что модуль включен в LSPosed, целевые приложения выбраны и были перезагружены. Нажмите Обновить, чтобы запросить аудит. Возможно потребуется перезагрузка SystemUI!</string>
 </resources>

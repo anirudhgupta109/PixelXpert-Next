@@ -2,6 +2,8 @@
 <resources>
     <!--General strings-->
     <string name="app_themed_icon_title">Biểu tượng theo chủ đề thay thế</string>
+    <string name="google_settings_design_title">Use Google settings design</string>
+    <string name="google_settings_design_summary">Rounded search bar and colourful icons</string>
     <string name="xposed_desc">Các tùy chỉnh cho thiết bị Google Pixel</string>
     <string name="volume_tile_title">Âm lượng đa phương tiện</string>
     <string name="caffeine_tile_title">Caffeine</string>
@@ -264,6 +266,8 @@
     <string name="gesture_nav_pill_cat">Thanh điều hướng</string>
     <string name="gesture_nav_pill_width_title">Chiều rộng so với kích thước tiêu chuẩn</string>
     <string name="gesture_nav_pill_height_title">Chiều cao so với kích thước tiêu chuẩn</string>
+    <string name="keyboard_space_cat">Keyboard space</string>
+    <string name="keyboard_space_hide_buttons_title">Hide back and keyboard switcher buttons</string>
     <string name="threebutton_header_title">Điều hướng 3 nút</string>
     <string name="taskbar_header_title">Thanh điều hướng</string>
     <string name="modify_3button_title">Đổi thứ tự phím điều hướng</string>
@@ -557,6 +561,8 @@
     <string name="qs_brightness_slider_bottom_desc">Move the brightness slider below the quick settings tiles</string>
     <string name="qqs_brightness_slider_title">Always Show Brightness Slider</string>
     <string name="qqs_brightness_slider_desc">Show the brightness slider in collapsed quick settings and share it with expanded quick settings</string>
+    <string name="QS_auto_brightness_title">Adaptive brightness shortcut</string>
+    <string name="QS_auto_brightness_desc">Add a toggle for adaptive brightness next to the brightness slider</string>
     <!--Hook Audit Screen-->
     <string name="hook_audit_title">Hook Audit &amp; Diagnostics</string>
     <string name="hook_audit_export">Export Report</string>

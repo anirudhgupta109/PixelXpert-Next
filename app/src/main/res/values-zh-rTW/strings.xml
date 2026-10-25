@@ -2,6 +2,8 @@
 <resources>
     <!--General strings-->
     <string name="app_themed_icon_title">啟用替代的 AOSP Mods 主題應用圖示</string>
+    <string name="google_settings_design_title">Use Google settings design</string>
+    <string name="google_settings_design_summary">Rounded search bar and colourful icons</string>
     <string name="xposed_desc">針對 Google Pixel 裝置的自定義</string>
     <string name="volume_tile_title">Media Volume</string>
     <string name="caffeine_tile_title">Caffeine</string>
@@ -264,6 +266,8 @@
     <string name="gesture_nav_pill_cat">小白條寬度</string>
     <string name="gesture_nav_pill_width_title">對比標準大小的寬度</string>
     <string name="gesture_nav_pill_height_title">對比標準大小的高度</string>
+    <string name="keyboard_space_cat">Keyboard space</string>
+    <string name="keyboard_space_hide_buttons_title">Hide back and keyboard switcher buttons</string>
     <string name="threebutton_header_title">3 個虛擬導航鍵</string>
     <string name="taskbar_header_title">工作列導航</string>
     <string name="modify_3button_title">更改按鈕順序</string>
@@ -557,6 +561,8 @@
     <string name="qs_brightness_slider_bottom_desc">Move the brightness slider below the quick settings tiles</string>
     <string name="qqs_brightness_slider_title">Always Show Brightness Slider</string>
     <string name="qqs_brightness_slider_desc">Show the brightness slider in collapsed quick settings and share it with expanded quick settings</string>
+    <string name="QS_auto_brightness_title">Adaptive brightness shortcut</string>
+    <string name="QS_auto_brightness_desc">Add a toggle for adaptive brightness next to the brightness slider</string>
     <!--Hook Audit Screen-->
     <string name="hook_audit_title">Hook Audit &amp; Diagnostics</string>
     <string name="hook_audit_export">Export Report</string>
