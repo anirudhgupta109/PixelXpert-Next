@@ -73,14 +73,16 @@ class GestureNavbarManager(context: Context) : XposedModPack(context) {
 
 				// down action is enough. once gesture is refused it won't accept further actions
 				if (ev.actionMasked == ACTION_DOWN) {
-					if (notWithinInsets(
-							ev.x,
-							ev.y,
-							getObjectField(EdgeBackGestureHandler, "mDisplaySize") as Point,
-							getFloatField(EdgeBackGestureHandler, "mBottomGestureHeight"),
-						)
-					) {
-						setObjectField(EdgeBackGestureHandler, "mAllowGesture", false) // act like the gesture was not good enough
+					val handler = EdgeBackGestureHandler ?: return@run
+					val displaySize = getObjectField(handler, "mDisplaySize") as? Point ?: return@run
+					val bottomGestureHeight = try {
+						getFloatField(handler, "mBottomGestureHeight")
+					} catch (ignored: Throwable) {
+						0f
+					}
+
+					if (notWithinInsets(ev.x, ev.y, displaySize, bottomGestureHeight)) {
+						setObjectField(handler, "mAllowGesture", false) // act like the gesture was not good enough
 						param.setResult(null) // and stop the current method too
 					}
 				}
@@ -94,10 +96,21 @@ class GestureNavbarManager(context: Context) : XposedModPack(context) {
 				if (event.action == ACTION_DOWN) {
 					initialBackX = event.x
 				}
-				if (notWithinInsets(initialBackX, event.y, getObjectField(param.thisObject, "mDisplaySize") as Point, 0f)) {
+				val displaySize = getObjectField(param.thisObject, "mDisplaySize") as? Point ?: return@run
+				if (notWithinInsets(initialBackX, event.y, displaySize, 0f)) {
 					param.setResult(null)
 				}
 			}
+	}
+
+	override fun onSaveHotReloadState(outState: MutableMap<String, Any?>) {
+		EdgeBackGestureHandler?.let { outState["edgeBackGestureHandler"] = it }
+		outState["initialBackX"] = initialBackX
+	}
+
+	override fun onRestoreHotReloadState(savedState: Map<String, Any?>) {
+		EdgeBackGestureHandler = savedState["edgeBackGestureHandler"]
+		initialBackX = savedState["initialBackX"] as? Float ?: 0f
 	}
 
 	private fun notWithinInsets(x: Float, y: Float, mDisplaySize: Point, mBottomGestureHeight: Float): Boolean {
