@@ -1,3 +1,7 @@
+**canary-537**  
+- Make tap on battery icon on QS/QQS redirect to battery usage page  
+- migrate Xposed module to libxposed API 102  
+  
 **canary-536**  
 - data: Only restart unhooked processes instead of always SysUI  
 - Add a keyboard space toggle to gesture navigation  

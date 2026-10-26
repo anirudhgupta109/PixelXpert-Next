@@ -1,7 +1,7 @@
 id=PixelXpert-Next
 name=PixelXpert-next
-version=canary-536
-versionCode=536
+version=canary-537
+versionCode=537
 author=PixelXpert-Next Team
 description=Xposed based module for customizations on Pixel roms. Android 13+
 updateJson=https://raw.githubusercontent.com/anirudhgupta109/PixelXpert-Next/px_files/canary/MagiskModuleUpdate_Xposed.json
