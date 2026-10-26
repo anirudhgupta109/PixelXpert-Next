@@ -8,7 +8,6 @@ import android.os.Binder
 import android.os.IBinder
 import android.os.RemoteException
 import com.topjohnwu.superuser.Shell
-import sh.anirudhgupta109.pxn.Constants
 import sh.anirudhgupta109.pxn.IPixelXpertProxy
 import sh.anirudhgupta109.pxn.R
 import sh.anirudhgupta109.pxn.xposed.utils.toolkit.Logger
@@ -63,11 +62,6 @@ class PixelXpertProxy : Service() {
 			}
 			rootAllowedPacks = context.resources.getStringArray(R.array.root_requirement).toList()
 
-			if (!rootGranted) {
-				// Fire and forget. If a KSU manager is present it will pick this
-				// up and prompt for the grant.
-				context.sendBroadcast(Intent(Constants.ACTION_KSU_ACQUIRE_ROOT))
-			}
 		}
 
 		@Throws(RemoteException::class)

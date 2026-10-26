@@ -193,7 +193,7 @@ dependencies {
 	ksp(project(":modPackProcessor"))
 
 	// objenesis for the reflective instantiation in ObjectTools (also used by
-	// StatusbarMods and KSUInjector), constraintlayout for the ConstraintSet
+	// StatusbarMods), constraintlayout for the ConstraintSet
 	// work in KeyguardMods, and appcompat because ShyLinearLayout extends
 	// LinearLayoutCompat rather than the platform LinearLayout.
 	implementation(libs.objenesis)
