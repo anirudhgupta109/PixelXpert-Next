@@ -57,6 +57,7 @@ import sh.anirudhgupta109.pxn.xposed.utils.reflection.Reflection.setObjectField
 import sh.anirudhgupta109.pxn.xposed.utils.reflection.ReflectionTools.reAddView
 import sh.anirudhgupta109.pxn.xposed.utils.toolkit.ObjectTools.getStateFlowImplOf
 import sh.anirudhgupta109.pxn.xposed.utils.toolkit.ResourceTools
+import java.lang.ref.WeakReference
 import java.lang.reflect.InvocationHandler
 import java.lang.reflect.Method
 import java.lang.reflect.Proxy
@@ -908,21 +909,34 @@ constructor(context: Context) : XposedModPack(context) {
 				mView.findViewById<View>(SystemUtils.idOf("date")).setOnLongClickListener(clickListener)
 			}
 
-		// The Compose shade header draws its date as plain text - add click when it is composed
+		// The Compose shade header draws its date and battery as plain content - add clicks when they are composed
 		resolveComposeClickApi()
-		try {
-			ReflectedClass.ofIfPossible("com.android.systemui.shade.ui.composable.VariableDayDateKt")
-				.takeIf { it.clazz != null }?.before(Pattern.compile("VariableDayDate.*"))
-				?.run { param ->
-					val modifierClass = composeModifierClass ?: return@run
-					val index = param.method.parameterTypes.indexOfFirst { it == modifierClass }
-					if (index == -1) return@run
-					val modifier = param.args.getOrNull(index) ?: return@run
-					val onClick = composeFunction0 { launchCalendar() } ?: return@run
-					composeClickableModifier(modifier, onClick)?.let { param.args[index] = it }
-				}
+		hookComposeModifierClick(
+			"com.android.systemui.shade.ui.composable.VariableDayDateKt",
+			Pattern.compile("VariableDayDate.*"),
+			"date",
+		) { launchCalendar() }
+
+		val hasComposeBatteryInfo = try {
+			ReflectedClass.ofIfPossible(
+				"com.android.systemui.shade.ui.composable.ShadeHeaderKt",
+			).clazz?.declaredMethods?.any { it.name.startsWith("BatteryInfo") } == true
 		} catch (t: Throwable) {
-			log("StatusbarMods: could not hook the Compose shade date", t)
+			false
+		}
+		if (hasComposeBatteryInfo) {
+			hookComposeModifierClick(
+				"com.android.systemui.shade.ui.composable.ShadeHeaderKt",
+				Pattern.compile("BatteryInfo.*"),
+				"battery",
+			) { launchBatteryUsage() }
+		} else {
+			// legacy ShadeHeaderController hosts a ComposeView that renders the battery with BatteryWithEstimate.
+			hookComposeModifierClick(
+				"com.android.systemui.statusbar.pipeline.battery.ui.composable.BatteryWithEstimateKt",
+				Pattern.compile("BatteryWithEstimate.*"),
+				"battery",
+			) { launchBatteryUsage() }
 		}
 
 		// modding clock, adding additional objects,
@@ -1538,9 +1552,24 @@ constructor(context: Context) : XposedModPack(context) {
 	//region icon tap related (Compose shade header)
 	private var composeFunction0Class: Class<*>? = null
 	private var composeModifierClass: Class<*>? = null
+	private var composeEmptyModifier: Any? = null
 	private var composeClickableMethod: Method? = null
 	private var composeUnit: Any? = null
 	private var composeClickApiResolved = false
+	private val composeClickHandlers = HashMap<String, Any>()
+	private val composeWrappedModifiers = ArrayList<WeakReference<Any>>()
+
+	/** True when exact modifier already came from [composeClickableModifier]. */
+	private fun isComposeModifierWrapped(modifier: Any): Boolean = synchronized(composeWrappedModifiers) {
+		composeWrappedModifiers.removeAll { it.get() == null }
+		composeWrappedModifiers.any { it.get() === modifier }
+	}
+
+	private fun rememberComposeModifier(modifier: Any) {
+		synchronized(composeWrappedModifiers) {
+			composeWrappedModifiers.add(WeakReference(modifier))
+		}
+	}
 
 	/** Functional interface Compose calls `Function0` have a zero-arg invoke. */
 	private fun isComposeFunction0(type: Class<*>): Boolean =
@@ -1564,6 +1593,11 @@ constructor(context: Context) : XposedModPack(context) {
 				.minByOrNull { it.parameterCount }
 			val method = composeClickableMethod ?: return
 			composeModifierClass = method.parameterTypes.getOrNull(0)
+			composeEmptyModifier = try {
+				composeModifierClass?.getField("Companion")?.get(null)
+			} catch (t: Throwable) {
+				null
+			}
 			composeFunction0Class = method.parameterTypes.firstOrNull { isComposeFunction0(it) }
 			val loader = composeFunction0Class?.classLoader ?: return
 			composeUnit = try {
@@ -1576,8 +1610,9 @@ constructor(context: Context) : XposedModPack(context) {
 		}
 	}
 
-	/** `Function0<Unit>` for SystemUI's Compose classes. */
-	private fun composeFunction0(block: () -> Unit): Any? {
+	/** `Function0<Unit>` for SystemUI's Compose classes, one cached proxy per click target. */
+	private fun composeFunction0(label: String, block: () -> Unit): Any? {
+		composeClickHandlers[label]?.let { return it }
 		val function0 = composeFunction0Class ?: return null
 		return try {
 			Proxy.newProxyInstance(
@@ -1594,14 +1629,14 @@ constructor(context: Context) : XposedModPack(context) {
 
 						"hashCode" -> System.identityHashCode(proxy)
 
-						"toString" -> "PXNShadeDateClick"
+						"toString" -> "PXNShadeHeaderClick($label)"
 
 						else -> null
 					}
 				},
-			)
+			).also { composeClickHandlers[label] = it }
 		} catch (t: Throwable) {
-			log("StatusbarMods: could not build the Compose date click", t)
+			log("StatusbarMods: could not build the Compose $label click", t)
 			null
 		}
 	}
@@ -1623,8 +1658,51 @@ constructor(context: Context) : XposedModPack(context) {
 		return try {
 			method.invoke(null, *args)
 		} catch (t: Throwable) {
-			log("StatusbarMods: could not attach the Compose date click", t)
+			log("StatusbarMods: could not attach the Compose click", t)
 			null
+		}
+	}
+
+	/**
+	 * Appends a clickable modifier to the first `Modifier` argument of a Compose method.
+	 */
+	private fun hookComposeModifierClick(
+		className: String,
+		methodPattern: Pattern,
+		label: String,
+		onClick: () -> Unit,
+	) {
+		try {
+			ReflectedClass.ofIfPossible(className)
+				.takeIf { it.clazz != null }
+				?.before(methodPattern)
+				?.run { param ->
+					val modifierClass = composeModifierClass ?: return@run
+					val index = param.method.parameterTypes.indexOfFirst { it == modifierClass }
+					if (index == -1) return@run
+					val originalModifier = param.args.getOrNull(index)
+					// BatteryWithEstimate re-invokes with the modifier from the previous composition.
+					if (originalModifier != null && isComposeModifierWrapped(originalModifier)) return@run
+					// Some call sites (the expanded QS header) pass no modifier at all.
+					val modifier = originalModifier ?: composeEmptyModifier ?: return@run
+					val clickHandler = composeFunction0(label, onClick) ?: return@run
+					val clickableModifier = composeClickableModifier(modifier, clickHandler) ?: return@run
+					param.args[index] = clickableModifier
+					rememberComposeModifier(clickableModifier)
+
+					// Clear Compose's "use the default value" bit for the modifier, but
+					// only when it was actually defaulted. With a single $changed int
+					// (BatteryWithEstimate) this bit is a real changed bit.
+					if (originalModifier == null && index < Int.SIZE_BITS) {
+						val changed1Index = param.args.lastIndex
+						val changed1 = param.args[changed1Index] as? Int
+						if (changed1 != null) {
+							param.args[changed1Index] = changed1 and (1 shl index).inv()
+						}
+					}
+				}
+		} catch (t: Throwable) {
+			log("StatusbarMods: could not hook the Compose shade $label", t)
 		}
 	}
 
@@ -1633,6 +1711,15 @@ constructor(context: Context) : XposedModPack(context) {
 		val today = CalendarContract.CONTENT_URI.buildUpon().appendPath("time")
 		today.appendPath(System.currentTimeMillis().toString())
 		callMethod(starter, "postStartActivityDismissingKeyguard", Intent(Intent.ACTION_VIEW, today.build()), 0)
+	}
+
+	private fun launchBatteryUsage() {
+		val starter = mActivityStarter ?: return
+		val intent = Intent().setClassName(
+			"com.android.settings",
+			"com.android.settings.Settings\$PowerUsageAdvancedActivity",
+		)
+		callMethod(starter, "postStartActivityDismissingKeyguard", intent, 0)
 	}
 	//endregion
 
