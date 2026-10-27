@@ -1,3 +1,15 @@
+**6.1.2**  
+- Allow the battery bar page to open (the code existed I just forgot to hook it into the menus)
+- Make QS (and QQS) time/date/battery taps open to clock/calendar/battery-usage
+- Add option to hide the back and language selector in keyboard navbar
+- Remove arbitrary systemui restart every time the system boots up (it'll now restart only when it needs to)
+- Transition from libxposed api 101 to 102 (making future updates easier and adding all xposed features) (read more: https://t.me/s/PixelXpert_Github/1155)
+- Remove KSU (and KSU-Next) hooks since they were dead code
+- New translations! ( contribute on https://crowdin.com/project/pixelxpert-next )
+
+[As a reminder: Google has still not given the new SystemUI changes to the P11, so I still can't fix some issues introduced in the September/October build]
+
+
 **6.1.1**  
 - Fix QQS row count customization in Sept/Oct stable [cp2a/cp3a]
 - Remove PX-N flashlight QS tile (Google has a nicer version in the OS already)
@@ -15,10 +27,7 @@
 - Remove a lot of dead code, duplicate implementations and overloaded implementations with a more streamlined (and extensible) approach
 - Add an adaptive brightness icon next to the brightness slider [are we back on GravityBox???]
 
-[As a reminder: Google has still not given the new SystemUI changes to the P11, so I still can't fix some issues introduced in the September/October build]
-
 **6.1.0**  
-i would recommend not restoring your profile into the app since this is a newly built app from the groundup and preferences might not carry over cleanly
 - Bringup the new PixelXpert-Next app (a full rewrite and bringup in kotlin (including the lsposed backend) + jetpack compose + Material 3 Expressive (respects your system's colours))
 - Fix UI glitches when "Close quick settings with one swipe" is enabled
 - Fix custom statusbar icon visibility (volte/vowifi)
