@@ -1,3 +1,8 @@
+**canary-538**  
+- add cursor control keys while the keyboard is open  
+- fix SystemUI hot reload null dereferences  
+- remove KSU scopes and associated hook code  
+  
 **canary-537**  
 - Make tap on battery icon on QS/QQS redirect to battery usage page  
 - migrate Xposed module to libxposed API 102  
