@@ -159,6 +159,7 @@ object InspectionUtils {
 				}
 
 				matchPrefix -> clazz.declaredMethods.any { it.name.startsWith(methodName) }
+
 				else -> clazz.declaredMethods.any { it.name == methodName }
 			}
 

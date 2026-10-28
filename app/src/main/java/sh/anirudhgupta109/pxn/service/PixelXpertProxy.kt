@@ -61,7 +61,6 @@ class PixelXpertProxy : Service() {
 				false
 			}
 			rootAllowedPacks = context.resources.getStringArray(R.array.root_requirement).toList()
-
 		}
 
 		@Throws(RemoteException::class)

@@ -1666,12 +1666,7 @@ constructor(context: Context) : XposedModPack(context) {
 	/**
 	 * Appends a clickable modifier to the first `Modifier` argument of a Compose method.
 	 */
-	private fun hookComposeModifierClick(
-		className: String,
-		methodPattern: Pattern,
-		label: String,
-		onClick: () -> Unit,
-	) {
+	private fun hookComposeModifierClick(className: String, methodPattern: Pattern, label: String, onClick: () -> Unit) {
 		try {
 			ReflectedClass.ofIfPossible(className)
 				.takeIf { it.clazz != null }

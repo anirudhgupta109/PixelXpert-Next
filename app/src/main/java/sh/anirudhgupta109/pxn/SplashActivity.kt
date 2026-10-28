@@ -192,7 +192,6 @@ class SplashActivity : ComponentActivity() {
 			}
 		}
 	}
-
 }
 
 /**

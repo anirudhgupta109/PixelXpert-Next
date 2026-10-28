@@ -46,7 +46,6 @@ object Constants {
 	const val SETTINGS_PACKAGE: String = "com.android.settings"
 	const val DIALER_PACKAGE: String = "com.google.android.dialer"
 
-
 	/**
 	 * The navigation gestures the gesture handler broadcasts instead of
 	 * injecting key events, so a listener in the launcher can act on them
@@ -65,7 +64,6 @@ object Constants {
 	const val ACTION_SWITCH_APP_PROFILE: String = "$APPLICATION_ID.ACTION_SWITCH_APP_PROFILE"
 	const val ACTION_PROFILE_SWITCH_AVAILABLE: String =
 		"$APPLICATION_ID.ACTION_PROFILE_SWITCH_AVAILABLE"
-
 
 	const val AI_METHOD_MLKIT: Int = 0
 
