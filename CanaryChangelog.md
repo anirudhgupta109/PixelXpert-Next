@@ -1,3 +1,6 @@
+**canary-539**  
+- allow customizing the QS footer build number  
+  
 **canary-538**  
 - add cursor control keys while the keyboard is open  
 - fix SystemUI hot reload null dereferences  
