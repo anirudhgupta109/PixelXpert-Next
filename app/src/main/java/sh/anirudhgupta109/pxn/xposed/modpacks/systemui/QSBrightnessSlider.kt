@@ -58,6 +58,7 @@ class QSBrightnessSlider(context: Context) : XposedModPack(context) {
 	private var brightnessInQqs = false
 	private var autoBrightnessToggle = false
 	private var mediaOnTop = false
+	private var qsLayoutOrder: List<String> = listOf("brightness", "qs", "media")
 
 	//region resolved compose APIs - all null until resolveComposeApis() finds them
 	private var function0Class: Class<*>? = null
@@ -123,10 +124,38 @@ class QSBrightnessSlider(context: Context) : XposedModPack(context) {
 	private fun className(pkg: String, cls: String): String = "$pkg.$cls"
 
 	override fun onPreferenceUpdated(vararg key: String?) {
-		brightnessBelowTiles = Xprefs.getBoolean("qs_brightness_slider_bottom", false)
+		val rawOrder = if (Xprefs.contains("qs_layout_order")) {
+			Xprefs.getString("qs_layout_order", "brightness,qs,media") ?: "brightness,qs,media"
+		} else {
+			val bottom = Xprefs.getBoolean("qs_brightness_slider_bottom", false)
+			val mTop = Xprefs.getBoolean("qs_media_player_top", false)
+			when {
+				mTop && bottom -> "media,qs,brightness"
+				mTop && !bottom -> "media,brightness,qs"
+				!mTop && bottom -> "qs,brightness,media"
+				else -> "brightness,qs,media"
+			}
+		}
+		val parsed = rawOrder.split(",").map { it.trim() }.filter { it.isNotEmpty() }
+		val valid = listOf("brightness", "qs", "media")
+		val ordered = parsed.filter { it in valid }.toMutableList()
+		valid.forEach { if (it !in ordered) ordered.add(it) }
+		qsLayoutOrder = ordered
+
+		val brightnessIndex = qsLayoutOrder.indexOf("brightness")
+		val qsIndex = qsLayoutOrder.indexOf("qs")
+		val mediaIndex = qsLayoutOrder.indexOf("media")
+
+		brightnessBelowTiles = brightnessIndex > qsIndex
+		mediaOnTop = mediaIndex < qsIndex
 		brightnessInQqs = Xprefs.getBoolean("qqs_brightness_slider", false)
-		mediaOnTop = Xprefs.getBoolean("qs_media_player_top", false)
 		autoBrightnessToggle = Xprefs.getBoolean("QSAutoBrightnessToggle", false)
+
+		qqsTilesSlots.clear()
+		shadeQqsSlots.clear()
+		arrangedFirstSlots.clear()
+		mediaRowSlots.clear()
+		sceneMediaRowSlots.clear()
 	}
 
 	override fun onPackageLoaded(PRParam: XposedModuleInterface.PackageReadyParam) {
@@ -136,16 +165,14 @@ class QSBrightnessSlider(context: Context) : XposedModPack(context) {
 		hookBrightnessSlider()
 	}
 
-	private fun mediaFirstOrder(
-		slots: Array<Any?>,
-		brightness: Any,
-		tiles: Any,
-		media: Any,
-	) {
-		arrangedFirstSlots.add(media)
-		slots[0] = media
-		slots[1] = if (brightnessBelowTiles) tiles else brightness
-		slots[2] = if (brightnessBelowTiles) brightness else tiles
+	private fun applyLayoutOrder(slots: Array<Any?>, brightness: Any, tiles: Any, media: Any) {
+		val map = mapOf("brightness" to brightness, "qs" to tiles, "media" to media)
+		val order = if (qsLayoutOrder.size == 3) qsLayoutOrder else listOf("brightness", "qs", "media")
+		for (i in 0 until 3) {
+			val k = order.getOrNull(i) ?: "brightness"
+			slots[i] = map[k] ?: brightness
+		}
+		arrangedFirstSlots.add(slots[0]!!)
 	}
 
 	private fun List<*>.withMediaFirst(): List<*>? {
@@ -191,8 +218,8 @@ class QSBrightnessSlider(context: Context) : XposedModPack(context) {
 			val mediaInRow: Boolean? = if (mediaInRowIndex != -1) param.args[mediaInRowIndex] as? Boolean else null
 			val media = param.args.getOrNull(2)
 
-			if (mediaOnTop && mediaInRow == false && media != null) {
-				mediaFirstOrder(param.args, brightnessSlot, tiles, media)
+			if (mediaInRow == false && media != null) {
+				applyLayoutOrder(param.args, brightnessSlot, tiles, media)
 				return@run
 			}
 
@@ -310,8 +337,8 @@ class QSBrightnessSlider(context: Context) : XposedModPack(context) {
 						?.let { param.args.getOrNull(it) as? Boolean }
 					val media = param.args.getOrNull(2)
 
-					if (mediaOnTop && mediaInRow == false && mediaVisible == true && media != null) {
-						mediaFirstOrder(param.args, brightness, tiles, media)
+					if (mediaInRow == false && mediaVisible == true && media != null) {
+						applyLayoutOrder(param.args, brightness, tiles, media)
 						return@run
 					}
 
@@ -478,8 +505,20 @@ class QSBrightnessSlider(context: Context) : XposedModPack(context) {
 		}?.apply { isAccessible = true } ?: return
 
 		val qsElementsClass = ReflectedClass.ofIfPossible(QS_ELEMENTS_CLASS)
-		val qsContentKey = if (qsElementsClass.clazz != null) getStaticObjectField(qsElementsClass.clazz, "QuickSettingsContent") else null
-		val gridAnchorKey = if (qsElementsClass.clazz != null) getStaticObjectField(qsElementsClass.clazz, "GridAnchor") else null
+		val qsContentKey = if (qsElementsClass.clazz !=
+			null
+		) {
+			getStaticObjectField(qsElementsClass.clazz, "QuickSettingsContent")
+		} else {
+			null
+		}
+		val gridAnchorKey = if (qsElementsClass.clazz !=
+			null
+		) {
+			getStaticObjectField(qsElementsClass.clazz, "GridAnchor")
+		} else {
+			null
+		}
 
 		if (qsContentKey != null && gridAnchorKey != null) {
 			builderClass
@@ -1097,11 +1136,7 @@ class QSBrightnessSlider(context: Context) : XposedModPack(context) {
 	 * colours we supply, filling the rest from the live signature the same way
 	 * [rememberShadeContainerViewModel] does.
 	 */
-	private fun composeBrightnessContainer(
-		composer: Any,
-		viewModel: Any?,
-		modifier: Any? = modifierCompanion,
-	) {
+	private fun composeBrightnessContainer(composer: Any, viewModel: Any?, modifier: Any? = modifierCompanion) {
 		val container = brightnessContainerMethod ?: return
 		if (viewModel == null) return
 
