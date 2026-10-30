@@ -1,3 +1,7 @@
+**canary-540**  
+- QSBrightnessSlider: add reorderable layout for QS brightness, tiles, and media player  
+- Allow media player on top + QQS slider with shade transition fixes  
+  
 **canary-539**  
 - allow customizing the QS footer build number  
   
