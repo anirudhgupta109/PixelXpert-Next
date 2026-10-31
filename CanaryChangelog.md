@@ -1,3 +1,7 @@
+**canary-541**  
+- Clip QQS brightness slider under translucent notifications  
+- Make cursor icons match colour of navbar pill in ever scenario  
+  
 **canary-540**  
 - QSBrightnessSlider: add reorderable layout for QS brightness, tiles, and media player  
 - Allow media player on top + QQS slider with shade transition fixes  
