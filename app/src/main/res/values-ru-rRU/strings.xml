@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!--General strings-->
-    <string name="app_themed_icon_title">Альтернативная иконка приложения</string>
+    <string name="app_themed_icon_title">Альтернативная иконка</string>
     <string name="google_settings_design_title">Использовать дизайн настроек Google</string>
     <string name="google_settings_design_summary">Скругленная панель поиска и цветные иконки</string>
     <string name="xposed_desc">Настройки для устройств Google Pixel</string>
@@ -257,6 +257,10 @@
     <string name="qs_tile_secondary_label_size">Размер деталей плиток быстрых настроек</string>
     <string name="quick_settings_tiles_category">Параметры быстрых настроек</string>
     <string name="qs_volume_unmute_title">Величина отключения плитки громкости</string>
+    <string name="qs_footer_category">Quick settings footer</string>
+    <string name="qs_build_number_enabled_title">Custom build number</string>
+    <string name="qs_build_number_text_title">Build number text</string>
+    <string name="qs_build_number_text_summary">Leave empty to keep the default build number.</string>
     <!--Navigation bar related-->
     <string name="back_gesture_category_title">Настройка жеста назад</string>
     <string name="back_from_left_title">Левая часть экрана</string>
@@ -268,6 +272,10 @@
     <string name="gesture_nav_pill_height_title">Высота по сравнению со стандартным размером</string>
     <string name="keyboard_space_cat">Пространство клавиатуры</string>
     <string name="keyboard_space_hide_buttons_title">Скрыть кнопки назад и переключение языка под клавиатурой</string>
+    <string name="cursor_control_title">Cursor control keys while typing</string>
+    <string name="cursor_control_summary">Show left and right cursor keys in the navigation bar while the keyboard is open</string>
+    <string name="cursor_left_desc">Move cursor left</string>
+    <string name="cursor_right_desc">Move cursor right</string>
     <string name="threebutton_header_title">Навигация с помощью трёх кнопок</string>
     <string name="taskbar_header_title">Навигация по панели задач</string>
     <string name="modify_3button_title">Изменить порядок кнопок</string>
@@ -318,8 +326,8 @@
     <string name="so_double_tap_wake_summary">Отключение однократного нажатия для пробуждения</string>
     <string name="so_tap_to_show_ambient_title">Нажмите, чтобы отобразить ambient display</string>
     <string name="so_tap_to_show_ambient_summary">[При выключенном режиме] При нажатии на экран отображается ambient display</string>
-    <string name="so_pick_to_show_ambient_title">Нажмите, чтобы отобразить ambient display</string>
-    <string name="so_pick_to_show_ambient_summary">[При выключенном режиме] При нажатии на экран отображается ambient display</string>
+    <string name="so_pick_to_show_ambient_title">Возьмите, чтобы отобразить ambient display</string>
+    <string name="so_pick_to_show_ambient_summary">[При выключенном режиме] Когда возьмёте телефон отображается ambient display</string>
     <string name="force_aod_while_charging_title">Принудительный AOD во время зарядки</string>
     <string name="force_aod_while_charging_summary">Всегда включать AOD во время зарядки устройства</string>
     <string name="doze_header">Когда экран выключен…</string>
@@ -563,6 +571,15 @@
     <string name="qqs_brightness_slider_desc">Показывать ползунок яркости в свёрнутых быстрых настройках и поделиться им с расширенными быстрыми настройками</string>
     <string name="QS_auto_brightness_title">Ярлык адаптивной яркости</string>
     <string name="QS_auto_brightness_desc">Добавляет переключатель адаптивной яркости рядом с ползунком яркости</string>
+    <string name="qs_media_player_top_title">Media Player on Top</string>
+    <string name="qs_media_player_top_desc">Show media player above tiles</string>
+    <string name="qs_layout_category_title">Quick settings layout</string>
+    <string name="qs_brightness_position_title">Brightness position</string>
+    <string name="qs_tiles_position_title">Tiles position</string>
+    <string name="qs_media_player_position_title">Media player position</string>
+    <string name="qs_always_show_title">Always show</string>
+    <string name="qs_layout_always_show_note">In collapsed Quick Settings, the media player cannot be placed between the brightness slider and tiles.</string>
+    <string name="reorder">Reorder</string>
     <!--Hook Audit Screen-->
     <string name="hook_audit_title">Перехват аудита и диагностика</string>
     <string name="hook_audit_export">Экспортировать Отчёт</string>

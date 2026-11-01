@@ -257,6 +257,10 @@
     <string name="qs_tile_secondary_label_size">اندازه فونت زیر نویس تنظیمات سریع</string>
     <string name="quick_settings_tiles_category">گزینه های تنظیمات سریع</string>
     <string name="qs_volume_unmute_title">مقدار نادیده گرفتن کاشی حجم</string>
+    <string name="qs_footer_category">Quick settings footer</string>
+    <string name="qs_build_number_enabled_title">Custom build number</string>
+    <string name="qs_build_number_text_title">Build number text</string>
+    <string name="qs_build_number_text_summary">Leave empty to keep the default build number.</string>
     <!--Navigation bar related-->
     <string name="back_gesture_category_title">تنظیمات حرکت Back</string>
     <string name="back_from_left_title">سمت چپ صفحه نمایش</string>
@@ -268,6 +272,10 @@
     <string name="gesture_nav_pill_height_title">ارتفاع نسبت به اندازه استاندارد</string>
     <string name="keyboard_space_cat">Keyboard space</string>
     <string name="keyboard_space_hide_buttons_title">Hide back and keyboard switcher buttons</string>
+    <string name="cursor_control_title">Cursor control keys while typing</string>
+    <string name="cursor_control_summary">Show left and right cursor keys in the navigation bar while the keyboard is open</string>
+    <string name="cursor_left_desc">Move cursor left</string>
+    <string name="cursor_right_desc">Move cursor right</string>
     <string name="threebutton_header_title">نوار ناوبری 3 کلیده</string>
     <string name="taskbar_header_title">ناوبری نوار وظیفه</string>
     <string name="modify_3button_title">تنظیم محل دکمه های ناوبری</string>
@@ -563,6 +571,15 @@
     <string name="qqs_brightness_slider_desc">Show the brightness slider in collapsed quick settings and share it with expanded quick settings</string>
     <string name="QS_auto_brightness_title">Adaptive brightness shortcut</string>
     <string name="QS_auto_brightness_desc">Add a toggle for adaptive brightness next to the brightness slider</string>
+    <string name="qs_media_player_top_title">Media Player on Top</string>
+    <string name="qs_media_player_top_desc">Show media player above tiles</string>
+    <string name="qs_layout_category_title">Quick settings layout</string>
+    <string name="qs_brightness_position_title">Brightness position</string>
+    <string name="qs_tiles_position_title">Tiles position</string>
+    <string name="qs_media_player_position_title">Media player position</string>
+    <string name="qs_always_show_title">Always show</string>
+    <string name="qs_layout_always_show_note">In collapsed Quick Settings, the media player cannot be placed between the brightness slider and tiles.</string>
+    <string name="reorder">Reorder</string>
     <!--Hook Audit Screen-->
     <string name="hook_audit_title">Hook Audit &amp; Diagnostics</string>
     <string name="hook_audit_export">Export Report</string>
