@@ -128,7 +128,13 @@ class ScreenGestures(context: Context) : XposedModPack(context) {
 
 		PulsingGestureListenerClass // used to detect when a real single tap done on keyguard
 			.before("onSingleTapUp")
-			.run { param -> mLastKGSingleTap = SystemClock.uptimeMillis() }
+			.run { param ->
+				mLastKGSingleTap = SystemClock.uptimeMillis()
+
+				if (doubleTapToWake) {
+					param.setResult(false)
+				}
+			}
 
 		PulsingGestureListenerClass // For A17QPR1+ Lockscreen double tap to sleep
 			.before("onDoubleTapEvent")
