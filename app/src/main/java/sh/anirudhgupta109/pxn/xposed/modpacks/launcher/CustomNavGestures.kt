@@ -69,6 +69,18 @@ class CustomNavGestures(context: Context) : XposedModPack(context) {
 		swipeUpPercentage = Xprefs.getSliderFloat("swipeUpPercentage", 25f) / 100f
 	}
 
+	override fun onSaveHotReloadState(outState: MutableMap<String, Any?>) {
+		mSystemUIProxy?.let { outState["systemUiProxy"] = it }
+		mTasksFieldName?.let { outState["tasksFieldName"] = it }
+		outState["tasksIsList"] = mTasksIsList
+	}
+
+	override fun onRestoreHotReloadState(savedState: Map<String, Any?>) {
+		mSystemUIProxy = savedState["systemUiProxy"]
+		mTasksFieldName = savedState["tasksFieldName"] as? String
+		mTasksIsList = savedState["tasksIsList"] as? Boolean ?: false
+	}
+
 	override fun onPackageLoaded(PRParam: XposedModuleInterface.PackageReadyParam) {
 		val OtherActivityInputConsumerClass = ReflectedClass.of(
 			"com.android.quickstep.inputconsumers.OtherActivityInputConsumer",
@@ -266,14 +278,14 @@ class CustomNavGestures(context: Context) : XposedModPack(context) {
 	}
 
 	private fun switchAppProfile() {
-		Thread {
+		startTrackedThread("pxn-switch-app-profile") {
 			try {
 				SystemUtils.threadSleep(200) // waiting for recents window to vanish
 
 				mContext.sendBroadcast(Constants.getAppProfileSwitchIntent())
 			} catch (ignored: Throwable) {
 			}
-		}.start()
+		}
 	}
 
 	private fun goToSleep() {

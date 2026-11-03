@@ -14,7 +14,6 @@ import sh.anirudhgupta109.pxn.xposed.XPrefs.Xprefs
 import sh.anirudhgupta109.pxn.xposed.XposedModPack
 import sh.anirudhgupta109.pxn.xposed.annotations.SystemUIModPack
 import sh.anirudhgupta109.pxn.xposed.utils.SystemUtils
-import sh.anirudhgupta109.pxn.xposed.utils.reflection.HookHelper
 import sh.anirudhgupta109.pxn.xposed.utils.reflection.ReflectedClass
 import sh.anirudhgupta109.pxn.xposed.utils.reflection.Reflection.callMethod
 import sh.anirudhgupta109.pxn.xposed.utils.reflection.Reflection.getBooleanField
@@ -75,6 +74,8 @@ class ScreenGestures(context: Context) : XposedModPack(context) {
 	private var mDozeTouchTrigger: Any? = null
 	private var mKeyguardInteractor: Any? = null
 	private var mShadeInteractorSceneContainerImpl: Any? = null
+	private var mShadeWindowViewController: Any? = null
+	private var mHooksInstalled = false
 	private var mLastKGSingleTap = 0L
 
 	override fun onPreferenceUpdated(vararg key: String?) {
@@ -85,6 +86,11 @@ class ScreenGestures(context: Context) : XposedModPack(context) {
 		TapToShowAmbient = Xprefs.getBoolean("TapToShowAmbient", false)
 		PickToShowAmbient = Xprefs.getBoolean("PickToShowAmbient", false)
 		DisableLockScreenPill = Xprefs.getBoolean("DisableLockScreenPill", false)
+
+		// `afterConstruction` does not replay on a hot reload, so the hooks that
+		// live on the already-constructed window controller have to be put back
+		// here against the restored controller.
+		reinstallWindowHooks()
 	}
 
 	override fun onPackageLoaded(PRParam: XposedModuleInterface.PackageReadyParam) {
@@ -198,9 +204,9 @@ class ScreenGestures(context: Context) : XposedModPack(context) {
 						SystemUtils.setFlash(true, false)
 						SystemUtils.vibrate(VibrationEffect.EFFECT_TICK, VibrationAttributes.USAGE_ACCESSIBILITY)
 
-						Thread {
+						startTrackedThread("pxn-torch-session") {
 							// if keyguard is dismissed for any reason (face or udfps touch), then:
-							while (turnedByTTT) {
+							while (turnedByTTT && !Thread.currentThread().isInterrupted) {
 								try {
 									SystemUtils.threadSleep(200)
 									if (keyguardNotShowingCompose()) {
@@ -209,7 +215,7 @@ class ScreenGestures(context: Context) : XposedModPack(context) {
 								} catch (ignored: Throwable) {
 								}
 							}
-						}.start()
+						}
 					}
 				} else if (turnedByTTT) {
 					turnOffTTT()
@@ -285,14 +291,16 @@ class ScreenGestures(context: Context) : XposedModPack(context) {
 		NotificationShadeWindowViewControllerClass
 			.afterConstruction()
 			.run { param ->
-				Thread {
+				val controller = param.thisObject ?: return@run
+				mShadeWindowViewController = controller
+				startTrackedThread("pxn-screen-gestures-hooks") {
 					try {
 						// for some reason lsposed doesn't find methods in the class. so we'll hook to constructor and wait a bit!
 						SystemUtils.threadSleep(5000)
-						setHooks(param)
+						setHooks(controller)
 					} catch (ignored: Throwable) { // probably 17QPR1+
 					}
-				}.start()
+				}
 			}
 
 		NotificationPanelViewControllerClass
@@ -314,6 +322,7 @@ class ScreenGestures(context: Context) : XposedModPack(context) {
 		mDozeTouchTrigger?.let { outState["dozeTouchTrigger"] = it }
 		mKeyguardInteractor?.let { outState["keyguardInteractor"] = it }
 		mShadeInteractorSceneContainerImpl?.let { outState["shadeInteractor"] = it }
+		mShadeWindowViewController?.let { outState["shadeWindowViewController"] = it }
 	}
 
 	override fun onRestoreHotReloadState(savedState: Map<String, Any?>) {
@@ -322,6 +331,7 @@ class ScreenGestures(context: Context) : XposedModPack(context) {
 		mDozeTouchTrigger = savedState["dozeTouchTrigger"]
 		mKeyguardInteractor = savedState["keyguardInteractor"]
 		mShadeInteractorSceneContainerImpl = savedState["shadeInteractor"]
+		mShadeWindowViewController = savedState["shadeWindowViewController"]
 	}
 
 	override fun onUnloaded() {
@@ -331,6 +341,25 @@ class ScreenGestures(context: Context) : XposedModPack(context) {
 		isDozing = false
 		mLastKGSingleTap = 0L
 		turnedByTTT = false
+		mHooksInstalled = false
+	}
+
+	/**
+	 * Re-registers the hooks that live on the window controller.
+	 *
+	 * On a fresh load this may run before LSPosed can resolve those methods
+	 * (the reason the construction hook waits five seconds); a failure simply
+	 * leaves [mHooksInstalled] false so the delayed install can still do it.
+	 * After a hot reload the classes are long since loaded, so it succeeds.
+	 */
+	private fun reinstallWindowHooks() {
+		if (mHooksInstalled) return
+		val controller = mShadeWindowViewController ?: return
+
+		try {
+			setHooks(controller)
+		} catch (ignored: Throwable) {
+		}
 	}
 
 	private fun showAmbientDisplay(dozeTrigger: Any?) {
@@ -352,12 +381,12 @@ class ScreenGestures(context: Context) : XposedModPack(context) {
 
 	private fun isSingleTap(): Boolean = mLastKGSingleTap + HOLD_DURATION * 2 > SystemClock.uptimeMillis()
 
-	private fun setHooks(param: HookHelper.RunParam) {
-		val mPulsingWakeupGestureHandler = getObjectField(param.thisObject, "mPulsingWakeupGestureHandler") // A13 R18
+	private fun setHooks(controller: Any) {
+		val mPulsingWakeupGestureHandler = getObjectField(controller, "mPulsingWakeupGestureHandler") // A13 R18
 
 		val mListener = getObjectField(mPulsingWakeupGestureHandler, "mListener")
 
-		val mStatusBarStateController = getObjectField(param.thisObject, "mStatusBarStateController")
+		val mStatusBarStateController = getObjectField(controller, "mStatusBarStateController")
 
 		val listenerClass = ReflectedClass.of(mListener?.javaClass)
 
@@ -413,9 +442,9 @@ class ScreenGestures(context: Context) : XposedModPack(context) {
 						SystemUtils.setFlash(true, false)
 						SystemUtils.vibrate(VibrationEffect.EFFECT_TICK, VibrationAttributes.USAGE_ACCESSIBILITY)
 
-						Thread {
+						startTrackedThread("pxn-torch-session") {
 							// if keyguard is dismissed for any reason (face or udfps touch), then:
-							while (turnedByTTT) {
+							while (turnedByTTT && !Thread.currentThread().isInterrupted) {
 								try {
 									SystemUtils.threadSleep(200)
 									if (keyguardNotShowing(mStatusBarKeyguardViewManager)) {
@@ -424,12 +453,14 @@ class ScreenGestures(context: Context) : XposedModPack(context) {
 								} catch (ignored: Throwable) {
 								}
 							}
-						}.start()
+						}
 					}
 				} else if (turnedByTTT) {
 					turnOffTTT()
 				}
 			}
+
+		mHooksInstalled = true
 	}
 
 	private fun isQSExpanded(): Boolean = callMethod(NotificationPanelViewController, "isShadeFullyExpanded") as Boolean

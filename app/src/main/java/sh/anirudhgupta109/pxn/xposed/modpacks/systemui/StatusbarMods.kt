@@ -354,19 +354,9 @@ constructor(context: Context) : XposedModPack(context) {
 		CombineSignalIcons = Xprefs.getBoolean("combinedSignalEnabled", false)
 		wifiVisibleChanged()
 
-		// WHY we check the old value? because if prefs is empty it will fill it up and count an unwanted change
-		if (key.isNotEmpty() && key[0] == "notificationAreaMultiRow") {
-			val newnotificationAreaMultiRow = Xprefs.getBoolean("notificationAreaMultiRow", false)
-			if (newnotificationAreaMultiRow != notificationAreaMultiRow) {
-				SystemUtils.killSelf()
-			}
-		}
-		if (key.isNotEmpty() && key[0] == "multiRowClockBottom") {
-			val newMultiRowClockBottom = Xprefs.getBoolean("multiRowClockBottom", false)
-			if (newMultiRowClockBottom != multiRowClockBottom) {
-				SystemUtils.killSelf()
-			}
-		}
+		// Both of these only move children between containers that already
+		// exist. Re-applying the layout below is enough; killing SystemUI
+		// would lose every transient state for a change that is reversible.
 		notificationAreaMultiRow = Xprefs.getBoolean("notificationAreaMultiRow", false)
 		multiRowClockBottom = Xprefs.getBoolean("multiRowClockBottom", false)
 
@@ -590,6 +580,81 @@ constructor(context: Context) : XposedModPack(context) {
 					}
 				}
 			}
+		}
+
+		// After a hot reload the pack has been reconstructed and its live view
+		// references were restored, but the framework does not replay
+		// `onViewAttached`. Re-running the idempotent view work here is what
+		// makes a hot reload look like a fresh attach. The two row-layout keys
+		// are the ordinary changes that used to restart SystemUI for the same
+		// work; every other setting is applied by its own section above.
+		val needsLiveReapply = key.isEmpty() ||
+			(key.isNotEmpty() && (key[0] == "notificationAreaMultiRow" || key[0] == "multiRowClockBottom"))
+		if (needsLiveReapply && mPhoneStatusbarView != null) {
+			reapplyLiveConfiguration()
+		}
+	}
+
+	/**
+	 * Pushes every setting that lives in the status-bar view tree back onto
+	 * the views. Everything here is written to be safe to run more than once:
+	 * the containers are reordered, not rebuilt.
+	 */
+	private fun reapplyLiveConfiguration() {
+		if (mPhoneStatusbarView == null) return
+
+		repositionExtraRow()
+		updateStatusbarHeight()
+
+		if (AODNIC != null) setObjectField(AODNIC, "maxIcons", NotificationAODIconLimit)
+		if (SBNIC != null) setObjectField(SBNIC, "maxIcons", NotificationIconLimit)
+
+		try {
+			placeClock()
+			updateClock()
+		} catch (ignored: Throwable) {
+		}
+
+		placeNTSB()
+		if (networkOnSBEnabled) {
+			NetworkTraffic.getInstance(mContext, true)?.update()
+		}
+
+		if (BBarEnabled) {
+			placeBatteryBar()
+		}
+		if (BatteryBarView.hasInstance()) {
+			refreshBatteryBar(BatteryBarView.getInstance()!!)
+		}
+
+		if (VolteIconEnabled || VowifiIconEnabled) {
+			initVoData()
+		} else {
+			removeVoDataCallback()
+		}
+
+		if (StatusbarAppSwitchIconEnabled) {
+			if (mAppSwitchStatusbarIcon == null) initSwitchIcon()
+			setSBIcon(APP_SWITCH_SLOT, mAppSwitchStatusbarIconHolder, mAppSwitchStatusbarIcon)
+		} else {
+			removeSBIconSlot(APP_SWITCH_SLOT)
+		}
+
+		updateQSFooterBuildNumber()
+		setHeights()
+	}
+
+	private fun repositionExtraRow() {
+		val split = mLeftVerticalSplitContainer ?: return
+		val extra = mLeftExtraRowContainer ?: return
+
+		if (extra.parent === split) {
+			split.removeView(extra)
+		}
+		if (multiRowClockBottom) {
+			split.addView(extra)
+		} else {
+			split.addView(extra, 0)
 		}
 	}
 
@@ -1275,23 +1340,37 @@ constructor(context: Context) : XposedModPack(context) {
 		mNotificationContainerContainer!!.addView(mNotificationIconContainer!!)
 
 		(mNotificationIconContainer!!.layoutParams as LinearLayout.LayoutParams).weight = 100f
-		mNotificationIconContainer!!.setOnHierarchyChangeListener(object : ViewGroup.OnHierarchyChangeListener {
-			override fun onChildViewAdded(parent: View, child: View) {
-				mNotificationContainerContainer!!.visibility = View.VISIBLE
-				setHeights()
-			}
-
-			override fun onChildViewRemoved(parent: View, child: View) {
-				if (mNotificationIconContainer!!.childCount == 0) {
-					mNotificationContainerContainer!!.visibility = View.GONE
-					setHeights()
-				}
-			}
-		})
+		attachNotificationHierarchyListener()
 
 		(mStatusbarStartSide!!.parent as View).layoutParams.height = ViewGroup.LayoutParams.MATCH_PARENT
 		mStatusbarStartSide!!.layoutParams.height = ViewGroup.LayoutParams.MATCH_PARENT
 		mLeftVerticalSplitContainer!!.layoutParams.height = ViewGroup.LayoutParams.MATCH_PARENT
+	}
+
+	/**
+	 * Re-registers the notification-container observer against the current
+	 * pack instance.
+	 *
+	 * The listener installed by the previous generation closes over that pack,
+	 * so after a reload it is replaced rather than kept.
+	 */
+	private fun attachNotificationHierarchyListener() {
+		val icons = mNotificationIconContainer ?: return
+		val container = mNotificationContainerContainer ?: return
+
+		icons.setOnHierarchyChangeListener(object : ViewGroup.OnHierarchyChangeListener {
+			override fun onChildViewAdded(parent: View, child: View) {
+				container.visibility = View.VISIBLE
+				setHeights()
+			}
+
+			override fun onChildViewRemoved(parent: View, child: View) {
+				if (icons.childCount == 0) {
+					container.visibility = View.GONE
+					setHeights()
+				}
+			}
+		})
 	}
 
 	private fun repositionOngoingChip() {
@@ -2099,6 +2178,87 @@ constructor(context: Context) : XposedModPack(context) {
 		}
 	}
 	//endregion
+
+	override fun onSaveHotReloadState(outState: MutableMap<String, Any?>) {
+		// Framework objects only. Module-owned views (NetworkTraffic,
+		// BatteryBarView) are deliberately not carried over: their classes come
+		// from this generation's loader, so the next generation cannot cast
+		// them. They are remembered as plain Views so the stale copy can be
+		// detached instead of duplicated.
+		outState["phoneStatusbarView"] = mPhoneStatusbarView
+		outState["clockView"] = mClockView
+		outState["systemIconArea"] = mSystemIconArea
+		outState["statusbarStartSide"] = mStatusbarStartSide
+		outState["centeredIconArea"] = mCenteredIconArea
+		outState["notificationIconContainer"] = mNotificationIconContainer
+		outState["notificationContainerContainer"] = mNotificationContainerContainer
+		outState["leftVerticalSplitContainer"] = mLeftVerticalSplitContainer
+		outState["leftExtraRowContainer"] = mLeftExtraRowContainer
+		outState["jetpackClockView"] = mJetpackClockView
+		outState["clockContainer"] = mClockContainer
+		outState["beforeClockView"] = mBeforeClockView
+		outState["afterClockView"] = mAfterClockView
+		outState["aodNic"] = AODNIC
+		outState["sbNic"] = SBNIC
+		outState["iconController"] = mStatusBarIconController
+		outState["commandQueue"] = mCommandQueue
+		outState["tunerService"] = mTunerService
+		outState["activityStarter"] = mActivityStarter
+		outState["buildNumberInteractor"] = buildNumberInteractor
+		outState["originalBuildNumberText"] = originalBuildNumberText
+		outState["currentClockColor"] = currentClockColor
+		outState["statusBarClockVisible"] = mStatusBarClockVisible
+		outState["originalPaddingStart"] = originalPaddingStart
+		outState["originalPaddingEnd"] = originalPaddingEnd
+		outState["isJetpackClock"] = isJetpackClock
+		outState["staleNetworkTraffic"] = networkTrafficSB
+		outState["staleBatteryBar"] = if (BatteryBarView.hasInstance()) BatteryBarView.getInstance() else null
+	}
+
+	override fun onRestoreHotReloadState(savedState: Map<String, Any?>) {
+		mPhoneStatusbarView = savedState["phoneStatusbarView"] as? FrameLayout
+		mClockView = savedState["clockView"] as? TextView
+		mSystemIconArea = savedState["systemIconArea"] as? LinearLayout
+		mStatusbarStartSide = savedState["statusbarStartSide"] as? ViewGroup
+		mCenteredIconArea = savedState["centeredIconArea"] as? View
+		mNotificationIconContainer = savedState["notificationIconContainer"] as? ViewGroup
+		mNotificationContainerContainer = savedState["notificationContainerContainer"] as? LinearLayout
+		mLeftVerticalSplitContainer = savedState["leftVerticalSplitContainer"] as? LinearLayout
+		mLeftExtraRowContainer = savedState["leftExtraRowContainer"] as? LinearLayout
+		mJetpackClockView = savedState["jetpackClockView"] as? View
+		mClockContainer = savedState["clockContainer"] as? LinearLayout
+		mBeforeClockView = savedState["beforeClockView"] as? TextView
+		mAfterClockView = savedState["afterClockView"] as? TextView
+		AODNIC = savedState["aodNic"]
+		SBNIC = savedState["sbNic"]
+		mStatusBarIconController = savedState["iconController"]
+		mCommandQueue = savedState["commandQueue"]
+		mTunerService = savedState["tunerService"]
+		mActivityStarter = savedState["activityStarter"]
+		buildNumberInteractor = savedState["buildNumberInteractor"]
+		originalBuildNumberText = savedState["originalBuildNumberText"] as? String
+		currentClockColor = savedState["currentClockColor"] as? Int ?: currentClockColor
+		mStatusBarClockVisible = savedState["statusBarClockVisible"] as? Boolean ?: true
+		originalPaddingStart = savedState["originalPaddingStart"] as? Int ?: -1
+		originalPaddingEnd = savedState["originalPaddingEnd"] as? Int ?: -1
+		isJetpackClock = savedState["isJetpackClock"] as? Boolean ?: isJetpackClock
+
+		// A view owned by the retired generation is still attached to the live
+		// hierarchy. Removing it here lets the new generation build its own
+		// copy; leaving it would duplicate the indicator.
+		removeStaleView(savedState["staleNetworkTraffic"])
+		removeStaleView(savedState["staleBatteryBar"])
+
+		attachNotificationHierarchyListener()
+		registerCompanionFormatCallback()
+		registerBuildNumberFormatCallback()
+		if (isJetpackClock) scheduleCompanionTick(restart = true)
+	}
+
+	private fun removeStaleView(saved: Any?) {
+		val view = saved as? View ?: return
+		(view.parent as? ViewGroup)?.removeView(view)
+	}
 
 	override fun onUnloaded() {
 		runCatching { mContext.unregisterReceiver(mAppProfileSwitchReceiver) }

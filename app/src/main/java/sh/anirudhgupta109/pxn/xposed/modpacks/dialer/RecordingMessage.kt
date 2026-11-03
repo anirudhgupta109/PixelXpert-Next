@@ -8,7 +8,6 @@ import io.github.libxposed.api.XposedModuleInterface
 import sh.anirudhgupta109.pxn.xposed.XPrefs.Xprefs
 import sh.anirudhgupta109.pxn.xposed.XposedModPack
 import sh.anirudhgupta109.pxn.xposed.annotations.DialerModPack
-import sh.anirudhgupta109.pxn.xposed.utils.SystemUtils
 import sh.anirudhgupta109.pxn.xposed.utils.reflection.ReflectedClass
 import java.io.ByteArrayInputStream
 import java.util.Locale
@@ -22,8 +21,9 @@ import java.util.concurrent.ConcurrentHashMap
  * `TextToSpeech.speak`, so when the toggle is on the announcement is neither
  * read aloud nor played.
  *
- * Flipping the toggle kills the process (the hooks read one static flag), and
- * the typo'd `removeRecodingMessage` field name is kept from the original.
+ * The hooks read one static flag, so flipping the toggle takes effect without
+ * restarting the dialer. The typo'd `removeRecodingMessage` field name is kept
+ * from the original.
  */
 @Suppress("RedundantThrows")
 @DialerModPack
@@ -58,9 +58,6 @@ class RecordingMessage(context: Context) : XposedModPack(context) {
 
 	@Suppress("SENSELESS_COMPARISON")
 	override fun onPreferenceUpdated(vararg key: String?) {
-		if (key.isNotEmpty() && key[0]!!.equals("DialerRemoveRecordMessage")) {
-			SystemUtils.killSelf()
-		}
 		removeRecodingMessage = Xprefs.getBoolean("DialerRemoveRecordMessage", false)
 	}
 
