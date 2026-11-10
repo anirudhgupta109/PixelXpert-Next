@@ -1,3 +1,9 @@
+**canary-542**  
+- Fix right statusbar clock placement on Compose statusbar  
+- Unify screen gestures and ambient tap hooks in view hierarchy and Compose Scene Container  
+- xposed: make mod packs survive hot reload + live apply preferences  
+- Restore notification icon limit via binder hook  
+  
 **canary-541**  
 - Clip QQS brightness slider under translucent notifications  
 - Make cursor icons match colour of navbar pill in ever scenario  
