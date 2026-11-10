@@ -273,6 +273,7 @@ constructor(context: Context) : XposedModPack(context) {
 	private var SBNIC: Any? = null
 	private var mNicView: WeakReference<View>? = null
 	private var mStatusbarStartSide: ViewGroup? = null
+	private var mStatusbarEndSide: ViewGroup? = null
 	private var mCenteredIconArea: View? = null
 	private var mSystemIconArea: LinearLayout? = null
 
@@ -1113,7 +1114,7 @@ constructor(context: Context) : XposedModPack(context) {
 				}
 
 				mStatusbarStartSide = mPhoneStatusbarView!!.findViewById(SystemUtils.idOf("status_bar_start_side_except_heads_up"))
-
+				mStatusbarEndSide = mPhoneStatusbarView!!.findViewById(SystemUtils.idOf("status_bar_end_side_content"))
 				mSystemIconArea = mPhoneStatusbarView!!.findViewById(SystemUtils.idOf("statusIcons"))
 
 				if (isJetpackClock) {
@@ -1677,12 +1678,16 @@ constructor(context: Context) : XposedModPack(context) {
 		try {
 			when (networkTrafficPosition) {
 				POSITION_RIGHT -> {
-					val systemIcons = mSystemIconArea!!.parent as ViewGroup
-					val endSideContent = systemIcons.parent as ViewGroup
-					var insertIndex = endSideContent.indexOfChild(systemIcons)
-					if (insertIndex == -1) insertIndex = 0
-					endSideContent.addView(networkTrafficSB!!, insertIndex)
-					networkTrafficSB!!.setPadding(rightClockPadding, 0, leftClockPadding, 0)
+					val systemIcons = mSystemIconArea?.parent as? ViewGroup
+					val endSideContent = mStatusbarEndSide
+						?: (systemIcons?.parent as? ViewGroup)
+						?: mPhoneStatusbarView?.findViewById(SystemUtils.idOf("status_bar_end_side_content"))
+					if (endSideContent != null) {
+						var insertIndex = if (systemIcons != null) endSideContent.indexOfChild(systemIcons) else 0
+						if (insertIndex == -1) insertIndex = 0
+						endSideContent.addView(networkTrafficSB!!, insertIndex)
+						networkTrafficSB!!.setPadding(rightClockPadding, 0, leftClockPadding, 0)
+					}
 				}
 
 				POSITION_LEFT -> {
@@ -2083,7 +2088,7 @@ constructor(context: Context) : XposedModPack(context) {
 		}
 		if (viewToMove == null) return
 
-		val parent = viewToMove!!.parent as ViewGroup?
+		val parent = viewToMove.parent as ViewGroup?
 		var targetArea: ViewGroup? = null
 		var index: Int? = null
 
@@ -2096,17 +2101,33 @@ constructor(context: Context) : XposedModPack(context) {
 					targetArea = mStatusbarStartSide
 					index = 1
 				}
-				viewToMove!!.setPadding(0, 0, leftClockPadding, 0)
+				viewToMove.setPadding(0, 0, leftClockPadding, 0)
 			}
 
 			POSITION_CENTER -> {
 				targetArea = mCenteredIconArea as ViewGroup?
-				viewToMove!!.setPadding(rightClockPadding, 0, rightClockPadding, 0)
+				viewToMove.setPadding(rightClockPadding, 0, rightClockPadding, 0)
 			}
 
 			POSITION_RIGHT -> {
-				viewToMove!!.setPadding(rightClockPadding, 0, 0, 0)
-				targetArea = mSystemIconArea!!.parent as ViewGroup?
+				viewToMove.setPadding(rightClockPadding, 0, 0, 0)
+				val systemIcons = mSystemIconArea?.parent as? ViewGroup
+				val endSideContent = mStatusbarEndSide
+					?: (systemIcons?.parent as? ViewGroup)
+					?: mPhoneStatusbarView?.findViewById(SystemUtils.idOf("status_bar_end_side_content"))
+
+				val hasComposeEndSide = endSideContent != null && (0 until endSideContent.childCount).any {
+					endSideContent.getChildAt(it)?.javaClass?.name?.endsWith("ComposeView") == true
+				}
+				val isComposeStatusBar = !isLegacyStatusBar ||
+					(systemIcons == null || systemIcons.visibility == View.GONE) ||
+					hasComposeEndSide
+
+				targetArea = if (isComposeStatusBar && endSideContent != null) {
+					endSideContent
+				} else {
+					systemIcons ?: endSideContent
+				}
 				// Leaving index as null appends it to the very end (right-most element)
 			}
 		}
@@ -2118,21 +2139,25 @@ constructor(context: Context) : XposedModPack(context) {
 		val movingCompose = viewToMove == mClockContainer
 		if (movingCompose) isMovingClock = true
 		try {
-			if (parent != null) parent.removeView(viewToMove!!)
+			if (parent != null) parent.removeView(viewToMove)
 
-			if (movingCompose) {
-				(viewToMove!!.layoutParams as? LinearLayout.LayoutParams)?.let { lp ->
-					lp.width = ViewGroup.LayoutParams.WRAP_CONTENT
-					lp.height = ViewGroup.LayoutParams.MATCH_PARENT
-					viewToMove!!.layoutParams = lp
-				}
-			}
+			val lp = (viewToMove.layoutParams as? LinearLayout.LayoutParams)
+				?: LinearLayout.LayoutParams(
+					ViewGroup.LayoutParams.WRAP_CONTENT,
+					ViewGroup.LayoutParams.MATCH_PARENT,
+				)
+			lp.width = ViewGroup.LayoutParams.WRAP_CONTENT
+			lp.height = ViewGroup.LayoutParams.MATCH_PARENT
+			lp.gravity = Gravity.CENTER_VERTICAL
+			viewToMove.layoutParams = lp
+			viewToMove.visibility = View.VISIBLE
 
-			if (index != null) {
-				targetArea.addView(viewToMove!!, index)
+			if (index != null && index <= targetArea.childCount) {
+				targetArea.addView(viewToMove, index)
 			} else {
-				targetArea.addView(viewToMove!!)
+				targetArea.addView(viewToMove)
 			}
+			targetArea.requestLayout()
 		} finally {
 			if (movingCompose) isMovingClock = false
 		}
@@ -2216,6 +2241,7 @@ constructor(context: Context) : XposedModPack(context) {
 		outState["clockView"] = mClockView
 		outState["systemIconArea"] = mSystemIconArea
 		outState["statusbarStartSide"] = mStatusbarStartSide
+		outState["statusbarEndSide"] = mStatusbarEndSide
 		outState["centeredIconArea"] = mCenteredIconArea
 		outState["notificationIconContainer"] = mNotificationIconContainer
 		outState["notificationContainerContainer"] = mNotificationContainerContainer
@@ -2238,6 +2264,7 @@ constructor(context: Context) : XposedModPack(context) {
 		outState["originalPaddingStart"] = originalPaddingStart
 		outState["originalPaddingEnd"] = originalPaddingEnd
 		outState["isJetpackClock"] = isJetpackClock
+		outState["isLegacyStatusBar"] = isLegacyStatusBar
 		outState["staleNetworkTraffic"] = networkTrafficSB
 		outState["staleBatteryBar"] = if (BatteryBarView.hasInstance()) BatteryBarView.getInstance() else null
 	}
@@ -2247,6 +2274,7 @@ constructor(context: Context) : XposedModPack(context) {
 		mClockView = savedState["clockView"] as? TextView
 		mSystemIconArea = savedState["systemIconArea"] as? LinearLayout
 		mStatusbarStartSide = savedState["statusbarStartSide"] as? ViewGroup
+		mStatusbarEndSide = savedState["statusbarEndSide"] as? ViewGroup
 		mCenteredIconArea = savedState["centeredIconArea"] as? View
 		mNotificationIconContainer = savedState["notificationIconContainer"] as? ViewGroup
 		mNotificationContainerContainer = savedState["notificationContainerContainer"] as? LinearLayout
@@ -2269,6 +2297,7 @@ constructor(context: Context) : XposedModPack(context) {
 		originalPaddingStart = savedState["originalPaddingStart"] as? Int ?: -1
 		originalPaddingEnd = savedState["originalPaddingEnd"] as? Int ?: -1
 		isJetpackClock = savedState["isJetpackClock"] as? Boolean ?: isJetpackClock
+		isLegacyStatusBar = savedState["isLegacyStatusBar"] as? Boolean ?: isLegacyStatusBar
 
 		// A view owned by the retired generation is still attached to the live
 		// hierarchy. Removing it here lets the new generation build its own
