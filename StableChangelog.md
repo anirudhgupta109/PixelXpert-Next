@@ -1,11 +1,17 @@
+**6.1.4**  
+- Fix right position for statusbar clock (all three positions work now!)
+- Fix double tap, single tap to ambient wake and other lockscreen gestures (like tap and hold for torch) and made it more version agnostic
+- Hot reload fixes in preparation for the Magisk-less PX-N setup
+- Fix notification icon limit (NOTE: if the camera cutout comes in the way, it won't go past it, it is intentional. Use the ignore camera cutout option in misc if you want it to ignore)
+
+NOTE: If I've missed addressing issues introduced in Sept/Oct/Nov, please let me know again on TG/XDA/GH Issues and I'll get around to it.
+
 **6.1.3**  
 - Add keyboard cursor control while keyboard is open and match the colour of navbar pill
 - Allow customization of QS footer build number
 - Allow customization of position of media player, brightness slider and QS Tiles
 - Fix some bottom brightness slider glitches
 - New translations! ( contribute on https://crowdin.com/project/pixelxpert-next )
-
-[As a reminder: Google has still not given the new SystemUI changes to the P11, so I still can't fix some issues introduced in the September/October build]
 
 **6.1.2**  
 - Allow the battery bar page to open (the code existed I just forgot to hook it into the menus)
