@@ -4,7 +4,6 @@ import sh.anirudhgupta109.pxn.R
 import sh.anirudhgupta109.pxn.ui.prefs.PrefScreen
 import sh.anirudhgupta109.pxn.ui.prefs.node.Category
 import sh.anirudhgupta109.pxn.ui.prefs.node.Illustration
-import sh.anirudhgupta109.pxn.ui.prefs.node.ListPref
 import sh.anirudhgupta109.pxn.ui.prefs.node.SliderPref
 import sh.anirudhgupta109.pxn.ui.prefs.node.SwitchPref
 import sh.anirudhgupta109.pxn.ui.prefs.node.TextPref
@@ -13,35 +12,6 @@ val lock_screen_prefs: PrefScreen = PrefScreen(
 	key = "lock_screen_prefs",
 	nodes = listOf(
 		Illustration(key = "lock_screen_illustration", lottieRawRes = R.raw.lock, ignore = true),
-		Category(
-			title = R.string.depth_wallpaper_options,
-			ignore = true,
-			children = listOf(
-				SwitchPref(
-					key = "DWallpaperEnabled",
-					title = R.string.depth_wallpaper_title,
-					summary = R.string.depth_wallpaper_summary,
-					default = "false",
-				),
-				ListPref(
-					key = "SegmentorAI",
-					title = R.string.depth_wallpaper_ai_model_title,
-					default = "0",
-					entries = R.array.segmentor_ai_model_names,
-					entryValues = R.array.segmentor_ai_model_codes,
-				),
-				SliderPref(
-					key = "DWOpacity",
-					title = R.string.depth_wallpaper_opacity_title,
-					default = "192",
-					min = 25f,
-					max = 255f,
-					step = 1f,
-					valueCount = 1,
-				),
-				SwitchPref(key = "DWonAOD", title = R.string.depth_wallpaper_aod_title, default = "false"),
-			),
-		),
 		Category(
 			title = R.string.fingerprint_options,
 			ignore = true,

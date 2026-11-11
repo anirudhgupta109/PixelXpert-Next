@@ -5,5 +5,4 @@ package sh.anirudhgupta109.pxn;
 // so it reaches us over a binder rather than by calling in-process.
 interface IPixelXpertProxy {
 	String[] runRootCommand(String command);
-	Bitmap extractSubject(in Bitmap input, int method);
 }
