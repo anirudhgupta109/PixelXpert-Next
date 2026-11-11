@@ -4,6 +4,7 @@ Compatibility:
 Pixel Stock Rom:
 17
 17 QPR1
+17 QPR2
 
 If you are updating from previous versions:
 Update your module via module update shortcut in Magisk/KSU, or use the built-in updater located in the app
