@@ -875,6 +875,39 @@ object SystemUIInspector {
 		}
 		powerVolumeItems.add(volumeDialog)
 
+		// ==========================================
+		// 6. MISCELLANEOUS MODULE
+		// ==========================================
+		val miscItems = mutableListOf<TargetAuditItem>()
+		miscItems.add(
+			InspectionUtils.checkMethod(
+				classLoader,
+				"com.android.systemui.clipboardoverlay.ClipboardOverlayView",
+				"setActionChip",
+				"ClipboardOverlayView#setActionChip (Clipboard Smart Action Launch)",
+				utilized = true,
+			),
+		)
+		miscItems.add(
+			InspectionUtils.checkMethod(
+				classLoader,
+				"com.android.systemui.clipboardoverlay.ClipboardOverlayController",
+				"setExpandedView",
+				"ClipboardOverlayController#setExpandedView (Clipboard Smart Actions)",
+				utilized = true,
+				matchPrefix = true,
+			),
+		)
+		miscItems.add(
+			InspectionUtils.checkMethod(
+				classLoader,
+				"com.android.settingslib.mobile.MobileMappings\$Config",
+				"readConfig",
+				"MobileMappings\$Config#readConfig (LTE / 4G Icon)",
+				utilized = true,
+			),
+		)
+
 		val modules = listOf(
 			ModuleAuditResult(
 				moduleName = "Status Bar",
@@ -905,6 +938,12 @@ object SystemUIInspector {
 				packageName = Constants.SYSTEM_UI_PACKAGE,
 				pipelineSummary = "Global Actions & Volume Dialog Pipeline",
 				items = powerVolumeItems,
+			),
+			ModuleAuditResult(
+				moduleName = "Miscellaneous",
+				packageName = Constants.SYSTEM_UI_PACKAGE,
+				pipelineSummary = "SystemUI Clipboard Overlay & Feature Flags Pipeline",
+				items = miscItems,
 			),
 		)
 

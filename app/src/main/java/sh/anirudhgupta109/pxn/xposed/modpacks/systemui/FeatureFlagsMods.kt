@@ -1,6 +1,9 @@
 package sh.anirudhgupta109.pxn.xposed.modpacks.systemui
 
+import android.app.ActivityOptions
+import android.app.RemoteAction
 import android.content.Context
+import android.view.ViewGroup
 import io.github.libxposed.api.XposedModuleInterface
 import sh.anirudhgupta109.pxn.xposed.XPrefs.Xprefs
 import sh.anirudhgupta109.pxn.xposed.XposedModPack
@@ -76,6 +79,41 @@ class FeatureFlagsMods(context: Context) : XposedModPack(context) {
 						"isRemote",
 						true,
 					)
+				}
+			}
+
+		val ClipboardOverlayViewClass = ReflectedClass.ofIfPossible(
+			"com.android.systemui.clipboardoverlay.ClipboardOverlayView",
+		)
+
+		ClipboardOverlayViewClass
+			?.after("setActionChip")
+			?.run { param ->
+				if (!EnableClipboardSmartActions) return@run
+				val action = param.args[0] as? RemoteAction ?: return@run
+				val onFinish = param.args[1]
+				val container = getObjectField(param.thisObject, "mActionContainer") as? ViewGroup ?: return@run
+				val child = container.getChildAt(container.childCount - 1) ?: return@run
+				child.setOnClickListener {
+					try {
+						val options = ActivityOptions.makeBasic()
+						try {
+							val setMode = ActivityOptions::class.java.getMethod(
+								"setPendingIntentBackgroundActivityStartMode",
+								Int::class.javaPrimitiveType,
+							)
+							setMode.invoke(options, 1)
+						} catch (_: Throwable) {}
+						action.actionIntent.send(child.context, 0, null, null, null, null, options.toBundle())
+					} catch (_: Throwable) {
+						try {
+							action.actionIntent.send()
+						} catch (_: Throwable) {}
+					}
+					try {
+						(onFinish as? Runnable)?.run()
+							?: onFinish?.javaClass?.getMethod("run")?.invoke(onFinish)
+					} catch (_: Throwable) {}
 				}
 			}
 
