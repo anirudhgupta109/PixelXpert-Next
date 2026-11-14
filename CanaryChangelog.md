@@ -1,3 +1,8 @@
+**canary-543**  
+- Move to FrameworkModPack and clean up obsolete Telecom server hooks  
+- Decouple ongoing activity chip from Compose clock  
+- Remove depth effect wallpaper  
+  
 **canary-542**  
 - Fix right statusbar clock placement on Compose statusbar  
 - Unify screen gestures and ambient tap hooks in view hierarchy and Compose Scene Container  
