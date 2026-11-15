@@ -1,3 +1,11 @@
+**canary-544**  
+- Remove clock area custom text for lockscreen  
+- Fix notification icon limit on AOD  
+- Add QPR3 beta to build filters  
+- Fix support for forced taskbar  
+- Fix volume tile long click and update AlertSlider SystemUIDialog compatibility  
+- restore secure-content capture  
+  
 **canary-543**  
 - Move to FrameworkModPack and clean up obsolete Telecom server hooks  
 - Decouple ongoing activity chip from Compose clock  
