@@ -1,6 +1,9 @@
-- Fix right position for statusbar clock (all three positions work now!)
-- Fix double tap, single tap to ambient wake and other lockscreen gestures (like tap and hold for torch) and made it more version agnostic
-- Hot reload fixes in preparation for the Magisk-less PX-N setup
-- Fix notification icon limit (NOTE: if the camera cutout comes in the way, it won't go past it, it is intentional. Use the ignore camera cutout option in misc if you want it to ignore)
-
-NOTE: If I've missed addressing issues introduced in Sept/Oct/Nov, please let me know again on TG/XDA/GH Issues and I'll get around to it.
+- Remove depth effect wallpaper (Use alternatives like https://github.com/Mahmud0808/XMorphClock made by the original co-creator of the depth effect mod in PX)
+- Decouple ongoing activity chip from the clock container (this was a complicated fix but glad that I found a way to achieve it)
+- Fix vibrate on call connect/disconnect
+- Fix screen capture on apps that block it
+- Fix volume QS tile long click and adapt to newer SysUI implementation
+- Fix forced taskbar support
+- Add QPR3 Beta to the flashable builds (there are still no guaraantees of it working perfectly, proceed with caution)
+- Fix notification icon limit on AOD
+- Remove lockscreen clock area custom text (it is no longer possible to achieve this)
