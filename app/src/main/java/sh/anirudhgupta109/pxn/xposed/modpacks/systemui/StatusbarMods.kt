@@ -387,7 +387,10 @@ constructor(context: Context) : XposedModPack(context) {
 			setObjectField(SBNIC, "maxIcons", NotificationIconLimit)
 		}
 		mAodNicView?.get()?.let { nic ->
-			runCatching { setObjectField(nic, "mMaxIcons", aodIconLimit) }
+			runCatching {
+				setObjectField(nic, "mMaxIcons", aodIconLimit)
+				nic.post { nic.requestLayout() }
+			}
 		}
 		mNicView?.get()?.let { nic ->
 			runCatching { setObjectField(nic, "mMaxIcons", NotificationIconLimit) }
@@ -626,7 +629,10 @@ constructor(context: Context) : XposedModPack(context) {
 		if (AODNIC != null) setObjectField(AODNIC, "maxIcons", aodIconLimit)
 		if (SBNIC != null) setObjectField(SBNIC, "maxIcons", NotificationIconLimit)
 		mAodNicView?.get()?.let { nic ->
-			runCatching { setObjectField(nic, "mMaxIcons", aodIconLimit) }
+			runCatching {
+				setObjectField(nic, "mMaxIcons", aodIconLimit)
+				nic.post { nic.requestLayout() }
+			}
 		}
 		mNicView?.get()?.let { nic ->
 			runCatching { setObjectField(nic, "mMaxIcons", NotificationIconLimit) }
@@ -946,7 +952,10 @@ constructor(context: Context) : XposedModPack(context) {
 						?: runCatching { getObjectField(param.thisObject, "\$view") as? View }.getOrNull()
 				if (view != null) {
 					mAodNicView = WeakReference(view)
-					runCatching { setObjectField(view, "mMaxIcons", aodIconLimit) }
+					runCatching {
+						setObjectField(view, "mMaxIcons", aodIconLimit)
+						view.post { view.requestLayout() }
+					}
 				}
 			}
 
@@ -1055,16 +1064,35 @@ constructor(context: Context) : XposedModPack(context) {
 		// bypassing the max icon limit during measurement
 		NotificationIconContainerClass
 			.before("onMeasure")
-			.run { param -> setObjectField(param.thisObject, "mIsStaticLayout", false) }
+			.run { param ->
+				if (param.thisObject == mNotificationIconContainer ||
+					(mNotificationIconContainer == null && (param.thisObject as? View)?.id == SystemUtils.idOf("notificationIcons"))
+				) {
+					setObjectField(param.thisObject, "mIsStaticLayout", false)
+				}
+			}
 
 		NotificationIconContainerClass
 			.after("onMeasure")
-			.run { param -> setObjectField(param.thisObject, "mIsStaticLayout", true) }
+			.run { param ->
+				if (param.thisObject == mNotificationIconContainer ||
+					(mNotificationIconContainer == null && (param.thisObject as? View)?.id == SystemUtils.idOf("notificationIcons"))
+				) {
+					if (mNotificationIconContainer == null) {
+						mNotificationIconContainer = param.thisObject as? ViewGroup
+					}
+					setObjectField(param.thisObject, "mIsStaticLayout", true)
+				}
+			}
 
 		NotificationIconContainerClass
 			.before("isOverflowing")
 			.run { param ->
-				if (param.thisObject == mAodNicView?.get()) {
+				if (aodIconLimit > 0 && (
+						param.thisObject == mAodNicView?.get() ||
+							runCatching { getObjectField(param.thisObject, "mLogTag") as? String }.getOrNull() == "aod"
+						)
+				) {
 					param.result = false
 				}
 			}
