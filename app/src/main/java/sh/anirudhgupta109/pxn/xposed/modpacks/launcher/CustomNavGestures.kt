@@ -313,7 +313,11 @@ class CustomNavGestures(context: Context) : XposedModPack(context) {
 	}
 
 	private fun goBack() {
-		callMethod(mSystemUIProxy, "onBackPressed")
+		try {
+			callMethod(mSystemUIProxy, "onKeyEvent", 4, 0)
+		} catch (_: Throwable) {
+			callMethod(mSystemUIProxy, "onBackPressed")
+		}
 	}
 
 	private fun startOneHandedMode() {
