@@ -1,3 +1,9 @@
+**canary-545**  
+- Defer wakeUpFromWakeKey until single/long/double power gesture resolves  
+- Use getMaxMultiPressCount and read beganFromNonInteractive to prevent locking unlocked screen for gestures  
+- Fix FaceDownDetector activation and configure standby time  
+- Prevent container measurement side effects and ensure immediate AOD relayout  
+  
 **canary-544**  
 - Remove clock area custom text for lockscreen  
 - Fix notification icon limit on AOD  
