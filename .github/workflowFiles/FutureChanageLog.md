@@ -1,9 +1,5 @@
-- Remove depth effect wallpaper (Use alternatives like https://github.com/Mahmud0808/XMorphClock made by the original co-creator of the depth effect mod in PX)
-- Decouple ongoing activity chip from the clock container (this was a complicated fix but glad that I found a way to achieve it)
-- Fix vibrate on call connect/disconnect
-- Fix screen capture on apps that block it
-- Fix volume QS tile long click and adapt to newer SysUI implementation
-- Fix forced taskbar support
-- Add QPR3 Beta to the flashable builds (there are still no guaraantees of it working perfectly, proceed with caution)
-- Fix notification icon limit on AOD
-- Remove lockscreen clock area custom text (it is no longer possible to achieve this)
+- Some minor fixes for notification icon limit on AOD
+- Fully rework "Turn off screen on flat surface" and allow configuration of laying flat -> screen off time
+- Fix double press power gesture on screen on locking device when unlocked
+- Fix screen flicker when using screen off gestures on power button
+- Fix Quick QS panel pulldown gesture being inconsistent
