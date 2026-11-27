@@ -869,6 +869,26 @@ object SystemUIInspector {
 			),
 		)
 
+		gesturesItems.add(
+			InspectionUtils.checkMethod(
+				classLoader,
+				"com.android.wm.shell.windowdecor.caption.apphandle.AppHandleController",
+				"relayout",
+				"AppHandleController#relayout (Hide App Handle)",
+				utilized = true,
+			),
+		)
+
+		gesturesItems.add(
+			InspectionUtils.checkMethod(
+				classLoader,
+				"com.android.wm.shell.windowdecor.caption.apphandle.AppHandleViewHolder",
+				"bindData",
+				"AppHandleViewHolder#bindData (Hide App Handle)",
+				utilized = true,
+			),
+		)
+
 		// ==========================================
 		// 5. POWER & VOLUME MODULE
 		// ==========================================

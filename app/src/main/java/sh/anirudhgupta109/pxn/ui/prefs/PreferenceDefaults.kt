@@ -44,6 +44,7 @@ val preferenceDefaults: Map<String, String?> = mapOf(
 	"GesPillWidthModPos" to "50",
 	"GoogleSettingsDesign" to "false",
 	"HeadupAutoDismissNotificationDecay" to "5000",
+	"HideAppHandle" to "false",
 	"HideLockScreenUserAvatar" to "false",
 	"HideNavbar" to "false",
 	"HideNavbarInsets" to "false",

@@ -318,6 +318,8 @@
     <string name="allow_all_screen_rotations">Force-unlock all screen rotations</string>
     <string name="allow_all_screen_rotations_summary">Will also ignore manual rotation floating button</string>
     <string name="force_no_cutout">Ignore the camera cutout</string>
+    <string name="hide_app_handle_title">Hide desktop app handle</string>
+    <string name="hide_app_handle_summary">Hides the desktop-windowing pill handle drawn at the top of apps</string>
     <string name="clear_all_reposition_title">Add an accessible clear-all button to recents page</string>
     <string name="force_themed_icons_title">Auto-generate missing themed icons</string>
     <string name="force_themed_icons_summary">Pixel launcher only</string>

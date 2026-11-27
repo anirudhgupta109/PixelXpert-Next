@@ -89,6 +89,12 @@ val misc_prefs: PrefScreen = PrefScreen(
 					summaryOn = R.string.general_on,
 					summaryOff = R.string.general_off,
 				),
+				SwitchPref(
+					key = "HideAppHandle",
+					title = R.string.hide_app_handle_title,
+					summary = R.string.hide_app_handle_summary,
+					default = "false",
+				),
 				SliderPref(
 					key = "BrightnessRange",
 					title = R.string.brightness_range_title,
