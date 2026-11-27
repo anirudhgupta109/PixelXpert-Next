@@ -1,3 +1,10 @@
+**6.1.6**  
+- Some minor fixes for notification icon limit on AOD
+- Fully rework "Turn off screen on flat surface" and allow configuration of laying flat -> screen off time
+- Fix double press power gesture on screen on locking device when unlocked
+- Fix screen flicker when using screen off gestures on power button
+- Fix Quick QS panel pulldown gesture being inconsistent
+
 **6.1.5**  
 - Remove depth effect wallpaper (Use alternatives like https://github.com/Mahmud0808/XMorphClock made by the original co-creator of the depth effect mod in PX)
 - Decouple ongoing activity chip from the clock container (this was a complicated fix but glad that I found a way to achieve it)
